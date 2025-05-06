@@ -14,6 +14,9 @@ import { Theme1 } from '@fizz/paramanifest';
 // @public (undocumented)
 export function arrayEqualsBy<L, R>(by: (lhs: L, rhs: R) => boolean, lhs: L[], rhs: R[]): boolean;
 
+// @public (undocumented)
+export type AxisOrientation = 'horiz' | 'vert';
+
 // @public
 export abstract class Box<T extends Datatype> {
     constructor(raw: string);
@@ -95,6 +98,10 @@ export class Model {
     protected _facetMap: Record<string, Facet>;
     // (undocumented)
     readonly facets: FacetSignature[];
+    // (undocumented)
+    getAxisFacet(orientation: AxisOrientation): Facet | null;
+    // (undocumented)
+    getFacet(key: string): Facet | null;
     // Warning: (ae-forgotten-export) The symbol "FacetStats" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)

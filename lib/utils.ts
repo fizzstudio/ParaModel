@@ -16,6 +16,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { zip } from "@fizz/chart-classifier-utils";
 
+export type AxisOrientation = 'horiz' | 'vert';
+
 // ID Generation
 
 /**

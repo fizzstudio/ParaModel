@@ -17,7 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import { Memoize } from 'typescript-memoize';
 import { AllSeriesData, Dataset, Datatype, DisplayType, Facet, Manifest } from "@fizz/paramanifest";
 
-import { arrayEqualsBy, enumerate } from "./utils";
+import { arrayEqualsBy, AxisOrientation, enumerate } from "./utils";
 import { FacetSignature } from "./dataframe/dataframe";
 import { Box, BoxSet } from "./dataframe/box";
 import { calculateFacetStats, FacetStats } from "./metadata";
@@ -166,6 +166,7 @@ export class Model {
     }
   }
 
+  @Memoize()
   public atKey(key: string): Series | null {
     return this.keyMap[key] ?? null;
   }
@@ -174,6 +175,7 @@ export class Model {
     return this.atKey(key)?.[index] ?? null;
   }
 
+  @Memoize()
   public allFacetValues(key: string): Box<Datatype>[] | null {
     return this.uniqueValuesForFacet[key]?.values ?? null;
   }
@@ -186,6 +188,19 @@ export class Model {
       return null;
     }
     return calculateFacetStats(key, this.allPoints);
+  }
+
+  @Memoize()
+  public getAxisFacet(orientation: AxisOrientation): Facet | null {
+    if (orientation === 'horiz') {
+      return this._horizontalAxisFacetKey ? this._facetMap[this._horizontalAxisFacetKey] : null;
+    }
+    return this._verticalAxisFacetKey ? this._facetMap[this._verticalAxisFacetKey] : null;
+  }
+
+  @Memoize()
+  public getFacet(key: string): Facet | null {
+    return this._facetMap[key] ?? null;
   }
 }
 
