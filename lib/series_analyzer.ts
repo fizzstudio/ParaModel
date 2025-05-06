@@ -13,22 +13,3 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
-
-interface SingleSeriesMetadataAnalyzer {
-  /** Basic time series statistics */
-  getStats(): SeriesStats;
-  /** Measure of variability in data */
-  getVolatility()?: number;
-  /** Area under the series */
-  getArea()?: number;
-  /** Message of entire time series */
-  getMessage()?: Category | null;
-  /** Indices of sequences that form the message */
-  getMessageSeqs()?: number[];
-  /** Segment (i.e., adjacent pairs of points) info */
-  getSegments()?: SegmentInfo[];
-  /** Run info */
-  getRuns()?: RunInfo[];
-  /** Sequence info */
-  getSequences()?: SequenceInfo[];
-}

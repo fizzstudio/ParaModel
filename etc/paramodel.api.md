@@ -7,6 +7,7 @@
 import { AllSeriesData } from '@fizz/paramanifest';
 import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
+import { Facet } from '@fizz/paramanifest';
 import { Manifest } from '@fizz/paramanifest';
 import { Theme1 } from '@fizz/paramanifest';
 
@@ -73,23 +74,33 @@ export type FacetSignature = {
 
 // @public (undocumented)
 export class Model {
-    constructor(series: Series[]);
+    constructor(series: Series[], manifest: Manifest);
     // (undocumented)
     [i: number]: Series;
     // (undocumented)
     allFacetValues(key: string): Box<Datatype>[] | null;
     // (undocumented)
+    readonly allPoints: DataPoint[];
+    // (undocumented)
     atKey(key: string): Series | null;
     // (undocumented)
     atKeyAndIndex(key: string, index: number): DataPoint | null;
     // (undocumented)
+    protected _axisFacetKeys: string[];
+    // (undocumented)
     protected datatypeMap: Record<string, Datatype>;
     // (undocumented)
+    protected _facetKeys: string[];
+    // (undocumented)
+    protected _facetMap: Record<string, Facet>;
+    // (undocumented)
     readonly facets: FacetSignature[];
-    // Warning: (ae-forgotten-export) The symbol "ChartFacetStats" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "FacetStats" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    getFacetStats(key: string): ChartFacetStats | null;
+    getFacetStats(key: string): FacetStats | null;
+    // (undocumented)
+    protected _horizontalAxisFacetKey: string | null;
     // (undocumented)
     protected keyMap: Record<string, Series>;
     // (undocumented)
@@ -100,13 +111,15 @@ export class Model {
     readonly numSeries: number;
     // (undocumented)
     readonly series: Series[];
+    // (undocumented)
+    protected _verticalAxisFacetKey: string | null;
 }
 
 // @public (undocumented)
-export function modelFromAllSeriesData(data: AllSeriesData, facets: FacetSignature[]): Model;
+export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): Model;
 
 // @public (undocumented)
-export function modelFromManifest(manifest: Manifest): Model;
+export function modelFromInlineData(manifest: Manifest): Model;
 
 // @public (undocumented)
 export class Series {
