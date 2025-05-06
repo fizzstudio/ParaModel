@@ -62,10 +62,14 @@ export class DataPoint {
 // @public (undocumented)
 export function enumerate<T>(iterable: Iterable<T>): [T, number][];
 
-// Warning: (ae-forgotten-export) The symbol "FacetSignature" needs to be exported by the entry point index.d.ts
-//
 // @public (undocumented)
 export function facetsFromDataset(dataset: Dataset): FacetSignature[];
+
+// @public (undocumented)
+export type FacetSignature = {
+    key: string;
+    datatype: Datatype;
+};
 
 // @public (undocumented)
 export class Model {
