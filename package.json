@@ -68,6 +68,7 @@
   "dependencies": {
     "@fizz/chart-classifier-utils": "^0.16.0",
     "@fizz/paramanifest": "^0.3.0",
+    "simple-statistics": "^7.8.8",
     "typescript-memoize": "^1.1.1"
   }
 }
