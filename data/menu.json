@@ -1,0 +1,95 @@
+[
+  {
+    "id": "soup",
+    "label": "Soups",
+    "items": [
+      {
+        "name": "Tomato Basil Soup",
+        "desc": "Fresh pureed tomato soup with real butter, fresh basil leaves, and heavy cream",
+        "price": "$8.95"
+      },
+      {
+        "name": "Squash Puree Soup",
+        "desc": "Squash blended with garam masala, coconut cream, and fresh tomato, garnished with pumpkin seeds",
+        "price": "$7.95"
+      },
+      {
+        "name": "Broccoli Cheese Soup",
+        "desc": "Chopped broccoli and cheddar cheese, with sliced mushrooms and onions sauted in white wine",
+        "price": "$7.95"
+      },
+      {
+        "name": "Organic Garden Vegetable Soup",
+        "desc": "Chef's selection of locally-sourced organic seasonal garden vegetables and pearled barley, simmered in a flavorful tomato broth with garlic and basil",
+        "price": "$9.95"
+      }
+    ]
+  },
+  {
+    "id": "salad",
+    "label": "Salads",
+    "items": [
+      {
+        "name": "Simple Salad",
+        "desc": "Arugula, cherry tomatoes, cucumbers, red onions, crunchy hemp seeds, and a balsamic vinaigrette",
+        "price": "$6.95"
+      },
+      {
+        "name": "Fresh Tahini Salad",
+        "desc": "Arugula, cherry tomatoes, cucumbers, and a creamy tahini dressing",
+        "price": "$5.95"
+      },
+      {
+        "name": "Arugula And Parmesan",
+        "desc": "Arugula, fresh parmesan, sweet mustard vinaigrette",
+        "price": "$6.95"
+      },
+      {
+        "name": "Taco Salad",
+        "desc": "Arugula, red onions, cherry tomatoes, crispy tamales, fresh avocado, and our guassacaca dressing",
+        "price": "$7.95"
+      }
+    ]
+  },
+  {
+    "id": "main",
+    "label": "Mains",
+    "items": [
+      {
+        "name": "Yellow Coconut Curry",
+        "desc": "Yellow curry with roasted rainbow carrots, kabocha squash, yams, butternut squash, cauliflower, zucchini, and brown rice in a sweet yellow coconut curry sauce",
+        "price": "$22.00"
+      },
+      {
+        "name": "Pumpkin Curry",
+        "desc": "Savory and medium spiced japanese sweet pumpkin curry with roasted rainbow carrots, kabocha squash, yams, butternut squash, cauliflower, zucchini, and brown rice",
+        "price": "$22.00"
+      },
+      {
+        "name": "Garlic Roasted Vegetables",
+        "desc": "Our garlic roasted vegetables with braised spinach and brown rice, served with a side of our tahini or white sauce",
+        "price": "$19.00"
+      },
+      {
+        "name": "Faux Orange Chicken",
+        "desc": "Breaded cauliflower florets, bell peppers, onions, zucchini, and mushrooms tossed in a sweet orange glaze served over brown rice",
+        "price": "$23.00"
+      },
+      {
+        "name": "Grilled Cheese Tomato Soup Combo",
+        "desc": "Grilled muenster and cheddar cheese sandwich on multigrain wheat bowl of tomato basil soup",
+        "price": "$12.95"
+      },
+      {
+        "name": "Spinach Veggie Wrap",
+        "desc": "Organic wheat wrap with mushrooms, organic spinach, asiago, guacamole, pico de gallo, salsa on the side",
+        "price": "$9.95"
+      },
+      {
+        "name": "Veggie Burger",
+        "desc": "Vegan beef burger on a brioche bun with smoked applewood cheddar, tomato, argula, and garlic pickle slices",
+        "price": "$10.95"
+      }
+    ]
+  }
+]
