@@ -1,3 +1,3 @@
 
-export { MenuMaker } from './menumaker';
-export { MenuItem } from './menuitem';
+export { DataPoint, XYDatapoint, Series, Model } from './model';
+export { strToId, enumerate, arrayEqualsBy } from './utils';
