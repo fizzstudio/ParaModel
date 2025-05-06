@@ -13,6 +13,33 @@ import { Theme1 } from '@fizz/paramanifest';
 // @public (undocumented)
 export function arrayEqualsBy<L, R>(by: (lhs: L, rhs: R) => boolean, lhs: L[], rhs: R[]): boolean;
 
+// @public
+export abstract class Box<T extends Datatype> {
+    constructor(raw: string);
+    // (undocumented)
+    abstract convertRaw(raw: string): ScalarMap[T];
+    // (undocumented)
+    abstract isDate(): this is {
+        value: CalendarPeriod;
+    };
+    // (undocumented)
+    abstract isEqual(other: Box<T>): boolean;
+    // (undocumented)
+    abstract isNumber(): this is {
+        value: number;
+    };
+    // (undocumented)
+    abstract isString(): this is {
+        value: string;
+    };
+    // (undocumented)
+    readonly raw: string;
+    // Warning: (ae-forgotten-export) The symbol "ScalarMap" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readonly value: ScalarMap[T];
+}
+
 // @public (undocumented)
 export class DataPoint {
     constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number);
@@ -22,14 +49,10 @@ export class DataPoint {
     protected data: DataFrameRow;
     // (undocumented)
     datapointIndex: number;
-    // Warning: (ae-forgotten-export) The symbol "Box" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     entries(): Iterable<[string, Box<Datatype>]>;
     // (undocumented)
     facetBox(key: string): Box<Datatype> | null;
-    // Warning: (ae-forgotten-export) The symbol "ScalarMap" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     facetValue(key: string): ScalarMap[Datatype] | null;
     // (undocumented)
@@ -125,6 +148,10 @@ export class XYDatapoint extends DataPoint {
     // (undocumented)
     get y(): Box<Datatype>;
 }
+
+// Warnings were encountered during analysis:
+//
+// lib/dataframe/box.ts:46:31 - (ae-forgotten-export) The symbol "CalendarPeriod" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
