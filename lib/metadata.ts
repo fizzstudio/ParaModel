@@ -15,24 +15,33 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import * as ss from 'simple-statistics';
+import { DataPoint } from './series';
 
-export interface ChartFacetStats {
-  min: number;
-  max: number;
+export interface DatapointsAtValue {
+  value: number;
+  datapoints: DataPoint[];
+}
+
+export interface FacetStats {
+  min: DatapointsAtValue;
+  max: DatapointsAtValue;
   range: number;
   mean: number;
   median: number;
   mode: number;
 }
 
-export function calculateWholeChartFacetStats(facetValues: number[]): ChartFacetStats {
-  const min = Math.min(...facetValues);
-  const max = Math.max(...facetValues);
+export function calculateFacetStats(facetKey: string, datapoints: DataPoint[]): FacetStats {
+  const facetValues = datapoints.map((point) => point.facetValue(facetKey) as number);
+  const minValue = Math.min(...facetValues);
+  const maxValue = Math.max(...facetValues);
+  const pointsAtMin = datapoints.filter((point) => (point.facetValue(facetKey) as number) === minValue);
+  const pointsAtMax = datapoints.filter((point) => (point.facetValue(facetKey) as number) === maxValue);
 
   return {
-    min,
-    max,
-    range: max - min,
+    min: { value: minValue, datapoints: pointsAtMin },
+    max: { value: maxValue, datapoints: pointsAtMax },
+    range: maxValue - minValue,
     mean: ss.mean(facetValues),
     median: ss.median(facetValues),
     mode: ss.mode(facetValues)

@@ -16,6 +16,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { zip } from "@fizz/chart-classifier-utils";
 
+// ID Generation
+
 /**
  * Takes a string and normalizes it, stripping it of any non-alphanum characters and replacing its 
  *   whitespaces with underscores, so that can can serve as a DOM id.

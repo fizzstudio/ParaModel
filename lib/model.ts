@@ -15,122 +15,13 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from 'typescript-memoize';
-import { AllSeriesData, Dataset, Datatype, Manifest, Series as SeriesManifest, Theme1 as Theme } from "@fizz/paramanifest";
+import { AllSeriesData, Dataset, Datatype, DisplayType, Facet, Manifest } from "@fizz/paramanifest";
 
-import { arrayEqualsBy, enumerate, strToId } from "./utils";
-import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint } from "./dataframe/dataframe";
-import { Box, BoxSet, ScalarMap } from "./dataframe/box";
-import { calculateWholeChartFacetStats, ChartFacetStats } from "./metadata";
-
-export class DataPoint {
-  constructor(protected data: DataFrameRow, public seriesKey: string, public datapointIndex: number) { }
-
-  public entries(): Iterable<[string, Box<Datatype>]> {
-    return Object.entries(this.data)[Symbol.iterator]();
-  }
-
-  public facetBox(key: string): Box<Datatype> | null {
-    return this.data[key] ?? null;
-  }
-
-  public facetValue(key: string): ScalarMap[Datatype] | null {
-    return this.data[key].value ?? null;
-  }
-}
-
-export class XYDatapoint extends DataPoint {
-  constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number) {
-    super(data, seriesKey, datapointIndex);
-    if (!('x' in data) || !('y' in data)) {
-      throw new Error('`XYDatapointDF` must contain `x` and `y` facets')
-    }
-  }
-
-  get x(): Box<Datatype> {
-    return this.data.x;
-  }
-
-  get y(): Box<Datatype> {
-    return this.data.y;
-  }
-}
-
-export class Series {
-  [i: number]: DataPoint;
-  public readonly length: number;
-  public readonly id: string;
-  public readonly label: string;
-  public readonly theme?: Theme;
-
-  private readonly dataframe: DataFrame;
-  private readonly uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
-  private readonly datapoints: DataPoint[] = [];
-
-  /*protected xMap: Map<ScalarMap[X], number[]>;
-  private yMap: Map<number, ScalarMap[X][]>;*/
-  constructor(
-    public readonly key: string, 
-    public readonly rawData: RawDataPoint[], 
-    public readonly facets: FacetSignature[],
-    label?: string,
-    theme?: Theme
-  ) {
-    this.dataframe = new DataFrame(facets);
-    this.facets.forEach((facet) => this.uniqueValuesForFacet[facet.key] = new BoxSet<Datatype>);
-    this.rawData.forEach((datapoint) => this.dataframe.addDatapoint(datapoint));
-    this.dataframe.rows.forEach((row, index) => {
-      const datapoint = new DataPoint(row, this.key, index);
-      this[index] = datapoint;
-      this.datapoints.push(datapoint);
-      Object.keys(row).forEach(
-        (facetKey) => this.uniqueValuesForFacet[facetKey].add(row[facetKey])
-      );
-    });
-    /*this.xMap = mapDatapointsXtoY(this.datapoints);
-    this.yMap = mapDatapointsYtoX(this.datapoints);*/
-    this.length = this.rawData.length;
-    this.id = strToId(this.key); // TODO: see if we need to make this more unique
-    this.label = label ?? this.key;
-    if (theme) {
-      this.theme = theme;
-    }
-  }
-
-  public facet(key: string): DataFrameColumn<Datatype> | null {
-    return this.dataframe.facet(key);
-  }
-
-  public allFacetValues(key: string): Box<Datatype>[] | null {
-    return this.uniqueValuesForFacet[key]?.values ?? null;
-  }
-
-  /*atX(x: ScalarMap[X]): number[] | null {
-    return this.xMap.get(x) ?? null;
-  }
-
-  atY(y: number): ScalarMap[X][] | null {
-    return this.yMap.get(y) ?? null;
-  }*/
-
-  [Symbol.iterator](): Iterator<DataPoint> {
-    return this.datapoints[Symbol.iterator]();
-  }
-}
-
-export function seriesFromSeriesManifest(
-  seriesManifest: SeriesManifest, facets: FacetSignature[]
-): Series {
-  if (!seriesManifest.records) {
-    throw new Error('only series manifests with inline data can use this method.');
-  }
-  return new Series(
-    seriesManifest.key, 
-    seriesManifest.records!, 
-    facets, 
-    seriesManifest.label,
-    seriesManifest.theme
-  );
-}
+import { arrayEqualsBy, enumerate } from "./utils";
+import { FacetSignature } from "./dataframe/dataframe";
+import { Box, BoxSet } from "./dataframe/box";
+import { calculateFacetStats, FacetStats } from "./metadata";
+import { DataPoint, Series, seriesFromSeriesManifest } from './series';
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
@@ -140,26 +31,74 @@ export class Model {
   public readonly facets: FacetSignature[];
   public readonly multi: boolean;
   public readonly numSeries: number;
+  public readonly allPoints: DataPoint[] = [];
 
   protected keyMap: Record<string, Series> = {};
   protected datatypeMap: Record<string, Datatype> = {};
   private uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
 
-  /*public readonly xs: ScalarMap[X][];
-  public readonly ys: number[];
-  public readonly allPoints: Datapoint2D<X>[]*/
+  protected _facetKeys: string[] = [];
+  protected _facetMap: Record<string, Facet> = {};
+  protected _axisFacetKeys: string[] = [];
+  protected _horizontalAxisFacetKey: string | null = null;
+  protected _verticalAxisFacetKey: string | null = null;
+  private _displayTypeForFacet: Record<string, DisplayType | undefined> = {}; // FIXME: remove `| undefined`
 
-  constructor(public readonly series: Series[]) {
+  private dataset: Dataset;
+
+  /*public readonly xs: ScalarMap[X][];
+  public readonly ys: number[];*/
+
+  constructor(public readonly series: Series[], manifest: Manifest) {
     if (this.series.length === 0) {
       throw new Error('models must have at least one series');
     }
-    this.multi = this.series.length > 1;
-    this.numSeries = this.series.length;
+    this.dataset = manifest.datasets[0];
+
+    // Facets
     this.facets = this.series[0].facets;
     this.facets.forEach((facet) => {
+      this._facetKeys.push(facet.key);
       this.uniqueValuesForFacet[facet.key] = new BoxSet<Datatype>;
       this.datatypeMap[facet.key] = facet.datatype;
     });
+    this._facetKeys.forEach((key) => {
+      const facetManifest = this.dataset.facets[key];
+      this._displayTypeForFacet[key] = facetManifest.displayType;
+      this._facetMap[key] = facetManifest;
+      if (facetManifest.displayType?.type === 'axis') { // FIXME: remove `?`
+        this._axisFacetKeys.push(key);
+        if (facetManifest.displayType!.orientation === 'horizontal') {
+          if (this._horizontalAxisFacetKey === null) {
+            this._horizontalAxisFacetKey = key;
+          } else {
+            throw new Error('only one horizontal axis per chart');
+          }
+        } else {
+          if (this._verticalAxisFacetKey === null) {
+            this._verticalAxisFacetKey = key;
+          } else {
+            throw new Error('only one vertical axis per chart');
+          }
+        }
+      }
+    });
+    if (this._axisFacetKeys.length !== 0 && this._axisFacetKeys.length !== 2) {
+      throw new Error('charts must either have 2 or 0 axes')
+    }
+    if (this._horizontalAxisFacetKey === null || this._verticalAxisFacetKey === null) {
+      //this.setDefaultAxes();
+    }
+    //////////////////////// TEMP //////////////////////////////////////////
+    this._displayTypeForFacet['x'] = {type: 'axis', orientation: 'horizontal'};
+    this._horizontalAxisFacetKey = 'x';
+    this._displayTypeForFacet['y'] = {type: 'axis', orientation: 'vertical'};
+    this._verticalAxisFacetKey = 'y';
+    ////////////////////////////////////////////////////////////////////////
+
+    // Series
+    this.multi = this.series.length > 1;
+    this.numSeries = this.series.length;
     for (const [aSeries, seriesIndex] of enumerate(this.series)) {
       if (this.keys.includes(aSeries.key)) {
         throw new Error('every series in a model must have a unique key');
@@ -173,10 +112,12 @@ export class Model {
       this.keys.push(aSeries.key);
       this[seriesIndex] = aSeries;
       this.keyMap[aSeries.key] = aSeries;
+      this.allPoints.push(...aSeries);
       Object.keys(this.uniqueValuesForFacet).forEach((facetKey) => {
         this.uniqueValuesForFacet[facetKey].merge(aSeries.allFacetValues(facetKey)!);
       });
     }
+
     /*this.xs = mergeUniqueBy(
       (lhs, rhs) => xDatatype === 'date'
         ? calendarEquals(lhs as CalendarPeriod, rhs as CalendarPeriod)
@@ -190,8 +131,39 @@ export class Model {
     this.boxedYs = mergeUniqueBy(
       (lhs: Box<'number'>, rhs: Box<'number'>) => lhs.raw === rhs.raw,
       ...this.series.map((series) => series.boxedYs)
+    );*/
+
+  }
+
+  private setDefaultAxes(): void {
+    const independentAxes = this._axisFacetKeys.filter(
+      (key) => this.dataset.facets[key].variableType === 'independent'
     );
-    this.allPoints = mergeUniqueDatapoints(...this.series.map((series) => series.datapoints));*/
+    const dependentAxes = this._axisFacetKeys.filter(
+      (key) => this.dataset.facets[key].variableType === 'dependent'
+    );
+    if (
+      independentAxes.length === 1 && 
+      dependentAxes.length === 1 &&
+      (this._horizontalAxisFacetKey === null || this._horizontalAxisFacetKey === independentAxes[0]) &&
+      (this._verticalAxisFacetKey === null || this._verticalAxisFacetKey === dependentAxes[0]) 
+    ) {
+      // NOTE: One (but not both) of these might be rewriting the axis facet key to the same thing
+      this._horizontalAxisFacetKey = independentAxes[0];
+      this._verticalAxisFacetKey = dependentAxes[0];
+    } else if (
+      this._facetKeys.includes('x') 
+      && this._facetKeys.includes('y')
+      && this._displayTypeForFacet['x']?.type === 'axis'
+      && this._displayTypeForFacet['y']?.type === 'axis'
+      && (this._horizontalAxisFacetKey === null || this._horizontalAxisFacetKey === 'x')
+      && (this._verticalAxisFacetKey === null || this._verticalAxisFacetKey === 'y') ) {
+        // NOTE: One (but not both) of these might be rewriting the axis facet key to the same thing
+        this._horizontalAxisFacetKey === 'x';
+        this._verticalAxisFacetKey === 'y';
+    } else {
+      throw new Error('axis facets cannot be determined');
+    }
   }
 
   public atKey(key: string): Series | null {
@@ -207,15 +179,13 @@ export class Model {
   }
 
   @Memoize()
-  public getFacetStats(key: string): ChartFacetStats | null {
+  public getFacetStats(key: string): FacetStats | null {
     const facetDatatype = this.datatypeMap[key];
     // Checks for both non-existent and non-numerical facets
     if (facetDatatype !== 'number') {
       return null;
     }
-    const allBoxes = this.allFacetValues(key) as Box<'number'>[];
-    const allValues = allBoxes.map((box) => box.value);
-    return calculateWholeChartFacetStats(allValues);
+    return calculateFacetStats(key, this.allPoints);
   }
 }
 
@@ -223,7 +193,7 @@ export function facetsFromDataset(dataset: Dataset): FacetSignature[] {
   return Object.keys(dataset.facets).map((key) => ({ key, datatype: dataset.facets[key].datatype }))
 }
 
-export function modelFromManifest(manifest: Manifest): Model {
+export function modelFromInlineData(manifest: Manifest): Model {
   const dataset = manifest.datasets[0];
   if (dataset.data.source !== 'inline') {
     throw new Error('only manifests with inline data can use this method.');
@@ -232,15 +202,14 @@ export function modelFromManifest(manifest: Manifest): Model {
   const series = dataset.series.map((seriesManifest) => 
     seriesFromSeriesManifest(seriesManifest, facets)
   );
-  return new Model(series);
+  return new Model(series, manifest);
 }
 
 // FIXME: This function does not include series labels (as seperate from series keys) or series themes
-export function modelFromAllSeriesData(
-  data: AllSeriesData, facets: FacetSignature[]
-): Model {
+export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): Model {
+  const facets = facetsFromDataset(manifest.datasets[0]);
   const series = Object.keys(data).map((key) => 
     new Series(key, data[key], facets)
   );
-  return new Model(series);
+  return new Model(series, manifest);
 }
