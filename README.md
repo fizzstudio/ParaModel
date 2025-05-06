@@ -1,5 +1,5 @@
-# @fizz/template-packaged-module
+# @fizz/paramodel
 
-ADD DESCRIPTION.
+Data Models for ParaCharts
 
 A packaged module with npm dependencies on Fizz Studio's private registry.

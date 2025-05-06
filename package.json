@@ -1,21 +1,24 @@
 {
-  "name": "@fizz/package-module-name",
-  "version": "0.1.0",
-  "description": "ADD DESCRIPTION",
-  "author": "Your Name",
-  "license": "UNLICENSED",
+  "name": "@fizz/paramodel",
+  "version": "0.0.0",
+  "description": "Data Models for ParaCharts",
+  "contributors": [
+    "Simon Varey",
+    "Josh Fennell"
+  ],
+  "license": "AGPL-3.0-or-later",
   "publishConfig": {
     "access": "restricted",
     "registry": "https://npm.fizz.studio"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fizzstudio/package-module-name.git"
+    "url": "git+https://github.com/fizzstudio/paramodel.git"
   },
   "bugs": {
-    "url": "https://github.com/fizzstudio/package-module-name/issues"
+    "url": "https://github.com/fizzstudio/paramodel/issues"
   },
-  "homepage": "https://github.com/fizzstudio/package-module-name#readme",
+  "homepage": "https://github.com/fizzstudio/paramodel#readme",
   "type": "module",
   "scripts": {
     "dev": "storybook dev --no-open",
@@ -36,9 +39,9 @@
     "dist"
   ],
   "exports": {
-    ".": "./dist/package-module-name.js"
+    ".": "./dist/paramodel.js"
   },
-  "types": "./dist/package-module-name.d.ts",
+  "types": "./dist/paramodel.d.ts",
   "devDependencies": {
     "@microsoft/api-documenter": "^7.26.4",
     "@microsoft/api-extractor": "^7.49.0",
@@ -61,9 +64,5 @@
     "typescript": "^5.7.2",
     "vite": "^6.0.7",
     "vitest": "^2.1.8"
-  },
-  "dependencies": {
-    "@fizz/ui-components": "^0.68.1",
-    "lit": "^3.2.1"
   }
 }

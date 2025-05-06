@@ -19,7 +19,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[@fizz/package-module-name](./package-module-name.md)
+[@fizz/paramodel](./paramodel.md)
 
 
 </td><td>
