@@ -1,4 +1,4 @@
-/* ParaModel: Chart Metadata
+/* ParaModel: Calendar Period Datatype
 Copyright (C) 2025 Fizz Studios
 
 This program is free software: you can redistribute it and/or modify
@@ -14,27 +14,22 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import * as ss from 'simple-statistics';
-
-export interface ChartFacetStats {
-  min: number;
-  max: number;
-  range: number;
-  mean: number;
-  median: number;
-  mode: number;
+export type CalendarPeriod = {
+  year?: number,
+  quarter?: number,
+  month?: number,
+  day?: number
 }
 
-export function calculateWholeChartFacetStats(facetValues: number[]): ChartFacetStats {
-  const min = Math.min(...facetValues);
-  const max = Math.max(...facetValues);
-
-  return {
-    min,
-    max,
-    range: max - min,
-    mean: ss.mean(facetValues),
-    median: ss.median(facetValues),
-    mode: ss.mode(facetValues)
-  };
+export function parseCalendar(input: string): CalendarPeriod | null {
+  return { year: parseInt(input) };
 }
+
+export function calendarEquals(lhs: CalendarPeriod, rhs: CalendarPeriod): boolean {
+  return lhs.year === rhs.year;
+}
+
+export function calendarString(period: CalendarPeriod): string {
+  throw new Error('not implemented');
+}
+
