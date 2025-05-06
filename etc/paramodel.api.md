@@ -4,7 +4,10 @@
 
 ```ts
 
+import { AllSeriesData } from '@fizz/paramanifest';
+import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
+import { Manifest } from '@fizz/paramanifest';
 import { Theme1 } from '@fizz/paramanifest';
 
 // @public (undocumented)
@@ -36,6 +39,11 @@ export class DataPoint {
 // @public (undocumented)
 export function enumerate<T>(iterable: Iterable<T>): [T, number][];
 
+// Warning: (ae-forgotten-export) The symbol "FacetSignature" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export function facetsFromDataset(dataset: Dataset): FacetSignature[];
+
 // @public (undocumented)
 export class Model {
     constructor(series: Series[]);
@@ -49,8 +57,6 @@ export class Model {
     atKeyAndIndex(key: string, index: number): DataPoint | null;
     // (undocumented)
     protected datatypeMap: Record<string, Datatype>;
-    // Warning: (ae-forgotten-export) The symbol "FacetSignature" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     readonly facets: FacetSignature[];
     // Warning: (ae-forgotten-export) The symbol "ChartFacetStats" needs to be exported by the entry point index.d.ts
@@ -68,6 +74,12 @@ export class Model {
     // (undocumented)
     readonly series: Series[];
 }
+
+// @public (undocumented)
+export function modelFromAllSeriesData(data: AllSeriesData, facets: FacetSignature[]): Model;
+
+// @public (undocumented)
+export function modelFromManifest(manifest: Manifest): Model;
 
 // @public (undocumented)
 export class Series {
