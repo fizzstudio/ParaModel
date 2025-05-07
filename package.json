@@ -26,7 +26,7 @@
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "doc": "api-documenter markdown --input-folder ./temp --output-folder ./docs",
-    "pubalpha": "npm version prerelease --preid alpha && npm publish",
+    "pubalpha": "npm version prerelease --preid alpha && npm publish --tag alpha",
     "pubpatch": "npm version patch && npm publish",
     "pubminor": "npm version minor && npm publish",
     "pubmajor": "npm version major && npm publish",
