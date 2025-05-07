@@ -9,6 +9,7 @@ import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
 import { Facet } from '@fizz/paramanifest';
 import { Manifest } from '@fizz/paramanifest';
+import { Theme } from '@fizz/paramanifest';
 import { Theme1 } from '@fizz/paramanifest';
 
 // @public (undocumented)
@@ -119,6 +120,8 @@ export class Model {
     // (undocumented)
     readonly series: Series[];
     // (undocumented)
+    readonly theme: Theme;
+    // (undocumented)
     protected _verticalAxisFacetKey: string | null;
 }
 
@@ -137,6 +140,8 @@ export class Series {
     [i: number]: DataPoint;
     // (undocumented)
     allFacetValues(key: string): Box<Datatype>[] | null;
+    // (undocumented)
+    readonly datapoints: DataPoint[];
     // Warning: (ae-forgotten-export) The symbol "DataFrameColumn" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
