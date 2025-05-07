@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from 'typescript-memoize';
-import { AllSeriesData, Dataset, Datatype, DisplayType, Facet, Manifest } from "@fizz/paramanifest";
+import { AllSeriesData, Dataset, Datatype, DisplayType, Facet, Manifest, Theme } from "@fizz/paramanifest";
 
 import { arrayEqualsBy, AxisOrientation, enumerate } from "./utils";
 import { FacetSignature } from "./dataframe/dataframe";
@@ -32,6 +32,7 @@ export class Model {
   public readonly multi: boolean;
   public readonly numSeries: number;
   public readonly allPoints: DataPoint[] = [];
+  public readonly theme: Theme;
 
   protected keyMap: Record<string, Series> = {};
   protected datatypeMap: Record<string, Datatype> = {};
@@ -54,6 +55,7 @@ export class Model {
       throw new Error('models must have at least one series');
     }
     this.dataset = manifest.datasets[0];
+    this.theme = this.dataset.chartTheme!;
 
     // Facets
     this.facets = this.series[0].facets;
