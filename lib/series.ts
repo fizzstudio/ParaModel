@@ -59,10 +59,10 @@ export class Series {
   public readonly id: string;
   public readonly label: string;
   public readonly theme?: Theme;
+  public readonly datapoints: DataPoint[] = [];
 
   private readonly dataframe: DataFrame;
   private readonly uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
-  private readonly datapoints: DataPoint[] = [];
 
   /*protected xMap: Map<ScalarMap[X], number[]>;
   private yMap: Map<number, ScalarMap[X][]>;*/
