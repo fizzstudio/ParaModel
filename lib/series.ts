@@ -19,6 +19,8 @@ import { Datatype, Series as SeriesManifest, Theme1 as Theme } from "@fizz/param
 import { strToId } from "./utils";
 import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint } from "./dataframe/dataframe";
 import { Box, BoxSet, ScalarMap } from "./dataframe/box";
+import { calculateFacetStats, FacetStats } from "./metadata";
+import { Memoize } from "typescript-memoize";
 
 export class DataPoint {
   constructor(protected data: DataFrameRow, public seriesKey: string, public datapointIndex: number) { }
@@ -63,9 +65,11 @@ export class Series {
 
   private readonly dataframe: DataFrame;
   private readonly uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
+  protected datatypeMap: Record<string, Datatype> = {};
 
   /*protected xMap: Map<ScalarMap[X], number[]>;
   private yMap: Map<number, ScalarMap[X][]>;*/
+
   constructor(
     public readonly key: string, 
     public readonly rawData: RawDataPoint[], 
@@ -74,7 +78,10 @@ export class Series {
     theme?: Theme
   ) {
     this.dataframe = new DataFrame(facets);
-    this.facets.forEach((facet) => this.uniqueValuesForFacet[facet.key] = new BoxSet<Datatype>);
+    this.facets.forEach((facet) => {
+      this.uniqueValuesForFacet[facet.key] = new BoxSet<Datatype>;
+      this.datatypeMap[facet.key] = facet.datatype;
+    });
     this.rawData.forEach((datapoint) => this.dataframe.addDatapoint(datapoint));
     this.dataframe.rows.forEach((row, index) => {
       const datapoint = new DataPoint(row, this.key, index);
@@ -112,6 +119,16 @@ export class Series {
 
   [Symbol.iterator](): Iterator<DataPoint> {
     return this.datapoints[Symbol.iterator]();
+  }
+
+  @Memoize()
+  public getFacetStats(key: string): FacetStats | null {
+    const facetDatatype = this.datatypeMap[key];
+    // Checks for both non-existent and non-numerical facets
+    if (facetDatatype !== 'number') {
+      return null;
+    }
+    return calculateFacetStats(key, this.datapoints);
   }
 }
 
