@@ -24,7 +24,7 @@ export type SeriesPair = [string, string];
 /**
  * An angle between two line segments or subsegments which meet at a point
  */
-export interface AngleObj {
+export interface Angle {
   /**
    * The first meeting line
    */
@@ -66,7 +66,7 @@ export interface TransverseObj {
 /**
  * The metadata for an intersection of two lines
  */
-interface Intersection {
+export interface Intersection {
   /**
    * Where the intersection occurs
    */
@@ -92,11 +92,11 @@ interface Intersection {
   /**
    * The angle between the intersecting lines as they come into the intersection, or null if the intersection is at the start of the graph.
    */
-  incomingAngle: null | AngleObj;
+  incomingAngle: null | Angle;
   /**
    * The angle between the intersecting lines as they leave the intersection, or null if the intersection is at the end of the graph.
    */
-  outgoingAngle: null | AngleObj;
+  outgoingAngle: null | Angle;
   transversality: TransverseObj;
 }
 
@@ -119,11 +119,11 @@ export interface Overlap {
   /**
    * The angle between the lines before they start overlapping, or null if the overlap is at the start of the chart.
    */
-  incomingAngle: null | AngleObj;
+  incomingAngle: null | Angle;
   /**
    * The angle between the lines after they finish overlapping, or null if the overlap is at the end of the chart.
    */
-  outgoingAngle: null | AngleObj;
+  outgoingAngle: null | Angle;
 }
 
 /**

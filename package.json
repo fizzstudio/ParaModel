@@ -4,7 +4,9 @@
   "description": "Data Models for ParaCharts",
   "contributors": [
     "Simon Varey",
-    "Josh Fennell"
+    "Josh Fennell",
+    "Doug Schepers",
+    "Dylan Elliott"
   ],
   "license": "AGPL-3.0-or-later",
   "publishConfig": {
