@@ -21,7 +21,7 @@ import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint 
 import { Box, BoxSet, ScalarMap } from "./dataframe/box";
 import { calculateFacetStats, FacetStats } from "./metadata";
 import { Memoize } from "typescript-memoize";
-import { Line } from "@fizz/chart-classifier-utils";
+import { Line, Point } from "@fizz/chart-classifier-utils";
 import { calendarNumber, CalendarPeriod } from "./calendar_period";
 
 export class DataPoint {
@@ -114,23 +114,8 @@ export class Series {
     return this.uniqueValuesForFacet[key]?.values ?? null;
   }
 
-  @Memoize()
-  public getNumericalValues(): Record<string, number>[] {
-    const values: Record<string, number>[] = [];
-    for (const datapoint of this.datapoints) {
-      const point: Record<string, number> = {};
-      for (const facet of this.facets) {
-        const facetValue = datapoint.facetValue(facet.key);
-        if (facet.datatype === 'number') {
-          point[facet.key] = facetValue as number;
-        } else if (facet.datatype === 'date') {
-          point[facet.key] = calendarNumber(facetValue as CalendarPeriod);
-        } else {
-          point[facet.key] = datapoint.datapointIndex;
-        }
-      }
-    }
-    return values;
+  public getFacetDatatype(key: string): Datatype | null {
+    return this.datatypeMap[key] ?? null;
   }
 
   /*atX(x: ScalarMap[X]): number[] | null {
@@ -162,6 +147,20 @@ export class XYSeries extends Series {
 
   @Memoize()
   public getNumericalLine(): Line {
+    const seriesPoints: Point[] = [];
+    for (const datapoint of this.datapoints) {
+      const yValue = datapoint.y.value;
+      const yDatatype = this.getFacetDatatype('y')!;
+      let yNumber;
+      if (yDatatype === 'number') {
+        yNumber = yValue as number;
+      } else if (yDatatype === 'date') {
+        yNumber = calendarNumber(yValue as CalendarPeriod);
+      } else {
+        yNumber = datapoint.datapointIndex;
+      }
+      seriesPoints.push({ x: datapoint.x.raw, y: yNumber })
+    }
     const seriesPoints = this.getNumericalValues() as unknown as XyPoint[];
     return new Line(seriesPoints, this.key);
   }
