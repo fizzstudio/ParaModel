@@ -22,6 +22,8 @@ import { FacetSignature } from "./dataframe/dataframe";
 import { Box, BoxSet } from "./dataframe/box";
 import { calculateFacetStats, FacetStats } from "./metadata";
 import { DataPoint, Series, seriesFromSeriesManifest } from './series';
+import { SeriesPairMetadataAnalyzer } from './series_pair_analyzer';
+import { Line } from '@fizz/chart-classifier-utils';
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
@@ -33,6 +35,8 @@ export class Model {
   public readonly numSeries: number;
   public readonly allPoints: DataPoint[] = [];
   public readonly theme: Theme;
+
+  public seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
 
   protected keyMap: Record<string, Series> = {};
   protected datatypeMap: Record<string, Datatype> = {};
@@ -120,6 +124,13 @@ export class Model {
       });
     }
 
+    if (this.multi) {
+      const seriesArray = this.series.map((series) => {
+        return this._createLineObj(series.datapoints, series.key);
+      });
+      this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer()
+    }
+
     /*this.xs = mergeUniqueBy(
       (lhs, rhs) => xDatatype === 'date'
         ? calendarEquals(lhs as CalendarPeriod, rhs as CalendarPeriod)
@@ -166,6 +177,11 @@ export class Model {
     } else {
       throw new Error('axis facets cannot be determined');
     }
+  }
+
+  private _createLineObj(pointsArray: [number, number][], key: string): Line {
+    const seriesPoints = pointsArray.map((point) => ({x: point[0], y: point[1]}));
+    return new Line(seriesPoints, key);
   }
 
   @Memoize()
