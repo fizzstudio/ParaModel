@@ -38,6 +38,21 @@ export class DataPoint {
   public facetValue(key: string): ScalarMap[Datatype] | null {
     return this.data[key].value ?? null;
   }
+
+  @Memoize()
+  public facetAsNumber(key: string): number | null {
+    const box = this.data[key];
+    if (box === undefined) {
+      return null;
+    }
+    if (box.isNumber()) {
+      return box.value;
+    } 
+    if (box.isDate()) {
+      return calendarNumber(box.value);
+    } 
+    return this.datapointIndex;
+  }
 }
 
 export class XYDatapoint extends DataPoint {
@@ -54,6 +69,11 @@ export class XYDatapoint extends DataPoint {
 
   get y(): Box<Datatype> {
     return this.data.y;
+  }
+
+  @Memoize()
+  getNumericalXY(): Point {
+    return { x: this.facetAsNumber('x')!, y: this.facetAsNumber('y')! };
   }
 }
 
@@ -147,22 +167,8 @@ export class XYSeries extends Series {
 
   @Memoize()
   public getNumericalLine(): Line {
-    const seriesPoints: Point[] = [];
-    for (const datapoint of this.datapoints) {
-      const yValue = datapoint.y.value;
-      const yDatatype = this.getFacetDatatype('y')!;
-      let yNumber;
-      if (yDatatype === 'number') {
-        yNumber = yValue as number;
-      } else if (yDatatype === 'date') {
-        yNumber = calendarNumber(yValue as CalendarPeriod);
-      } else {
-        yNumber = datapoint.datapointIndex;
-      }
-      seriesPoints.push({ x: datapoint.x.raw, y: yNumber })
-    }
-    const seriesPoints = this.getNumericalValues() as unknown as XyPoint[];
-    return new Line(seriesPoints, this.key);
+    const points = this.datapoints.map((point) => point.getNumericalXY());
+    return new Line(points, this.key);
   }
 }
 

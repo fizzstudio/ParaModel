@@ -15,15 +15,16 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from 'typescript-memoize';
-import { AllSeriesData, Dataset, Datatype, DisplayType, Facet, Manifest, Theme } from "@fizz/paramanifest";
+import { AllSeriesData, Dataset, Datatype, DisplayType, Facet, Manifest, Theme, XyPoint } from "@fizz/paramanifest";
 
 import { arrayEqualsBy, AxisOrientation, enumerate } from "./utils";
 import { FacetSignature } from "./dataframe/dataframe";
 import { Box, BoxSet } from "./dataframe/box";
 import { calculateFacetStats, FacetStats } from "./metadata";
-import { DataPoint, Series, seriesFromSeriesManifest } from './series';
+import { DataPoint, isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
 import { SeriesPairMetadataAnalyzer } from './series_pair_analyzer';
 import { Line } from '@fizz/chart-classifier-utils';
+import { BasicSeriesPairMetadataAnalyzer } from './basic_series_pair_analyzer';
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
@@ -35,6 +36,7 @@ export class Model {
   public readonly numSeries: number;
   public readonly allPoints: DataPoint[] = [];
   public readonly theme: Theme;
+  public readonly xy: boolean;
 
   public seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
 
@@ -63,6 +65,7 @@ export class Model {
 
     // Facets
     this.facets = this.series[0].facets;
+    this.xy = isXYFacetSignature(this.facets);
     this.facets.forEach((facet) => {
       this._facetKeys.push(facet.key);
       this.uniqueValuesForFacet[facet.key] = new BoxSet<Datatype>;
@@ -118,11 +121,9 @@ export class Model {
       });
     }
 
-    if (this.multi) {
-      const seriesArray = this.series.map((series) => {
-        return this._createLineObj(series.datapoints, series.key);
-      });
-      this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer()
+    if (this.multi && this.xy) {
+      const seriesArray = (this.series as XYSeries[]).map((series) => series.getNumericalLine());
+      this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]);
     }
 
     /*this.xs = mergeUniqueBy(
@@ -170,11 +171,6 @@ export class Model {
         this._horizontalAxisFacetKey === 'x';
         this._verticalAxisFacetKey === 'y';
     }
-  }
-
-  private _createLineObj(pointsArray: [number, number][], key: string): Line {
-    const seriesPoints = pointsArray.map((point) => ({x: point[0], y: point[1]}));
-    return new Line(seriesPoints, key);
   }
 
   @Memoize()
