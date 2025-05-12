@@ -14,13 +14,15 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { Datatype, Series as SeriesManifest, Theme1 as Theme } from "@fizz/paramanifest";
+import { Datatype, Series as SeriesManifest, Theme1 as Theme, XyPoint } from "@fizz/paramanifest";
 
 import { strToId } from "./utils";
 import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint } from "./dataframe/dataframe";
 import { Box, BoxSet, ScalarMap } from "./dataframe/box";
 import { calculateFacetStats, FacetStats } from "./metadata";
 import { Memoize } from "typescript-memoize";
+import { Line } from "@fizz/chart-classifier-utils";
+import { calendarNumber, CalendarPeriod } from "./calendar_period";
 
 export class DataPoint {
   constructor(protected data: DataFrameRow, public seriesKey: string, public datapointIndex: number) { }
@@ -55,6 +57,8 @@ export class XYDatapoint extends DataPoint {
   }
 }
 
+type DataPointConstructor = new (data: DataFrameRow, seriesKey: string, datapointIndex: number) => DataPoint;
+
 export class Series {
   [i: number]: DataPoint;
   public readonly length: number;
@@ -66,6 +70,7 @@ export class Series {
   private readonly dataframe: DataFrame;
   private readonly uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
   protected datatypeMap: Record<string, Datatype> = {};
+  protected datapointConstructor: DataPointConstructor = DataPoint;
 
   /*protected xMap: Map<ScalarMap[X], number[]>;
   private yMap: Map<number, ScalarMap[X][]>;*/
@@ -84,7 +89,7 @@ export class Series {
     });
     this.rawData.forEach((datapoint) => this.dataframe.addDatapoint(datapoint));
     this.dataframe.rows.forEach((row, index) => {
-      const datapoint = new DataPoint(row, this.key, index);
+      const datapoint = new this.datapointConstructor(row, this.key, index);
       this[index] = datapoint;
       this.datapoints.push(datapoint);
       Object.keys(row).forEach(
@@ -107,6 +112,25 @@ export class Series {
 
   public allFacetValues(key: string): Box<Datatype>[] | null {
     return this.uniqueValuesForFacet[key]?.values ?? null;
+  }
+
+  @Memoize()
+  public getNumericalValues(): Record<string, number>[] {
+    const values: Record<string, number>[] = [];
+    for (const datapoint of this.datapoints) {
+      const point: Record<string, number> = {};
+      for (const facet of this.facets) {
+        const facetValue = datapoint.facetValue(facet.key);
+        if (facet.datatype === 'number') {
+          point[facet.key] = facetValue as number;
+        } else if (facet.datatype === 'date') {
+          point[facet.key] = calendarNumber(facetValue as CalendarPeriod);
+        } else {
+          point[facet.key] = datapoint.datapointIndex;
+        }
+      }
+    }
+    return values;
   }
 
   /*atX(x: ScalarMap[X]): number[] | null {
@@ -132,13 +156,31 @@ export class Series {
   }
 }
 
+export class XYSeries extends Series {
+  declare datapoints: XYDatapoint[];
+  protected datapointConstructor: DataPointConstructor = XYDatapoint;
+
+  @Memoize()
+  public getNumericalLine(): Line {
+    const seriesPoints = this.getNumericalValues() as unknown as XyPoint[];
+    return new Line(seriesPoints, this.key);
+  }
+}
+
+export function isXYFacetSignature(facets: FacetSignature[]): boolean {
+  const hasX = facets.some((facet) => facet.key === 'x');
+  const hasY = facets.some((facet) => facet.key === 'y');
+  return hasX && hasY;
+}
+
 export function seriesFromSeriesManifest(
   seriesManifest: SeriesManifest, facets: FacetSignature[]
 ): Series {
   if (!seriesManifest.records) {
     throw new Error('only series manifests with inline data can use this method.');
   }
-  return new Series(
+  const seriesConstructor = isXYFacetSignature(facets) ? XYSeries : Series;
+  return new seriesConstructor(
     seriesManifest.key, 
     seriesManifest.records!, 
     facets, 

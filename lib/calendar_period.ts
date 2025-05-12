@@ -33,3 +33,7 @@ export function calendarString(period: CalendarPeriod): string {
   throw new Error('not implemented');
 }
 
+export function calendarNumber(period: CalendarPeriod): number {
+  return period.year!;
+}
+
