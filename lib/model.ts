@@ -47,7 +47,7 @@ export class Model {
   protected _axisFacetKeys: string[] = [];
   protected _horizontalAxisFacetKey: string | null = null;
   protected _verticalAxisFacetKey: string | null = null;
-  private _displayTypeForFacet: Record<string, DisplayType | undefined> = {}; // FIXME: remove `| undefined`
+  private _displayTypeForFacet: Record<string, DisplayType> = {};
 
   private dataset: Dataset;
 
@@ -72,7 +72,7 @@ export class Model {
       const facetManifest = this.dataset.facets[key];
       this._displayTypeForFacet[key] = facetManifest.displayType;
       this._facetMap[key] = facetManifest;
-      if (facetManifest.displayType?.type === 'axis') { // FIXME: remove `?`
+      if (facetManifest.displayType.type === 'axis') {
         this._axisFacetKeys.push(key);
         if (facetManifest.displayType!.orientation === 'horizontal') {
           if (this._horizontalAxisFacetKey === null) {
@@ -93,14 +93,8 @@ export class Model {
       throw new Error('charts must either have 2 or 0 axes')
     }
     if (this._horizontalAxisFacetKey === null || this._verticalAxisFacetKey === null) {
-      //this.setDefaultAxes();
+      this.setDefaultAxes();
     }
-    //////////////////////// TEMP //////////////////////////////////////////
-    this._displayTypeForFacet['x'] = {type: 'axis', orientation: 'horizontal'};
-    this._horizontalAxisFacetKey = 'x';
-    this._displayTypeForFacet['y'] = {type: 'axis', orientation: 'vertical'};
-    this._verticalAxisFacetKey = 'y';
-    ////////////////////////////////////////////////////////////////////////
 
     // Series
     this.multi = this.series.length > 1;
@@ -148,6 +142,7 @@ export class Model {
 
   }
 
+  // Note that this method will do nothing if the default circumstances aren't met
   private setDefaultAxes(): void {
     const independentAxes = this._axisFacetKeys.filter(
       (key) => this.dataset.facets[key].variableType === 'independent'
@@ -174,8 +169,6 @@ export class Model {
         // NOTE: One (but not both) of these might be rewriting the axis facet key to the same thing
         this._horizontalAxisFacetKey === 'x';
         this._verticalAxisFacetKey === 'y';
-    } else {
-      throw new Error('axis facets cannot be determined');
     }
   }
 
