@@ -9,6 +9,8 @@ import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
 import { Facet } from '@fizz/paramanifest';
 import { Manifest } from '@fizz/paramanifest';
+import { Point } from '@fizz/chart-classifier-utils';
+import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import { Theme } from '@fizz/paramanifest';
 import { Theme1 } from '@fizz/paramanifest';
 
@@ -56,6 +58,8 @@ export class DataPoint {
     datapointIndex: number;
     // (undocumented)
     entries(): Iterable<[string, Box<Datatype>]>;
+    // (undocumented)
+    facetAsNumber(key: string): number | null;
     // (undocumented)
     facetBox(key: string): Box<Datatype> | null;
     // (undocumented)
@@ -109,6 +113,12 @@ export class Model {
     getFacetStats(key: string): FacetStats | null;
     // (undocumented)
     protected _horizontalAxisFacetKey: string | null;
+    // Warning: (ae-forgotten-export) The symbol "Intersection" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readonly intersections: Intersection[];
+    // (undocumented)
+    readonly intersectionScaledValues?: ScaledNumberRounded[];
     // (undocumented)
     protected keyMap: Record<string, Series>;
     // (undocumented)
@@ -119,10 +129,24 @@ export class Model {
     readonly numSeries: number;
     // (undocumented)
     readonly series: Series[];
+    // Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null;
+    // Warning: (ae-forgotten-export) The symbol "SeriesScaledValues" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readonly seriesScaledValues?: SeriesScaledValues;
+    // Warning: (ae-forgotten-export) The symbol "AllSeriesStatsScaledValues" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
     // (undocumented)
     readonly theme: Theme;
     // (undocumented)
     protected _verticalAxisFacetKey: string | null;
+    // (undocumented)
+    readonly xy: boolean;
 }
 
 // @public (undocumented)
@@ -140,14 +164,24 @@ export class Series {
     [i: number]: DataPoint;
     // (undocumented)
     allFacetValues(key: string): Box<Datatype>[] | null;
+    // Warning: (ae-forgotten-export) The symbol "DataPointConstructor" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected datapointConstructor: DataPointConstructor;
     // (undocumented)
     readonly datapoints: DataPoint[];
+    // (undocumented)
+    protected datatypeMap: Record<string, Datatype>;
     // Warning: (ae-forgotten-export) The symbol "DataFrameColumn" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
     facet(key: string): DataFrameColumn<Datatype> | null;
     // (undocumented)
     readonly facets: FacetSignature[];
+    // (undocumented)
+    getFacetDatatype(key: string): Datatype | null;
+    // (undocumented)
+    getFacetStats(key: string): FacetStats | null;
     // (undocumented)
     readonly id: string;
     // (undocumented)
@@ -172,6 +206,8 @@ export function strToId(s: string): string;
 // @public (undocumented)
 export class XYDatapoint extends DataPoint {
     constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number);
+    // (undocumented)
+    getNumericalXY(): Point;
     // (undocumented)
     get x(): Box<Datatype>;
     // (undocumented)
