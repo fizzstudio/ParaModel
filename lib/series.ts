@@ -184,6 +184,7 @@ export function seriesFromSeriesManifest(
   if (!seriesManifest.records) {
     throw new Error('only series manifests with inline data can use this method.');
   }
+  console.log('xy', isXYFacetSignature(facets))
   const seriesConstructor = isXYFacetSignature(facets) ? XYSeries : Series;
   return new seriesConstructor(
     seriesManifest.key, 

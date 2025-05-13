@@ -225,19 +225,14 @@ export function facetsFromDataset(dataset: Dataset): FacetSignature[] {
 }
 
 export function modelFromInlineData(manifest: Manifest): Model {
-  console.log('mfid 0')
   const dataset = manifest.datasets[0];
-    console.log('mfid 1')
   if (dataset.data.source !== 'inline') {
     throw new Error('only manifests with inline data can use this method.');
   }
-    console.log('mfid 2')
   const facets = facetsFromDataset(dataset);
-    console.log('mfid 3')
   const series = dataset.series.map((seriesManifest) => 
     seriesFromSeriesManifest(seriesManifest, facets)
   );
-    console.log('mfid 4')
   return new Model(series, manifest);
 }
 
