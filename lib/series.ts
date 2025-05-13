@@ -22,7 +22,7 @@ import { Box, BoxSet, ScalarMap } from "./dataframe/box";
 import { calculateFacetStats, FacetStats } from "./metadata";
 import { Memoize } from "typescript-memoize";
 import { Line, Point } from "@fizz/chart-classifier-utils";
-import { calendarNumber, CalendarPeriod } from "./calendar_period";
+import { calendarNumber } from "./calendar_period";
 
 export class DataPoint {
   constructor(protected data: DataFrameRow, public seriesKey: string, public datapointIndex: number) { }

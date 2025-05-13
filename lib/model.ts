@@ -20,11 +20,11 @@ import { AllSeriesData, Dataset, Datatype, DisplayType, Facet, Manifest, Theme, 
 import { arrayEqualsBy, AxisOrientation, enumerate } from "./utils";
 import { FacetSignature } from "./dataframe/dataframe";
 import { Box, BoxSet } from "./dataframe/box";
-import { calculateFacetStats, FacetStats } from "./metadata";
+import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "./metadata";
 import { DataPoint, isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
-import { SeriesPairMetadataAnalyzer } from './series_pair_analyzer';
-import { Line } from '@fizz/chart-classifier-utils';
+import { Intersection, SeriesPairMetadataAnalyzer } from './series_pair_analyzer';
 import { BasicSeriesPairMetadataAnalyzer } from './basic_series_pair_analyzer';
+import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
@@ -37,6 +37,10 @@ export class Model {
   public readonly allPoints: DataPoint[] = [];
   public readonly theme: Theme;
   public readonly xy: boolean;
+  public readonly seriesScaledValues?: SeriesScaledValues;
+  public readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
+  public readonly intersectionScaledValues?: ScaledNumberRounded[];
+  public readonly intersections: Intersection[] = [];
 
   public seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
 
@@ -121,9 +125,14 @@ export class Model {
       });
     }
 
-    if (this.multi && this.xy) {
-      const seriesArray = (this.series as XYSeries[]).map((series) => series.getNumericalLine());
-      this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]);
+    if (this.xy) {
+      if (this.multi) {
+        const seriesArray = (this.series as XYSeries[]).map((series) => series.getNumericalLine());
+        this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]);
+        this.intersections = this.seriesPairAnalyzer.getIntersections();
+      }
+      [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
+        = generateValues(this.series as XYSeries[], this.intersections);
     }
 
     /*this.xs = mergeUniqueBy(
