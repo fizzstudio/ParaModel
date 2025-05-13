@@ -179,6 +179,8 @@ export class Series {
     // (undocumented)
     readonly facets: FacetSignature[];
     // (undocumented)
+    protected getDatapointConstructor(): DataPointConstructor;
+    // (undocumented)
     getFacetDatatype(key: string): Datatype | null;
     // (undocumented)
     getFacetStats(key: string): FacetStats | null;

@@ -90,7 +90,7 @@ export class Series {
   private readonly dataframe: DataFrame;
   private readonly uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
   protected datatypeMap: Record<string, Datatype> = {};
-  protected datapointConstructor: DataPointConstructor = DataPoint;
+  protected datapointConstructor: DataPointConstructor;
 
   /*protected xMap: Map<ScalarMap[X], number[]>;
   private yMap: Map<number, ScalarMap[X][]>;*/
@@ -102,6 +102,7 @@ export class Series {
     label?: string,
     theme?: Theme
   ) {
+    this.datapointConstructor = this.getDatapointConstructor();
     this.dataframe = new DataFrame(facets);
     this.facets.forEach((facet) => {
       this.uniqueValuesForFacet[facet.key] = new BoxSet<Datatype>;
@@ -124,6 +125,10 @@ export class Series {
     if (theme) {
       this.theme = theme;
     }
+  }
+
+  protected getDatapointConstructor(): DataPointConstructor {
+    return DataPoint;
   }
 
   public facet(key: string): DataFrameColumn<Datatype> | null {
@@ -163,12 +168,15 @@ export class Series {
 
 export class XYSeries extends Series {
   declare datapoints: XYDatapoint[];
-  protected datapointConstructor: DataPointConstructor = XYDatapoint;
 
   @Memoize()
   public getNumericalLine(): Line {
     const points = this.datapoints.map((point) => point.getNumericalXY());
     return new Line(points, this.key);
+  }
+
+  protected getDatapointConstructor(): DataPointConstructor {
+    return XYDatapoint;
   }
 }
 
@@ -184,7 +192,6 @@ export function seriesFromSeriesManifest(
   if (!seriesManifest.records) {
     throw new Error('only series manifests with inline data can use this method.');
   }
-  console.log('xy', isXYFacetSignature(facets))
   const seriesConstructor = isXYFacetSignature(facets) ? XYSeries : Series;
   return new seriesConstructor(
     seriesManifest.key, 

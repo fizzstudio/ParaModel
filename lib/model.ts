@@ -233,7 +233,6 @@ export function modelFromInlineData(manifest: Manifest): Model {
   const series = dataset.series.map((seriesManifest) => 
     seriesFromSeriesManifest(seriesManifest, facets)
   );
-  console.log('mfid', series[0] instanceof XYSeries)
   return new Model(series, manifest);
 }
 
