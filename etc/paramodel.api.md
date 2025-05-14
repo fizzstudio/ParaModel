@@ -48,6 +48,14 @@ export abstract class Box<T extends Datatype> {
 }
 
 // @public (undocumented)
+export type CalendarPeriod = {
+    year?: number;
+    quarter?: number;
+    month?: number;
+    day?: number;
+};
+
+// @public (undocumented)
 export class DataPoint {
     constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number);
     // Warning: (ae-forgotten-export) The symbol "DataFrameRow" needs to be exported by the entry point index.d.ts
@@ -215,10 +223,6 @@ export class XYDatapoint extends DataPoint {
     // (undocumented)
     get y(): Box<Datatype>;
 }
-
-// Warnings were encountered during analysis:
-//
-// lib/dataframe/box.ts:46:31 - (ae-forgotten-export) The symbol "CalendarPeriod" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

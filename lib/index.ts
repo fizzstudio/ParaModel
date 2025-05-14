@@ -4,3 +4,4 @@ export { DataPoint, XYDatapoint, Series } from './series';
 export { strToId, enumerate, arrayEqualsBy, type AxisOrientation } from './utils';
 export { Box } from './dataframe/box';
 export type { FacetSignature } from './dataframe/dataframe';
+export { type CalendarPeriod } from './calendar_period';
