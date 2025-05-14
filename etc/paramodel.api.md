@@ -164,6 +164,9 @@ export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): 
 export function modelFromInlineData(manifest: Manifest): Model;
 
 // @public (undocumented)
+export function parseCalendar(input: string): CalendarPeriod | null;
+
+// @public (undocumented)
 export class Series {
     // (undocumented)
     [Symbol.iterator](): Iterator<DataPoint>;
