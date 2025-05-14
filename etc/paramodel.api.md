@@ -48,6 +48,9 @@ export abstract class Box<T extends Datatype> {
 }
 
 // @public (undocumented)
+export function calendarGoBack(period: CalendarPeriod, step: CalendarPeriod): CalendarPeriod;
+
+// @public (undocumented)
 export type CalendarPeriod = {
     year?: number;
     quarter?: number;

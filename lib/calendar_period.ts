@@ -21,12 +21,23 @@ export type CalendarPeriod = {
   day?: number
 }
 
+function calendarFromNumber(input: number): CalendarPeriod {
+  const year = Math.trunc(input);
+  const remander = input - year;
+  const quarter = remander === 0 ? undefined : remander * 4;
+  return { year, quarter };
+}
+
 export function parseCalendar(input: string): CalendarPeriod | null {
-  return { year: parseInt(input) };
+  const calendarNumber = parseFloat(input);
+  if (Number.isNaN(calendarNumber)) {
+    return null;
+  }
+  return calendarFromNumber(calendarNumber);
 }
 
 export function calendarEquals(lhs: CalendarPeriod, rhs: CalendarPeriod): boolean {
-  return lhs.year === rhs.year;
+  return lhs.year === rhs.year && lhs.quarter === rhs.quarter;
 }
 
 export function calendarString(period: CalendarPeriod): string {
@@ -34,6 +45,12 @@ export function calendarString(period: CalendarPeriod): string {
 }
 
 export function calendarNumber(period: CalendarPeriod): number {
-  return period.year!;
+  return (period.year ?? 0) + ((period.quarter ?? 0) / 4);
 }
 
+export function calendarGoBack(period: CalendarPeriod, step: CalendarPeriod): CalendarPeriod {
+  const periodNumber = calendarNumber(period);
+  const stepNumber = calendarNumber(step);
+  const resultNumber = periodNumber - stepNumber;
+  return calendarFromNumber(resultNumber);
+}
