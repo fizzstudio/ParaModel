@@ -48,6 +48,9 @@ export abstract class Box<T extends Datatype> {
 }
 
 // @public (undocumented)
+export function calendarEquals(lhs: CalendarPeriod, rhs: CalendarPeriod): boolean;
+
+// @public (undocumented)
 export function calendarGoBack(period: CalendarPeriod, step: CalendarPeriod): CalendarPeriod;
 
 // @public (undocumented)

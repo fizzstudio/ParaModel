@@ -54,3 +54,10 @@ export function calendarGoBack(period: CalendarPeriod, step: CalendarPeriod): Ca
   const resultNumber = periodNumber - stepNumber;
   return calendarFromNumber(resultNumber);
 }
+
+export function calendarGoForward(period: CalendarPeriod, step: CalendarPeriod): CalendarPeriod {
+  const periodNumber = calendarNumber(period);
+  const stepNumber = calendarNumber(step);
+  const resultNumber = periodNumber + stepNumber;
+  return calendarFromNumber(resultNumber);
+}
