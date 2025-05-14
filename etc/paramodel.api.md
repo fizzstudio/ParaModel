@@ -54,6 +54,9 @@ export function calendarEquals(lhs: CalendarPeriod, rhs: CalendarPeriod): boolea
 export function calendarGoBack(period: CalendarPeriod, step: CalendarPeriod): CalendarPeriod;
 
 // @public (undocumented)
+export function calendarGoForward(period: CalendarPeriod, step: CalendarPeriod): CalendarPeriod;
+
+// @public (undocumented)
 export type CalendarPeriod = {
     year?: number;
     quarter?: number;
