@@ -64,8 +64,15 @@ export class Model {
     if (this.series.length === 0) {
       throw new Error('models must have at least one series');
     }
+    this.multi = this.series.length > 1;
     this.dataset = manifest.datasets[0];
-    this.theme = this.dataset.chartTheme!;
+    if (this.dataset.chartTheme) {
+      this.theme = this.dataset.chartTheme;
+    } else if (!this.multi) {
+      this.theme = this.dataset.series[0].theme;
+    } else {
+      throw new Error('multi-series charts must have an overall theme');
+    }
 
     // Facets
     this.facets = this.series[0].facets;
@@ -104,7 +111,6 @@ export class Model {
     }
 
     // Series
-    this.multi = this.series.length > 1;
     this.numSeries = this.series.length;
     for (const [aSeries, seriesIndex] of enumerate(this.series)) {
       if (this.keys.includes(aSeries.key)) {
