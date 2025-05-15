@@ -29,7 +29,14 @@ function calendarFromNumber(input: number): CalendarPeriod {
 }
 
 export function parseCalendar(input: string): CalendarPeriod | null {
-  const calendarNumber = parseFloat(input);
+  let calendarNumber: number;
+  if (input[0] === 'Q') {
+    const quarterNumber = parseInt(input[1]) - 1;
+    const yearNumber = parseInt(input.substring(3))
+    calendarNumber = yearNumber + (quarterNumber / 4);
+  } else {
+    calendarNumber = parseFloat(input);
+  }
   if (Number.isNaN(calendarNumber)) {
     return null;
   }
