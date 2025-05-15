@@ -32,7 +32,12 @@ export function parseCalendar(input: string): CalendarPeriod | null {
   let calendarNumber: number;
   if (input[0] === 'Q') {
     const quarterNumber = parseInt(input[1]) - 1;
-    const yearNumber = parseInt(input.substring(3))
+    let yearNumber: number;
+    if (input[3] === "'") {
+      yearNumber = parseInt(input.substring(4)) + 2000;
+    } else {
+      yearNumber = parseInt(input.substring(3));
+    }
     calendarNumber = yearNumber + (quarterNumber / 4);
   } else {
     calendarNumber = parseFloat(input);
