@@ -139,6 +139,7 @@ export class Model {
       }
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
         = generateValues(this.series as XYSeries[], this.intersections);
+        console.log(this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues)
     }
 
     /*this.xs = mergeUniqueBy(
