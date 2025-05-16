@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from 'typescript-memoize';
-import { AllSeriesData, Dataset, Datatype, DisplayType, Facet, Manifest, Theme, XyPoint } from "@fizz/paramanifest";
+import { AllSeriesData, ChartType, Dataset, Datatype, DisplayType, Facet, Manifest, Theme, XyPoint } from "@fizz/paramanifest";
 
 import { arrayEqualsBy, AxisOrientation, enumerate } from "./utils";
 import { FacetSignature } from "./dataframe/dataframe";
@@ -29,8 +29,9 @@ import { OrderOfMagnitudeNum, ScaledNumberRounded } from '@fizz/number-scaling-r
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
 export class Model {
-  public readonly keys: string[] = [];
   [i: number]: Series;
+  public readonly type: ChartType;
+  public readonly keys: string[] = [];
   public readonly facets: FacetSignature[];
   public readonly multi: boolean;
   public readonly numSeries: number;
@@ -66,6 +67,7 @@ export class Model {
     }
     this.multi = this.series.length > 1;
     this.dataset = manifest.datasets[0];
+    this.type = this.dataset.type;
     if (this.dataset.chartTheme) {
       this.theme = this.dataset.chartTheme;
     } else if (!this.multi) {

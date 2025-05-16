@@ -5,6 +5,7 @@
 ```ts
 
 import { AllSeriesData } from '@fizz/paramanifest';
+import { ChartType } from '@fizz/paramanifest';
 import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
 import { Facet } from '@fizz/paramanifest';
@@ -160,6 +161,8 @@ export class Model {
     readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
     // (undocumented)
     readonly theme: Theme;
+    // (undocumented)
+    readonly type: ChartType;
     // (undocumented)
     protected _verticalAxisFacetKey: string | null;
     // (undocumented)
