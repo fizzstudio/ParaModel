@@ -24,7 +24,7 @@ import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateVa
 import { DataPoint, isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer } from './series_pair_analyzer';
 import { BasicSeriesPairMetadataAnalyzer } from './basic_series_pair_analyzer';
-import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { OrderOfMagnitudeNum, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
@@ -138,8 +138,7 @@ export class Model {
         this.intersections = this.seriesPairAnalyzer.getIntersections();
       }
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
-        = generateValues(this.series as XYSeries[], this.intersections);
-        console.log(this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues)
+        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')!.multiplier as OrderOfMagnitudeNum | undefined);
     }
 
     /*this.xs = mergeUniqueBy(
