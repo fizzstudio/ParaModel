@@ -138,7 +138,7 @@ export class Model {
         this.intersections = this.seriesPairAnalyzer.getIntersections();
       }
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
-        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')!.multiplier as OrderOfMagnitudeNum | undefined);
+        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitudeNum | undefined);
     }
 
     /*this.xs = mergeUniqueBy(
