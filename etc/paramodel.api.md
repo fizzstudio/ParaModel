@@ -98,6 +98,27 @@ export type FacetSignature = {
     datatype: Datatype;
 };
 
+// @public
+export interface Intersection {
+    // Warning: (ae-forgotten-export) The symbol "Angle" needs to be exported by the entry point index.d.ts
+    incomingAngle: null | Angle;
+    outgoingAngle: null | Angle;
+    record: {
+        label: string | null;
+        before: string | null;
+        after: string | null;
+    };
+    // Warning: (ae-forgotten-export) The symbol "SeriesPair" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    series: SeriesPair;
+    // Warning: (ae-forgotten-export) The symbol "TransverseObj" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    transversality: TransverseObj;
+    value: number;
+}
+
 // @public (undocumented)
 export class Model {
     constructor(series: Series[], manifest: Manifest);
@@ -118,7 +139,7 @@ export class Model {
     // (undocumented)
     protected _facetKeys: string[];
     // (undocumented)
-    protected _facetMap: Record<string, Facet>;
+    readonly facetMap: Record<string, Facet>;
     // (undocumented)
     readonly facets: FacetSignature[];
     // (undocumented)
@@ -131,8 +152,6 @@ export class Model {
     getFacetStats(key: string): FacetStats | null;
     // (undocumented)
     protected _horizontalAxisFacetKey: string | null;
-    // Warning: (ae-forgotten-export) The symbol "Intersection" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     readonly intersections: Intersection[];
     // (undocumented)

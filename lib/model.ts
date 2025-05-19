@@ -42,6 +42,7 @@ export class Model {
   public readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
   public readonly intersectionScaledValues?: ScaledNumberRounded[];
   public readonly intersections: Intersection[] = [];
+  public readonly facetMap: Record<string, Facet> = {}; // FIXME: this shouldn't be exposed
 
   public seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
 
@@ -50,7 +51,6 @@ export class Model {
   private uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
 
   protected _facetKeys: string[] = [];
-  protected _facetMap: Record<string, Facet> = {};
   protected _axisFacetKeys: string[] = [];
   protected _horizontalAxisFacetKey: string | null = null;
   protected _verticalAxisFacetKey: string | null = null;
@@ -87,7 +87,7 @@ export class Model {
     this._facetKeys.forEach((key) => {
       const facetManifest = this.dataset.facets[key];
       this._displayTypeForFacet[key] = facetManifest.displayType;
-      this._facetMap[key] = facetManifest;
+      this.facetMap[key] = facetManifest;
       if (facetManifest.displayType.type === 'axis') {
         this._axisFacetKeys.push(key);
         if (facetManifest.displayType!.orientation === 'horizontal') {
@@ -217,14 +217,14 @@ export class Model {
   @Memoize()
   public getAxisFacet(orientation: AxisOrientation): Facet | null {
     if (orientation === 'horiz') {
-      return this._horizontalAxisFacetKey ? this._facetMap[this._horizontalAxisFacetKey] : null;
+      return this._horizontalAxisFacetKey ? this.facetMap[this._horizontalAxisFacetKey] : null;
     }
-    return this._verticalAxisFacetKey ? this._facetMap[this._verticalAxisFacetKey] : null;
+    return this._verticalAxisFacetKey ? this.facetMap[this._verticalAxisFacetKey] : null;
   }
 
   @Memoize()
   public getFacet(key: string): Facet | null {
-    return this._facetMap[key] ?? null;
+    return this.facetMap[key] ?? null;
   }
 }
 
