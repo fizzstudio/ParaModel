@@ -43,6 +43,10 @@ export class Model {
   public readonly intersectionScaledValues?: ScaledNumberRounded[];
   public readonly intersections: Intersection[] = [];
   public readonly facetMap: Record<string, Facet> = {}; // FIXME: this shouldn't be exposed
+  public dependentFacetKey: string | null = null;
+  public independentFacetKey: string | null = null;
+  public dependentFacet: Facet | null = null;
+  public independentFacet: Facet | null = null;
 
   public seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
 
@@ -88,6 +92,22 @@ export class Model {
       const facetManifest = this.dataset.facets[key];
       this._displayTypeForFacet[key] = facetManifest.displayType;
       this.facetMap[key] = facetManifest;
+      if (facetManifest.variableType === 'dependent') {
+        if (this.dependentFacetKey === null) {
+          this.dependentFacetKey = key;
+          this.dependentFacet = facetManifest;
+        } else {
+          throw new Error('only one dependent facet allowed');
+        }
+      };
+      if (facetManifest.variableType === 'independent') {
+        if (this.independentFacetKey === null) {
+          this.independentFacetKey = key;
+          this.independentFacet = facetManifest;
+        } else {
+          throw new Error('only one dependent facet allowed');
+        }
+      };
       if (facetManifest.displayType.type === 'axis') {
         this._axisFacetKeys.push(key);
         if (facetManifest.displayType!.orientation === 'horizontal') {
