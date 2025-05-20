@@ -137,6 +137,10 @@ export class Model {
     // (undocumented)
     protected datatypeMap: Record<string, Datatype>;
     // (undocumented)
+    dependentFacet: Facet | null;
+    // (undocumented)
+    dependentFacetKey: string | null;
+    // (undocumented)
     protected _facetKeys: string[];
     // (undocumented)
     readonly facetMap: Record<string, Facet>;
@@ -152,6 +156,10 @@ export class Model {
     getFacetStats(key: string): FacetStats | null;
     // (undocumented)
     protected _horizontalAxisFacetKey: string | null;
+    // (undocumented)
+    independentFacet: Facet | null;
+    // (undocumented)
+    independentFacetKey: string | null;
     // (undocumented)
     readonly intersections: Intersection[];
     // (undocumented)
