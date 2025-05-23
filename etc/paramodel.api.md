@@ -8,6 +8,7 @@ import { AllSeriesData } from '@fizz/paramanifest';
 import { ChartType } from '@fizz/paramanifest';
 import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
+import { DisplayType } from '@fizz/paramanifest';
 import { Facet } from '@fizz/paramanifest';
 import { Manifest } from '@fizz/paramanifest';
 import { Point } from '@fizz/chart-classifier-utils';
@@ -138,17 +139,19 @@ export class Model {
     // (undocumented)
     protected _axisFacetKeys: string[];
     // (undocumented)
-    protected datatypeMap: Record<string, Datatype>;
+    protected _dataset: Dataset;
     // (undocumented)
-    dependentFacet: Facet | null;
+    readonly dependentFacetKeys: string[];
     // (undocumented)
-    dependentFacetKey: string | null;
+    protected _facetDatatypeMappedByKey: Record<string, Datatype>;
     // (undocumented)
-    protected _facetKeys: string[];
+    protected _facetDisplayTypeMappedByKey: Record<string, DisplayType>;
     // (undocumented)
-    readonly facetMap: Record<string, Facet>;
+    readonly _facetKeys: string[];
     // (undocumented)
-    readonly facets: FacetSignature[];
+    protected _facetMappedByKey: Record<string, Facet>;
+    // (undocumented)
+    readonly facetSignatures: FacetSignature[];
     // (undocumented)
     getAxisFacet(orientation: AxisOrientation): Facet | null;
     // (undocumented)
@@ -160,27 +163,25 @@ export class Model {
     // (undocumented)
     protected _horizontalAxisFacetKey: string | null;
     // (undocumented)
-    independentFacet: Facet | null;
-    // (undocumented)
-    independentFacetKey: string | null;
+    readonly independentFacetKeys: string[];
     // (undocumented)
     readonly intersections: Intersection[];
     // (undocumented)
     readonly intersectionScaledValues?: ScaledNumberRounded[];
-    // (undocumented)
-    protected keyMap: Record<string, Series>;
-    // (undocumented)
-    readonly keys: string[];
     // (undocumented)
     readonly multi: boolean;
     // (undocumented)
     readonly numSeries: number;
     // (undocumented)
     readonly series: Series[];
+    // (undocumented)
+    readonly seriesKeys: string[];
+    // (undocumented)
+    protected _seriesMappedByKey: Record<string, Series>;
     // Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null;
+    protected _seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null;
     // Warning: (ae-forgotten-export) The symbol "SeriesScaledValues" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -193,6 +194,10 @@ export class Model {
     readonly theme: Theme;
     // (undocumented)
     readonly type: ChartType;
+    // Warning: (ae-forgotten-export) The symbol "BoxSet" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected _uniqueValuesForFacetMappedByKey: Record<string, BoxSet<Datatype>>;
     // (undocumented)
     protected _verticalAxisFacetKey: string | null;
     // (undocumented)
