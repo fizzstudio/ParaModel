@@ -13,6 +13,7 @@ import { Facet } from '@fizz/paramanifest';
 import { Manifest } from '@fizz/paramanifest';
 import { Point } from '@fizz/chart-classifier-utils';
 import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { Series as Series_2 } from '@fizz/paramanifest';
 import { Theme } from '@fizz/paramanifest';
 import { Theme1 } from '@fizz/paramanifest';
 
@@ -217,29 +218,33 @@ export function parseCalendar(input: string): CalendarPeriod | null;
 export class Series {
     // (undocumented)
     [Symbol.iterator](): Iterator<DataPoint>;
-    constructor(key: string, rawData: RawDataPoint[], facets: FacetSignature[], label?: string, theme?: Theme1);
+    constructor(manifest: Series_2, rawData: RawDataPoint[], facetSignatures: FacetSignature[]);
     // (undocumented)
     [i: number]: DataPoint;
     // (undocumented)
-    allFacetValues(key: string): Box<Datatype>[] | null;
+    allFacetValuesByKey(key: string): Box<Datatype>[] | null;
+    // Warning: (ae-forgotten-export) The symbol "DataFrame" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected readonly _dataframe: DataFrame;
     // Warning: (ae-forgotten-export) The symbol "DataPointConstructor" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    protected datapointConstructor: DataPointConstructor;
+    protected readonly _datapointConstructor: DataPointConstructor;
     // (undocumented)
     readonly datapoints: DataPoint[];
-    // (undocumented)
-    protected datatypeMap: Record<string, Datatype>;
     // Warning: (ae-forgotten-export) The symbol "DataFrameColumn" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    facet(key: string): DataFrameColumn<Datatype> | null;
+    facetBoxesByKey(key: string): DataFrameColumn<Datatype> | null;
     // (undocumented)
-    readonly facets: FacetSignature[];
+    protected readonly _facetDatatypeMappedByKey: Record<string, Datatype>;
     // (undocumented)
-    protected getDatapointConstructor(): DataPointConstructor;
+    readonly facetSignatures: FacetSignature[];
     // (undocumented)
-    getFacetDatatype(key: string): Datatype | null;
+    protected _getDatapointConstructor(): DataPointConstructor;
+    // (undocumented)
+    getFacetDatatypeByKey(key: string): Datatype | null;
     // (undocumented)
     getFacetStats(key: string): FacetStats | null;
     // (undocumented)
@@ -250,12 +255,16 @@ export class Series {
     readonly label: string;
     // (undocumented)
     readonly length: number;
+    // (undocumented)
+    readonly manifest: Series_2;
     // Warning: (ae-forgotten-export) The symbol "RawDataPoint" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
     readonly rawData: RawDataPoint[];
     // (undocumented)
-    readonly theme?: Theme1;
+    readonly theme: Theme1;
+    // (undocumented)
+    protected readonly _uniqueValuesForFacetMappedByKey: Record<string, BoxSet<Datatype>>;
 }
 
 // Warning: (ae-internal-missing-underscore) The name "strToId" should be prefixed with an underscore because the declaration is marked as @internal
