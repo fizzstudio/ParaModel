@@ -58,6 +58,9 @@ export function calendarGoBack(period: CalendarPeriod, step: CalendarPeriod): Ca
 export function calendarGoForward(period: CalendarPeriod, step: CalendarPeriod): CalendarPeriod;
 
 // @public (undocumented)
+export function calendarNumber(period: CalendarPeriod): number;
+
+// @public (undocumented)
 export type CalendarPeriod = {
     year?: number;
     quarter?: number;
