@@ -81,66 +81,73 @@ type DataPointConstructor = new (data: DataFrameRow, seriesKey: string, datapoin
 
 export class Series {
   [i: number]: DataPoint;
-  public readonly length: number;
+
+  public readonly key: string;
   public readonly id: string;
   public readonly label: string;
-  public readonly theme?: Theme;
+  public readonly theme: Theme;  
+
+  public readonly length: number;
   public readonly datapoints: DataPoint[] = [];
 
-  private readonly dataframe: DataFrame;
-  private readonly uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
-  protected datatypeMap: Record<string, Datatype> = {};
-  protected datapointConstructor: DataPointConstructor;
+  protected readonly _dataframe: DataFrame;
+  protected readonly _datapointConstructor: DataPointConstructor;
+
+  protected readonly _uniqueValuesForFacetMappedByKey: Record<string, BoxSet<Datatype>> = {};
+  protected readonly _facetDatatypeMappedByKey: Record<string, Datatype> = {};
 
   /*protected xMap: Map<ScalarMap[X], number[]>;
   private yMap: Map<number, ScalarMap[X][]>;*/
 
   constructor(
-    public readonly key: string, 
+    public readonly manifest: SeriesManifest,
     public readonly rawData: RawDataPoint[], 
-    public readonly facets: FacetSignature[],
-    label?: string,
-    theme?: Theme
+    public readonly facetSignatures: FacetSignature[],
   ) {
-    this.datapointConstructor = this.getDatapointConstructor();
-    this.dataframe = new DataFrame(facets);
-    this.facets.forEach((facet) => {
-      this.uniqueValuesForFacet[facet.key] = new BoxSet<Datatype>;
-      this.datatypeMap[facet.key] = facet.datatype;
+    this.key = this.manifest.key;
+    this.id = strToId(this.key); // TODO: see if we need to make this more unique
+    this.label = this.manifest.label ?? this.key;
+    this.theme = this.manifest.theme;
+
+    this.facetSignatures.forEach((facet) => {
+      this._uniqueValuesForFacetMappedByKey[facet.key] = new BoxSet<Datatype>;
+      this._facetDatatypeMappedByKey[facet.key] = facet.datatype;
     });
-    this.rawData.forEach((datapoint) => this.dataframe.addDatapoint(datapoint));
-    this.dataframe.rows.forEach((row, index) => {
-      const datapoint = new this.datapointConstructor(row, this.key, index);
+
+    this._datapointConstructor = this._getDatapointConstructor();
+    this._dataframe = new DataFrame(facetSignatures);
+    this.length = this.rawData.length;    
+    this.rawData.forEach((datapoint) => this._dataframe.addDatapoint(datapoint));
+    this._dataframe.rows.forEach((row, index) => {
+      const datapoint = new this._datapointConstructor(row, this.key, index);
       this[index] = datapoint;
       this.datapoints.push(datapoint);
       Object.keys(row).forEach(
-        (facetKey) => this.uniqueValuesForFacet[facetKey].add(row[facetKey])
+        (facetKey) => this._uniqueValuesForFacetMappedByKey[facetKey].add(row[facetKey])
       );
     });
+
     /*this.xMap = mapDatapointsXtoY(this.datapoints);
     this.yMap = mapDatapointsYtoX(this.datapoints);*/
-    this.length = this.rawData.length;
-    this.id = strToId(this.key); // TODO: see if we need to make this more unique
-    this.label = label ?? this.key;
-    if (theme) {
-      this.theme = theme;
-    }
   }
 
-  protected getDatapointConstructor(): DataPointConstructor {
+  protected _getDatapointConstructor(): DataPointConstructor {
     return DataPoint;
   }
 
-  public facet(key: string): DataFrameColumn<Datatype> | null {
-    return this.dataframe.facet(key);
+  @Memoize()
+  public facetBoxesByKey(key: string): DataFrameColumn<Datatype> | null {
+    return this._dataframe.facet(key);
   }
 
-  public allFacetValues(key: string): Box<Datatype>[] | null {
-    return this.uniqueValuesForFacet[key]?.values ?? null;
+  @Memoize()
+  public allFacetValuesByKey(key: string): Box<Datatype>[] | null {
+    return this._uniqueValuesForFacetMappedByKey[key]?.values ?? null;
   }
 
-  public getFacetDatatype(key: string): Datatype | null {
-    return this.datatypeMap[key] ?? null;
+  @Memoize()
+  public getFacetDatatypeByKey(key: string): Datatype | null {
+    return this._facetDatatypeMappedByKey[key] ?? null;
   }
 
   /*atX(x: ScalarMap[X]): number[] | null {
@@ -157,7 +164,7 @@ export class Series {
 
   @Memoize()
   public getFacetStats(key: string): FacetStats | null {
-    const facetDatatype = this.datatypeMap[key];
+    const facetDatatype = this._facetDatatypeMappedByKey[key];
     // Checks for both non-existent and non-numerical facets
     if (facetDatatype !== 'number') {
       return null;
@@ -175,7 +182,7 @@ export class XYSeries extends Series {
     return new Line(points, this.key);
   }
 
-  protected getDatapointConstructor(): DataPointConstructor {
+  protected _getDatapointConstructor(): DataPointConstructor {
     return XYDatapoint;
   }
 }
@@ -187,17 +194,15 @@ export function isXYFacetSignature(facets: FacetSignature[]): boolean {
 }
 
 export function seriesFromSeriesManifest(
-  seriesManifest: SeriesManifest, facets: FacetSignature[]
+  seriesManifest: SeriesManifest, facetSignatures: FacetSignature[]
 ): Series {
   if (!seriesManifest.records) {
     throw new Error('only series manifests with inline data can use this method.');
   }
-  const seriesConstructor = isXYFacetSignature(facets) ? XYSeries : Series;
+  const seriesConstructor = isXYFacetSignature(facetSignatures) ? XYSeries : Series;
   return new seriesConstructor(
-    seriesManifest.key, 
+    seriesManifest, 
     seriesManifest.records!, 
-    facets, 
-    seriesManifest.label,
-    seriesManifest.theme
+    facetSignatures
   );
 }

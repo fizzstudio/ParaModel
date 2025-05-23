@@ -82,7 +82,7 @@ export class Model {
     }
 
     // Facets
-    this.facetSignatures = this.series[0].facets;
+    this.facetSignatures = this.series[0].facetSignatures;
     this.xy = isXYFacetSignature(this.facetSignatures);
     this.facetSignatures.forEach((facet) => {
       this._facetKeys.push(facet.key);
@@ -131,7 +131,7 @@ export class Model {
       }
       if (!arrayEqualsBy(
         (l, r) => (l.key === r.key) && (l.datatype === r.datatype), 
-        aSeries.facets, this.facetSignatures
+        aSeries.facetSignatures, this.facetSignatures
       )) {
         throw new Error('every series in a model must have the same facets');
       }
@@ -140,7 +140,7 @@ export class Model {
       this._seriesMappedByKey[aSeries.key] = aSeries;
       this.allPoints.push(...aSeries);
       Object.keys(this._uniqueValuesForFacetMappedByKey).forEach((facetKey) => {
-        this._uniqueValuesForFacetMappedByKey[facetKey].merge(aSeries.allFacetValues(facetKey)!);
+        this._uniqueValuesForFacetMappedByKey[facetKey].merge(aSeries.allFacetValuesByKey(facetKey)!);
       });
     }
 
@@ -255,11 +255,11 @@ export function modelFromInlineData(manifest: Manifest): Model {
   return new Model(series, manifest);
 }
 
-// FIXME: This function does not include series labels (as seperate from series keys) or series themes
 export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): Model {
   const facets = facetsFromDataset(manifest.datasets[0]);
-  const series = Object.keys(data).map((key) => 
-    new Series(key, data[key], facets)
-  );
+  const series = Object.keys(data).map((key) => {
+    const seriesManifest = manifest.datasets[0].series.filter((s) => s.key === key)[0];
+    return new Series(seriesManifest, data[key], facets);
+  });
   return new Model(series, manifest);
 }
