@@ -5,10 +5,13 @@
 ```ts
 
 import { AllSeriesData } from '@fizz/paramanifest';
+import { ChartType } from '@fizz/paramanifest';
 import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
 import { Facet } from '@fizz/paramanifest';
 import { Manifest } from '@fizz/paramanifest';
+import { Point } from '@fizz/chart-classifier-utils';
+import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import { Theme } from '@fizz/paramanifest';
 import { Theme1 } from '@fizz/paramanifest';
 
@@ -46,6 +49,26 @@ export abstract class Box<T extends Datatype> {
 }
 
 // @public (undocumented)
+export function calendarEquals(lhs: CalendarPeriod, rhs: CalendarPeriod): boolean;
+
+// @public (undocumented)
+export function calendarGoBack(period: CalendarPeriod, step: CalendarPeriod): CalendarPeriod;
+
+// @public (undocumented)
+export function calendarGoForward(period: CalendarPeriod, step: CalendarPeriod): CalendarPeriod;
+
+// @public (undocumented)
+export function calendarNumber(period: CalendarPeriod): number;
+
+// @public (undocumented)
+export type CalendarPeriod = {
+    year?: number;
+    quarter?: number;
+    month?: number;
+    day?: number;
+};
+
+// @public (undocumented)
 export class DataPoint {
     constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number);
     // Warning: (ae-forgotten-export) The symbol "DataFrameRow" needs to be exported by the entry point index.d.ts
@@ -56,6 +79,8 @@ export class DataPoint {
     datapointIndex: number;
     // (undocumented)
     entries(): Iterable<[string, Box<Datatype>]>;
+    // (undocumented)
+    facetAsNumber(key: string): number | null;
     // (undocumented)
     facetBox(key: string): Box<Datatype> | null;
     // (undocumented)
@@ -76,6 +101,27 @@ export type FacetSignature = {
     datatype: Datatype;
 };
 
+// @public
+export interface Intersection {
+    // Warning: (ae-forgotten-export) The symbol "Angle" needs to be exported by the entry point index.d.ts
+    incomingAngle: null | Angle;
+    outgoingAngle: null | Angle;
+    record: {
+        label: string | null;
+        before: string | null;
+        after: string | null;
+    };
+    // Warning: (ae-forgotten-export) The symbol "SeriesPair" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    series: SeriesPair;
+    // Warning: (ae-forgotten-export) The symbol "TransverseObj" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    transversality: TransverseObj;
+    value: number;
+}
+
 // @public (undocumented)
 export class Model {
     constructor(series: Series[], manifest: Manifest);
@@ -94,9 +140,13 @@ export class Model {
     // (undocumented)
     protected datatypeMap: Record<string, Datatype>;
     // (undocumented)
+    dependentFacet: Facet | null;
+    // (undocumented)
+    dependentFacetKey: string | null;
+    // (undocumented)
     protected _facetKeys: string[];
     // (undocumented)
-    protected _facetMap: Record<string, Facet>;
+    readonly facetMap: Record<string, Facet>;
     // (undocumented)
     readonly facets: FacetSignature[];
     // (undocumented)
@@ -110,6 +160,14 @@ export class Model {
     // (undocumented)
     protected _horizontalAxisFacetKey: string | null;
     // (undocumented)
+    independentFacet: Facet | null;
+    // (undocumented)
+    independentFacetKey: string | null;
+    // (undocumented)
+    readonly intersections: Intersection[];
+    // (undocumented)
+    readonly intersectionScaledValues?: ScaledNumberRounded[];
+    // (undocumented)
     protected keyMap: Record<string, Series>;
     // (undocumented)
     readonly keys: string[];
@@ -119,10 +177,26 @@ export class Model {
     readonly numSeries: number;
     // (undocumented)
     readonly series: Series[];
+    // Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null;
+    // Warning: (ae-forgotten-export) The symbol "SeriesScaledValues" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readonly seriesScaledValues?: SeriesScaledValues;
+    // Warning: (ae-forgotten-export) The symbol "AllSeriesStatsScaledValues" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
     // (undocumented)
     readonly theme: Theme;
     // (undocumented)
+    readonly type: ChartType;
+    // (undocumented)
     protected _verticalAxisFacetKey: string | null;
+    // (undocumented)
+    readonly xy: boolean;
 }
 
 // @public (undocumented)
@@ -130,6 +204,9 @@ export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): 
 
 // @public (undocumented)
 export function modelFromInlineData(manifest: Manifest): Model;
+
+// @public (undocumented)
+export function parseCalendar(input: string): CalendarPeriod | null;
 
 // @public (undocumented)
 export class Series {
@@ -140,14 +217,26 @@ export class Series {
     [i: number]: DataPoint;
     // (undocumented)
     allFacetValues(key: string): Box<Datatype>[] | null;
+    // Warning: (ae-forgotten-export) The symbol "DataPointConstructor" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected datapointConstructor: DataPointConstructor;
     // (undocumented)
     readonly datapoints: DataPoint[];
+    // (undocumented)
+    protected datatypeMap: Record<string, Datatype>;
     // Warning: (ae-forgotten-export) The symbol "DataFrameColumn" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
     facet(key: string): DataFrameColumn<Datatype> | null;
     // (undocumented)
     readonly facets: FacetSignature[];
+    // (undocumented)
+    protected getDatapointConstructor(): DataPointConstructor;
+    // (undocumented)
+    getFacetDatatype(key: string): Datatype | null;
+    // (undocumented)
+    getFacetStats(key: string): FacetStats | null;
     // (undocumented)
     readonly id: string;
     // (undocumented)
@@ -173,14 +262,12 @@ export function strToId(s: string): string;
 export class XYDatapoint extends DataPoint {
     constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number);
     // (undocumented)
+    getNumericalXY(): Point;
+    // (undocumented)
     get x(): Box<Datatype>;
     // (undocumented)
     get y(): Box<Datatype>;
 }
-
-// Warnings were encountered during analysis:
-//
-// lib/dataframe/box.ts:46:31 - (ae-forgotten-export) The symbol "CalendarPeriod" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

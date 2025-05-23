@@ -15,28 +15,38 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from 'typescript-memoize';
-import { AllSeriesData, Dataset, Datatype, DisplayType, Facet, Manifest, Theme, XyPoint } from "@fizz/paramanifest";
+import { AllSeriesData, ChartType, Dataset, Datatype, DisplayType, Facet, Manifest, Theme, XyPoint } from "@fizz/paramanifest";
 
 import { arrayEqualsBy, AxisOrientation, enumerate } from "./utils";
 import { FacetSignature } from "./dataframe/dataframe";
 import { Box, BoxSet } from "./dataframe/box";
-import { calculateFacetStats, FacetStats } from "./metadata";
+import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "./metadata";
 import { DataPoint, isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
-import { SeriesPairMetadataAnalyzer } from './series_pair_analyzer';
-import { Line } from '@fizz/chart-classifier-utils';
+import { Intersection, SeriesPairMetadataAnalyzer } from './series_pair_analyzer';
 import { BasicSeriesPairMetadataAnalyzer } from './basic_series_pair_analyzer';
+import { OrderOfMagnitudeNum, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
 export class Model {
-  public readonly keys: string[] = [];
   [i: number]: Series;
+  public readonly type: ChartType;
+  public readonly keys: string[] = [];
   public readonly facets: FacetSignature[];
   public readonly multi: boolean;
   public readonly numSeries: number;
   public readonly allPoints: DataPoint[] = [];
   public readonly theme: Theme;
   public readonly xy: boolean;
+  public readonly seriesScaledValues?: SeriesScaledValues;
+  public readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
+  public readonly intersectionScaledValues?: ScaledNumberRounded[];
+  public readonly intersections: Intersection[] = [];
+  public readonly facetMap: Record<string, Facet> = {}; // FIXME: this shouldn't be exposed
+  public dependentFacetKey: string | null = null;
+  public independentFacetKey: string | null = null;
+  public dependentFacet: Facet | null = null;
+  public independentFacet: Facet | null = null;
 
   public seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
 
@@ -45,7 +55,6 @@ export class Model {
   private uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
 
   protected _facetKeys: string[] = [];
-  protected _facetMap: Record<string, Facet> = {};
   protected _axisFacetKeys: string[] = [];
   protected _horizontalAxisFacetKey: string | null = null;
   protected _verticalAxisFacetKey: string | null = null;
@@ -60,8 +69,16 @@ export class Model {
     if (this.series.length === 0) {
       throw new Error('models must have at least one series');
     }
+    this.multi = this.series.length > 1;
     this.dataset = manifest.datasets[0];
-    this.theme = this.dataset.chartTheme!;
+    this.type = this.dataset.type;
+    if (this.dataset.chartTheme) {
+      this.theme = this.dataset.chartTheme;
+    } else if (!this.multi) {
+      this.theme = this.dataset.series[0].theme;
+    } else {
+      throw new Error('multi-series charts must have an overall theme');
+    }
 
     // Facets
     this.facets = this.series[0].facets;
@@ -74,7 +91,23 @@ export class Model {
     this._facetKeys.forEach((key) => {
       const facetManifest = this.dataset.facets[key];
       this._displayTypeForFacet[key] = facetManifest.displayType;
-      this._facetMap[key] = facetManifest;
+      this.facetMap[key] = facetManifest;
+      if (facetManifest.variableType === 'dependent') {
+        if (this.dependentFacetKey === null) {
+          this.dependentFacetKey = key;
+          this.dependentFacet = facetManifest;
+        } else {
+          throw new Error('only one dependent facet allowed');
+        }
+      };
+      if (facetManifest.variableType === 'independent') {
+        if (this.independentFacetKey === null) {
+          this.independentFacetKey = key;
+          this.independentFacet = facetManifest;
+        } else {
+          throw new Error('only one dependent facet allowed');
+        }
+      };
       if (facetManifest.displayType.type === 'axis') {
         this._axisFacetKeys.push(key);
         if (facetManifest.displayType!.orientation === 'horizontal') {
@@ -100,7 +133,6 @@ export class Model {
     }
 
     // Series
-    this.multi = this.series.length > 1;
     this.numSeries = this.series.length;
     for (const [aSeries, seriesIndex] of enumerate(this.series)) {
       if (this.keys.includes(aSeries.key)) {
@@ -121,9 +153,14 @@ export class Model {
       });
     }
 
-    if (this.multi && this.xy) {
-      const seriesArray = (this.series as XYSeries[]).map((series) => series.getNumericalLine());
-      this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]);
+    if (this.xy) {
+      if (this.multi) {
+        const seriesArray = (this.series as XYSeries[]).map((series) => series.getNumericalLine());
+        this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]);
+        this.intersections = this.seriesPairAnalyzer.getIntersections();
+      }
+      [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
+        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitudeNum | undefined);
     }
 
     /*this.xs = mergeUniqueBy(
@@ -200,14 +237,14 @@ export class Model {
   @Memoize()
   public getAxisFacet(orientation: AxisOrientation): Facet | null {
     if (orientation === 'horiz') {
-      return this._horizontalAxisFacetKey ? this._facetMap[this._horizontalAxisFacetKey] : null;
+      return this._horizontalAxisFacetKey ? this.facetMap[this._horizontalAxisFacetKey] : null;
     }
-    return this._verticalAxisFacetKey ? this._facetMap[this._verticalAxisFacetKey] : null;
+    return this._verticalAxisFacetKey ? this.facetMap[this._verticalAxisFacetKey] : null;
   }
 
   @Memoize()
   public getFacet(key: string): Facet | null {
-    return this._facetMap[key] ?? null;
+    return this.facetMap[key] ?? null;
   }
 }
 
