@@ -22,7 +22,7 @@ import { FacetSignature } from "../dataframe/dataframe";
 import { Box, BoxSet } from "../dataframe/box";
 import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "../metadata/metadata";
 import { DataPoint, isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
-import { Intersection, SeriesPairMetadataAnalyzer } from '../metadata/pair_analyzer_interface';
+import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 import { OrderOfMagnitudeNum, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 
@@ -44,6 +44,8 @@ export class Model {
   public readonly intersections: Intersection[] = [];
   public readonly clusters: string[][] = [];
   public readonly clusterOutliers: string[] = [];
+  public readonly trackingGroups: TrackingGroup[] = [];
+  public readonly trackingZones: TrackingZone[] = [];
   public readonly facetMap: Record<string, Facet> = {}; // FIXME: this shouldn't be exposed
   public dependentFacetKey: string | null = null;
   public independentFacetKey: string | null = null;
@@ -162,6 +164,8 @@ export class Model {
         this.intersections = this.seriesPairAnalyzer.getIntersections();
         this.clusters = this.seriesPairAnalyzer.getClusters();
         this.clusterOutliers = this.seriesPairAnalyzer.getClusterOutliers();
+        this.trackingGroups = this.seriesPairAnalyzer.getTrackingGroups();
+        this.trackingZones = this.seriesPairAnalyzer.getTrackingZones();
       }
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
         = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitudeNum | undefined);
