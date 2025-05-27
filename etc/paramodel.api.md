@@ -8,12 +8,13 @@ import { AllSeriesData } from '@fizz/paramanifest';
 import { ChartType } from '@fizz/paramanifest';
 import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
+import { DisplayType } from '@fizz/paramanifest';
 import { Facet } from '@fizz/paramanifest';
 import { Manifest } from '@fizz/paramanifest';
 import { Point } from '@fizz/chart-classifier-utils';
 import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { SeriesManifest } from '@fizz/paramanifest';
 import { Theme } from '@fizz/paramanifest';
-import { Theme1 } from '@fizz/paramanifest';
 
 // @public (undocumented)
 export function arrayEqualsBy<L, R>(by: (lhs: L, rhs: R) => boolean, lhs: L[], rhs: R[]): boolean;
@@ -142,17 +143,21 @@ export class Model {
     // (undocumented)
     readonly clusters: string[][];
     // (undocumented)
-    protected datatypeMap: Record<string, Datatype>;
+    protected _dataset: Dataset;
     // (undocumented)
-    dependentFacet: Facet | null;
+    readonly dependentFacetKeys: string[];
     // (undocumented)
-    dependentFacetKey: string | null;
+    protected _facetDatatypeMappedByKey: Record<string, Datatype>;
     // (undocumented)
-    protected _facetKeys: string[];
+    protected _facetDisplayTypeMappedByKey: Record<string, DisplayType>;
+    // (undocumented)
+    readonly facetKeys: string[];
     // (undocumented)
     readonly facetMap: Record<string, Facet>;
     // (undocumented)
-    readonly facets: FacetSignature[];
+    protected _facetMappedByKey: Record<string, Facet>;
+    // (undocumented)
+    readonly facetSignatures: FacetSignature[];
     // (undocumented)
     getAxisFacet(orientation: AxisOrientation): Facet | null;
     // (undocumented)
@@ -164,27 +169,25 @@ export class Model {
     // (undocumented)
     protected _horizontalAxisFacetKey: string | null;
     // (undocumented)
-    independentFacet: Facet | null;
-    // (undocumented)
-    independentFacetKey: string | null;
+    readonly independentFacetKeys: string[];
     // (undocumented)
     readonly intersections: Intersection[];
     // (undocumented)
     readonly intersectionScaledValues?: ScaledNumberRounded[];
-    // (undocumented)
-    protected keyMap: Record<string, Series>;
-    // (undocumented)
-    readonly keys: string[];
     // (undocumented)
     readonly multi: boolean;
     // (undocumented)
     readonly numSeries: number;
     // (undocumented)
     readonly series: Series[];
+    // (undocumented)
+    readonly seriesKeys: string[];
+    // (undocumented)
+    protected _seriesMappedByKey: Record<string, Series>;
     // Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null;
+    protected _seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null;
     // Warning: (ae-forgotten-export) The symbol "SeriesScaledValues" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -205,6 +208,10 @@ export class Model {
     readonly trackingZones: TrackingZone[];
     // (undocumented)
     readonly type: ChartType;
+    // Warning: (ae-forgotten-export) The symbol "BoxSet" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected _uniqueValuesForFacetMappedByKey: Record<string, BoxSet<Datatype>>;
     // (undocumented)
     protected _verticalAxisFacetKey: string | null;
     // (undocumented)
@@ -224,29 +231,33 @@ export function parseCalendar(input: string): CalendarPeriod | null;
 export class Series {
     // (undocumented)
     [Symbol.iterator](): Iterator<DataPoint>;
-    constructor(key: string, rawData: RawDataPoint[], facets: FacetSignature[], label?: string, theme?: Theme1);
+    constructor(manifest: SeriesManifest, rawData: RawDataPoint[], facetSignatures: FacetSignature[]);
     // (undocumented)
     [i: number]: DataPoint;
     // (undocumented)
-    allFacetValues(key: string): Box<Datatype>[] | null;
+    allFacetValuesByKey(key: string): Box<Datatype>[] | null;
+    // Warning: (ae-forgotten-export) The symbol "DataFrame" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected readonly _dataframe: DataFrame;
     // Warning: (ae-forgotten-export) The symbol "DataPointConstructor" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    protected datapointConstructor: DataPointConstructor;
+    protected readonly _datapointConstructor: DataPointConstructor;
     // (undocumented)
     readonly datapoints: DataPoint[];
-    // (undocumented)
-    protected datatypeMap: Record<string, Datatype>;
     // Warning: (ae-forgotten-export) The symbol "DataFrameColumn" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    facet(key: string): DataFrameColumn<Datatype> | null;
+    facetBoxesByKey(key: string): DataFrameColumn<Datatype> | null;
     // (undocumented)
-    readonly facets: FacetSignature[];
+    protected readonly _facetDatatypeMappedByKey: Record<string, Datatype>;
     // (undocumented)
-    protected getDatapointConstructor(): DataPointConstructor;
+    readonly facetSignatures: FacetSignature[];
     // (undocumented)
-    getFacetDatatype(key: string): Datatype | null;
+    protected _getDatapointConstructor(): DataPointConstructor;
+    // (undocumented)
+    getFacetDatatypeByKey(key: string): Datatype | null;
     // (undocumented)
     getFacetStats(key: string): FacetStats | null;
     // (undocumented)
@@ -257,12 +268,16 @@ export class Series {
     readonly label: string;
     // (undocumented)
     readonly length: number;
+    // (undocumented)
+    readonly manifest: SeriesManifest;
     // Warning: (ae-forgotten-export) The symbol "RawDataPoint" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
     readonly rawData: RawDataPoint[];
     // (undocumented)
-    readonly theme?: Theme1;
+    readonly theme: Theme;
+    // (undocumented)
+    protected readonly _uniqueValuesForFacetMappedByKey: Record<string, BoxSet<Datatype>>;
 }
 
 // Warning: (ae-internal-missing-underscore) The name "strToId" should be prefixed with an underscore because the declaration is marked as @internal
