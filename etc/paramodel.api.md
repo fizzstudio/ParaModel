@@ -138,6 +138,10 @@ export class Model {
     // (undocumented)
     protected _axisFacetKeys: string[];
     // (undocumented)
+    readonly clusterOutliers: string[];
+    // (undocumented)
+    readonly clusters: string[][];
+    // (undocumented)
     protected datatypeMap: Record<string, Datatype>;
     // (undocumented)
     dependentFacet: Facet | null;
@@ -191,6 +195,14 @@ export class Model {
     readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
     // (undocumented)
     readonly theme: Theme;
+    // Warning: (ae-forgotten-export) The symbol "TrackingGroup" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readonly trackingGroups: TrackingGroup[];
+    // Warning: (ae-forgotten-export) The symbol "TrackingZone" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readonly trackingZones: TrackingZone[];
     // (undocumented)
     readonly type: ChartType;
     // (undocumented)
