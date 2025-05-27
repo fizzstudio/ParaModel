@@ -14,14 +14,15 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
+import { Memoize } from "typescript-memoize";
+import * as ss from 'simple-statistics';
 import { Datatype, SeriesManifest, Theme } from "@fizz/paramanifest";
+import { Line, Point } from "@fizz/chart-classifier-utils";
 
 import { strToId } from "../utils";
 import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint } from "../dataframe/dataframe";
 import { Box, BoxSet, ScalarMap } from "../dataframe/box";
 import { calculateFacetStats, FacetStats } from "../metadata/metadata";
-import { Memoize } from "typescript-memoize";
-import { Line, Point } from "@fizz/chart-classifier-utils";
 import { calendarNumber } from "../calendar_period";
 
 export class DataPoint {
@@ -175,6 +176,10 @@ export class Series {
 
 export class XYSeries extends Series {
   declare datapoints: XYDatapoint[];
+  
+  protected _getDatapointConstructor(): DataPointConstructor {
+    return XYDatapoint;
+  }
 
   @Memoize()
   public getNumericalLine(): Line {
@@ -182,8 +187,10 @@ export class XYSeries extends Series {
     return new Line(points, this.key);
   }
 
-  protected _getDatapointConstructor(): DataPointConstructor {
-    return XYDatapoint;
+  @Memoize()
+  public getAverage(): number {
+    const points = this.datapoints.map((point) => point.getNumericalXY().y);
+    return ss.average(points);
   }
 }
 
