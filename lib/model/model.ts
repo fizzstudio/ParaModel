@@ -17,13 +17,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import { Memoize } from 'typescript-memoize';
 import { AllSeriesData, ChartType, Dataset, Datatype, DisplayType, Facet, Manifest, Theme, XyPoint } from "@fizz/paramanifest";
 
-import { arrayEqualsBy, AxisOrientation, enumerate } from "./utils";
-import { FacetSignature } from "./dataframe/dataframe";
-import { Box, BoxSet } from "./dataframe/box";
-import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "./metadata";
+import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
+import { FacetSignature } from "../dataframe/dataframe";
+import { Box, BoxSet } from "../dataframe/box";
+import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "../metadata/metadata";
 import { DataPoint, isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
-import { Intersection, SeriesPairMetadataAnalyzer } from './series_pair_analyzer';
-import { BasicSeriesPairMetadataAnalyzer } from './basic_series_pair_analyzer';
+import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
+import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 import { OrderOfMagnitudeNum, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 
 // Like a dictionary for series
@@ -42,6 +42,10 @@ export class Model {
   public readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
   public readonly intersectionScaledValues?: ScaledNumberRounded[];
   public readonly intersections: Intersection[] = [];
+  public readonly clusters: string[][] = [];
+  public readonly clusterOutliers: string[] = [];
+  public readonly trackingGroups: TrackingGroup[] = [];
+  public readonly trackingZones: TrackingZone[] = [];
   public readonly facetMap: Record<string, Facet> = {}; // FIXME: this shouldn't be exposed
   public dependentFacetKey: string | null = null;
   public independentFacetKey: string | null = null;
@@ -158,6 +162,10 @@ export class Model {
         const seriesArray = (this.series as XYSeries[]).map((series) => series.getNumericalLine());
         this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]);
         this.intersections = this.seriesPairAnalyzer.getIntersections();
+        this.clusters = this.seriesPairAnalyzer.getClusters();
+        this.clusterOutliers = this.seriesPairAnalyzer.getClusterOutliers();
+        this.trackingGroups = this.seriesPairAnalyzer.getTrackingGroups();
+        this.trackingZones = this.seriesPairAnalyzer.getTrackingZones();
       }
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
         = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitudeNum | undefined);
