@@ -18,14 +18,13 @@ import { Memoize } from 'typescript-memoize';
 import { AllSeriesData, ChartType, Dataset, Datatype, DisplayType, Facet, Manifest, Theme } from "@fizz/paramanifest";
 import { OrderOfMagnitudeNum, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 
-import { arrayEqualsBy, AxisOrientation, enumerate } from "./utils";
-import { FacetSignature } from "./dataframe/dataframe";
-import { Box, BoxSet } from "./dataframe/box";
-import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "./metadata";
+import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
+import { FacetSignature } from "../dataframe/dataframe";
+import { Box, BoxSet } from "../dataframe/box";
+import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "../metadata/metadata";
 import { DataPoint, isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
-import { Intersection, SeriesPairMetadataAnalyzer } from './series_pair_analyzer';
-import { BasicSeriesPairMetadataAnalyzer } from './basic_series_pair_analyzer';
-
+import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
+import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
@@ -45,10 +44,19 @@ export class Model {
   public readonly numSeries: number;
   public readonly seriesScaledValues?: SeriesScaledValues;
   public readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
+  public readonly intersectionScaledValues?: ScaledNumberRounded[];
+  public readonly intersections: Intersection[] = [];
+  public readonly clusters: string[][] = [];
+  public readonly clusterOutliers: string[] = [];
+  public readonly trackingGroups: TrackingGroup[] = [];
+  public readonly trackingZones: TrackingZone[] = [];
+  public readonly facetMap: Record<string, Facet> = {}; // FIXME: this shouldn't be exposed
+  public dependentFacetKey: string | null = null;
+  public independentFacetKey: string | null = null;
+  public dependentFacet: Facet | null = null;
+  public independentFacet: Facet | null = null;
 
   public readonly allPoints: DataPoint[] = [];
-  public readonly intersections: Intersection[] = [];
-  public readonly intersectionScaledValues?: ScaledNumberRounded[];
 
   protected _dataset: Dataset;
 
@@ -149,6 +157,10 @@ export class Model {
         const seriesArray = (this.series as XYSeries[]).map((series) => series.getNumericalLine());
         this._seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]);
         this.intersections = this._seriesPairAnalyzer.getIntersections();
+        this.clusters = this._seriesPairAnalyzer.getClusters();
+        this.clusterOutliers = this._seriesPairAnalyzer.getClusterOutliers();
+        this.trackingGroups = this._seriesPairAnalyzer.getTrackingGroups();
+        this.trackingZones = this._seriesPairAnalyzer.getTrackingZones();
       }
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
         = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitudeNum | undefined);

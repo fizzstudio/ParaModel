@@ -16,13 +16,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Datatype, Series as SeriesManifest, Theme1 as Theme, XyPoint } from "@fizz/paramanifest";
 
-import { strToId } from "./utils";
-import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint } from "./dataframe/dataframe";
-import { Box, BoxSet, ScalarMap } from "./dataframe/box";
-import { calculateFacetStats, FacetStats } from "./metadata";
+import { strToId } from "../utils";
+import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint } from "../dataframe/dataframe";
+import { Box, BoxSet, ScalarMap } from "../dataframe/box";
+import { calculateFacetStats, FacetStats } from "../metadata/metadata";
 import { Memoize } from "typescript-memoize";
 import { Line, Point } from "@fizz/chart-classifier-utils";
-import { calendarNumber } from "./calendar_period";
+import { calendarNumber } from "../calendar_period";
 
 export class DataPoint {
   constructor(protected data: DataFrameRow, public seriesKey: string, public datapointIndex: number) { }
