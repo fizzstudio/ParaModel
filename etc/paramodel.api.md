@@ -10,6 +10,7 @@ import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
 import { DisplayType } from '@fizz/paramanifest';
 import { Facet } from '@fizz/paramanifest';
+import { Line } from '@fizz/chart-classifier-utils';
 import { Manifest } from '@fizz/paramanifest';
 import { Point } from '@fizz/chart-classifier-utils';
 import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
@@ -294,6 +295,18 @@ export class XYDatapoint extends DataPoint {
     get x(): Box<Datatype>;
     // (undocumented)
     get y(): Box<Datatype>;
+}
+
+// @public (undocumented)
+export class XYSeries extends Series {
+    // (undocumented)
+    datapoints: XYDatapoint[];
+    // (undocumented)
+    getAverage(): number;
+    // (undocumented)
+    protected _getDatapointConstructor(): DataPointConstructor;
+    // (undocumented)
+    getNumericalLine(): Line;
 }
 
 // (No @packageDocumentation comment for this package)
