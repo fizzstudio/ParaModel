@@ -15,9 +15,9 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import * as ss from 'simple-statistics';
-import { DataPoint, XYSeries } from './series';
+import { DataPoint, XYSeries } from '../model/series';
 import { OrderOfMagnitudeNum, scaleAndRound, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
-import { Intersection } from './series_pair_analyzer';
+import { Intersection } from './pair_analyzer_interface';
 
 // Facet Stats
 
