@@ -16,7 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from 'typescript-memoize';
 import { AllSeriesData, ChartType, Dataset, Datatype, DisplayType, Facet, Manifest, Theme } from "@fizz/paramanifest";
-import { OrderOfMagnitudeNum, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 
 import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
@@ -34,7 +34,7 @@ export class Model {
   public readonly theme: Theme;
 
   public readonly facetSignatures: FacetSignature[];
-  public readonly _facetKeys: string[] = [];
+  public readonly facetKeys: string[] = [];
   public readonly xy: boolean;
   public readonly dependentFacetKeys: string[] = [];
   public readonly independentFacetKeys: string[] = [];  
@@ -51,11 +51,7 @@ export class Model {
   public readonly trackingGroups: TrackingGroup[] = [];
   public readonly trackingZones: TrackingZone[] = [];
   public readonly facetMap: Record<string, Facet> = {}; // FIXME: this shouldn't be exposed
-  public dependentFacetKey: string | null = null;
-  public independentFacetKey: string | null = null;
-  public dependentFacet: Facet | null = null;
-  public independentFacet: Facet | null = null;
-
+  
   public readonly allPoints: DataPoint[] = [];
 
   protected _dataset: Dataset;
@@ -93,11 +89,11 @@ export class Model {
     this.facetSignatures = this.series[0].facetSignatures;
     this.xy = isXYFacetSignature(this.facetSignatures);
     this.facetSignatures.forEach((facet) => {
-      this._facetKeys.push(facet.key);
+      this.facetKeys.push(facet.key);
       this._uniqueValuesForFacetMappedByKey[facet.key] = new BoxSet<Datatype>;
       this._facetDatatypeMappedByKey[facet.key] = facet.datatype;
     });
-    this._facetKeys.forEach((key) => {
+    this.facetKeys.forEach((key) => {
       const facetManifest = this._dataset.facets[key];
       this._facetDisplayTypeMappedByKey[key] = facetManifest.displayType;
       this._facetMappedByKey[key] = facetManifest;
@@ -163,7 +159,7 @@ export class Model {
         this.trackingZones = this._seriesPairAnalyzer.getTrackingZones();
       }
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
-        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitudeNum | undefined);
+        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
     }
 
     /*this.xs = mergeUniqueBy(
@@ -201,8 +197,8 @@ export class Model {
       this._horizontalAxisFacetKey = independentAxes[0];
       this._verticalAxisFacetKey = dependentAxes[0];
     } else if (
-      this._facetKeys.includes('x') 
-      && this._facetKeys.includes('y')
+      this.facetKeys.includes('x') 
+      && this.facetKeys.includes('y')
       && this._facetDisplayTypeMappedByKey['x']?.type === 'axis'
       && this._facetDisplayTypeMappedByKey['y']?.type === 'axis'
       && (this._horizontalAxisFacetKey === null || this._horizontalAxisFacetKey === 'x')
