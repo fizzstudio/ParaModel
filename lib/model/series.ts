@@ -24,6 +24,8 @@ import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint 
 import { Box, BoxSet, ScalarMap } from "../dataframe/box";
 import { calculateFacetStats, FacetStats } from "../metadata/metadata";
 import { calendarNumber } from "../calendar_period";
+import { SingleSeriesMetadataAnalyzer } from "../metadata/series_analyzer_interface";
+import { BasicSingleSeriesAnalyzer } from "../metadata/basic_series_analyzer";
 
 export class DataPoint {
   constructor(protected data: DataFrameRow, public seriesKey: string, public datapointIndex: number) { }
@@ -191,6 +193,11 @@ export class XYSeries extends Series {
   public getAverage(): number {
     const points = this.datapoints.map((point) => point.getNumericalXY().y);
     return ss.average(points);
+  }
+
+  @Memoize()
+  public getAnalyzer(): SingleSeriesMetadataAnalyzer {
+    return new BasicSingleSeriesAnalyzer(this.getNumericalLine());
   }
 }
 
