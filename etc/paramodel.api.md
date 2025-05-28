@@ -199,8 +199,6 @@ export class Model {
     readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
     // (undocumented)
     readonly theme: Theme;
-    // Warning: (ae-forgotten-export) The symbol "TrackingGroup" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     readonly trackingGroups: TrackingGroup[];
     // Warning: (ae-forgotten-export) The symbol "TrackingZone" needs to be exported by the entry point index.d.ts
@@ -286,6 +284,20 @@ export class Series {
 // @internal
 export function strToId(s: string): string;
 
+// @public
+export interface TrackingGroup {
+    // Warning: (ae-forgotten-export) The symbol "SeriesDatapoints" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    averageLine: SeriesDatapoints;
+    // Warning: (ae-forgotten-export) The symbol "Interval" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    interval: Interval;
+    keys: string[];
+    outliers: string[];
+}
+
 // @public (undocumented)
 export class XYDatapoint extends DataPoint {
     constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number);
@@ -301,6 +313,10 @@ export class XYDatapoint extends DataPoint {
 export class XYSeries extends Series {
     // (undocumented)
     datapoints: XYDatapoint[];
+    // Warning: (ae-forgotten-export) The symbol "SingleSeriesMetadataAnalyzer" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    getAnalyzer(): SingleSeriesMetadataAnalyzer;
     // (undocumented)
     getAverage(): number;
     // (undocumented)
