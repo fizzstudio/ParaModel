@@ -40,7 +40,7 @@ export interface SeriesStats {
  * Message category
  * @public
  */
-export declare enum Category {
+export enum Category {
   /** A single rising sequence */
   RT = "Rise",
   /** A single falling sequence */

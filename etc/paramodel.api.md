@@ -70,6 +70,31 @@ export type CalendarPeriod = {
     day?: number;
 };
 
+// @public
+export enum Category {
+    BF = "BigFall",
+    BJ = "BigJump",
+    EF = "EmergingFall",
+    ER = "EmergingRise",
+    FS = "FallToStable",
+    FT = "Fall",
+    PEF = "PossibleEmergingFall",
+    PER = "PossibleEmergingRise",
+    PFS = "PossibleFallToStable",
+    PRB = "PossibleRebound",
+    PRF = "PossibleReversalToFall",
+    PRR = "PossibleReversalToRise",
+    PRS = "PossibleRiseToStable",
+    PTJ = "PossibleTemporaryJump",
+    RB = "Rebound",
+    RF = "ReversalToFall",
+    RR = "ReversalToRise",
+    RS = "RiseToStable",
+    RT = "Rise",
+    ST = "Stable",
+    TJ = "TemporaryJump"
+}
+
 // @public (undocumented)
 export class DataPoint {
     constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number);
