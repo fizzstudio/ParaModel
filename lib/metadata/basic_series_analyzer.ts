@@ -1,7 +1,8 @@
 import { Interval, Line, Point } from "@fizz/chart-classifier-utils";
 import * as ss from 'simple-statistics';
 
-import { RunInfo, SegmentInfo, SeriesStats } from "./series_analyzer_interface";
+import { Category, RunInfo, SegmentInfo, SequenceInfo, SeriesStats, SingleSeriesMetadataAnalyzer } from "./series_analyzer_interface";
+import { Memoize } from "typescript-memoize";
 
 function getLabelsAtValue(points: Point[], value: number): string[] {
   return points.filter((point) => point.y === value).map((point) => `${point.x}`);
@@ -157,26 +158,57 @@ function computeRuns(series: Line, stats: SeriesStats, segs: SegmentInfo[]): Run
  * Performs all analysis of a single time series in one shot.
  * @public
  */
-export class BasicSingleSeriesAnalyzer {
+export class BasicSingleSeriesAnalyzer implements SingleSeriesMetadataAnalyzer {
   /**
    * Perform all analysis of a time series.
    * @param series - Time series
    * @returns Results of the series analysis
    * @remarks
    */
-  constructor(series: Line) {
-    const stats = computeStats(series);
-    const segments = computeSegments(series, stats);
-    const runs = computeRuns(series, stats, segments);
-    return {
-      stats,
-      volatility: volatility(series, 0, series.length, stats),
-      area: segments.reduce((sum, s) => sum + s.area, 0),
-      message: null,
-      messageSeqs: [],
-      segments,
-      runs,
-      sequences: [],
-    };
+  constructor(private series: Line) { }
+
+  /** Basic time series statistics */
+  @Memoize()
+  getStats(): SeriesStats {
+    return computeStats(this.series);
+  }
+
+  /** Measure of variability in data */
+  @Memoize()
+  getVolatility(): number {
+    return volatility(this.series, 0, this.series.length, this.getStats());
+  }
+
+  /** Area under the series */
+  @Memoize()
+  getArea(): number {
+    return this.getSegments().reduce((sum, s) => sum + s.area, 0);
+  }
+
+  /** Message of entire time series */
+  getMessage(): Category | null {
+    return null;
+  }
+
+  /** Indices of sequences that form the message */
+  getMessageSeqs(): number[] {
+    return [];
+  }
+
+  /** Segment (i.e., adjacent pairs of points) info */
+  @Memoize()
+  getSegments(): SegmentInfo[] {
+    return computeSegments(this.series, this.getStats());
+  }
+
+  /** Run info */
+  @Memoize()
+  getRuns(): RunInfo[] {
+    return computeRuns(this.series, this.getStats(), this.getSegments());
+  }
+
+  /** Sequence info */
+  getSequences(): SequenceInfo[] {
+    return [];
   }
 }
