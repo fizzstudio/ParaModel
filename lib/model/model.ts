@@ -42,6 +42,8 @@ export class Model {
   public readonly seriesKeys: string[] = [];
   public readonly multi: boolean;
   public readonly numSeries: number;
+  public horizontalAxisKey?: string;
+  public verticalAxisKey?: string;
   public readonly facetMap: Record<string, Facet> = {}; // FIXME: this shouldn't be exposed
   
   public readonly allPoints: Datapoint[] = [];
@@ -52,9 +54,8 @@ export class Model {
   protected _facetDatatypeMappedByKey: Record<string, Datatype> = {};
   protected _facetDisplayTypeMappedByKey: Record<string, DisplayType> = {};
   protected _uniqueValuesForFacetMappedByKey: Record<string, BoxSet<Datatype>> = {};
-  protected _axisFacetKeys: string[] = [];
-  protected _horizontalAxisFacetKey: string | null = null;
-  protected _verticalAxisFacetKey: string | null = null;
+  //protected _axisFacetKeys: string[] = [];
+
 
   protected _seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
   protected _seriesMappedByKey: Record<string, Series> = {};
@@ -95,28 +96,13 @@ export class Model {
         this.independentFacetKeys.push(key);
       }
       if (facetManifest.displayType.type === 'axis') {
-        this._axisFacetKeys.push(key);
-        if (facetManifest.displayType!.orientation === 'horizontal') {
-          if (this._horizontalAxisFacetKey === null) {
-            this._horizontalAxisFacetKey = key;
-          } else {
-            throw new Error('only one horizontal axis per chart');
-          }
+        if (facetManifest.displayType.orientation === 'horizontal') {
+          this.horizontalAxisKey = key;
         } else {
-          if (this._verticalAxisFacetKey === null) {
-            this._verticalAxisFacetKey = key;
-          } else {
-            throw new Error('only one vertical axis per chart');
-          }
+          this.verticalAxisKey = key;
         }
       }
     });
-    if (this._axisFacetKeys.length !== 0 && this._axisFacetKeys.length !== 2) {
-      throw new Error('charts must either have 2 or 0 axes')
-    }
-    if (this._horizontalAxisFacetKey === null || this._verticalAxisFacetKey === null) {
-      this.setDefaultAxes();
-    }
 
     // Series
     this.numSeries = this.series.length;
@@ -156,36 +142,6 @@ export class Model {
 
   }
 
-  // Note that this method will do nothing if the default circumstances aren't met
-  private setDefaultAxes(): void {
-    const independentAxes = this._axisFacetKeys.filter(
-      (key) => this._dataset.facets[key].variableType === 'independent'
-    );
-    const dependentAxes = this._axisFacetKeys.filter(
-      (key) => this._dataset.facets[key].variableType === 'dependent'
-    );
-    if (
-      independentAxes.length === 1 && 
-      dependentAxes.length === 1 &&
-      (this._horizontalAxisFacetKey === null || this._horizontalAxisFacetKey === independentAxes[0]) &&
-      (this._verticalAxisFacetKey === null || this._verticalAxisFacetKey === dependentAxes[0]) 
-    ) {
-      // NOTE: One (but not both) of these might be rewriting the axis facet key to the same thing
-      this._horizontalAxisFacetKey = independentAxes[0];
-      this._verticalAxisFacetKey = dependentAxes[0];
-    } else if (
-      this.facetKeys.includes('x') 
-      && this.facetKeys.includes('y')
-      && this._facetDisplayTypeMappedByKey['x']?.type === 'axis'
-      && this._facetDisplayTypeMappedByKey['y']?.type === 'axis'
-      && (this._horizontalAxisFacetKey === null || this._horizontalAxisFacetKey === 'x')
-      && (this._verticalAxisFacetKey === null || this._verticalAxisFacetKey === 'y') ) {
-        // NOTE: One (but not both) of these might be rewriting the axis facet key to the same thing
-        this._horizontalAxisFacetKey === 'x';
-        this._verticalAxisFacetKey === 'y';
-    }
-  }
-
   @Memoize()
   public atKey(key: string): Series | null {
     return this._seriesMappedByKey[key] ?? null;
@@ -213,9 +169,9 @@ export class Model {
   @Memoize()
   public getAxisFacet(orientation: AxisOrientation): Facet | null {
     if (orientation === 'horiz') {
-      return this._horizontalAxisFacetKey ? this._facetMappedByKey[this._horizontalAxisFacetKey] : null;
+      return this.horizontalAxisKey ? this._facetMappedByKey[this.horizontalAxisKey] : null;
     }
-    return this._verticalAxisFacetKey ? this._facetMappedByKey[this._verticalAxisFacetKey] : null;
+    return this.verticalAxisKey ? this._facetMappedByKey[this.verticalAxisKey] : null;
   }
 
   @Memoize()
