@@ -22,7 +22,7 @@ import { DataFrameRow } from "../dataframe/dataframe";
 import { Box, ScalarMap } from "../dataframe/box";
 import { calendarNumber } from "../calendar_period";
 
-export class DataPoint {
+export class Datapoint {
   constructor(protected data: DataFrameRow, public seriesKey: string, public datapointIndex: number) { }
 
   public entries(): Iterable<[string, Box<Datatype>]> {
@@ -53,7 +53,7 @@ export class DataPoint {
   }
 }
 
-export class PlaneDatapoint extends DataPoint {
+export class PlaneDatapoint extends Datapoint {
   constructor(
     data: DataFrameRow, 
     seriesKey: string, 
@@ -70,11 +70,11 @@ export class PlaneDatapoint extends DataPoint {
     }
   }
 
-  get indepValue(): Box<Datatype> {
+  get indepBox(): Box<Datatype> {
     return this.data[this.indepKey];
   }
 
-  get depValue(): Box<Datatype> {
+  get depBox(): Box<Datatype> {
     return this.data[this.depKey];
   }
 
@@ -83,6 +83,3 @@ export class PlaneDatapoint extends DataPoint {
     return { x: this.facetAsNumber(this.indepKey)!, y: this.facetAsNumber(this.depKey)! };
   }
 }
-
-export type DataPointConstructor 
-  = new (data: DataFrameRow, seriesKey: string, datapointIndex: number) => DataPoint;

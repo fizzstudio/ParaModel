@@ -66,7 +66,7 @@ function arrayToCol(ary: DataArray<Scalar>, dtype?: Datatype, opts?: SeriesOpts)
   return new ctor(ary as DataArray<any>, opts);
 }*/
 
-export type RawDataPoint = Record<string, string>;
+export type RawDatapoint = Record<string, string>;
 
 export type FacetSignature = { key: string, datatype: Datatype };
 
@@ -107,7 +107,7 @@ export class DataFrame {
     }*/
   }
 
-  public addDatapoint(rawDatapoint: RawDataPoint): void {
+  public addDatapoint(rawDatapoint: RawDatapoint): void {
     const datapointNumFacets = Object.keys(rawDatapoint).length;
     if (datapointNumFacets !== this.nColumns) {
       throw new Error(`datapoint ${rawDatapoint} cannot be added to dataframe. This dataframe has ${this.nColumns} columns, but this datapoint as ${datapointNumFacets} facets`);

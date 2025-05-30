@@ -22,10 +22,10 @@ import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
 import { Box, BoxSet } from "../dataframe/box";
 import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "../metadata/metadata";
-import { isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
+import { isXYFacetSignature, Series, seriesFromSeriesManifest, PlaneSeries } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
-import { DataPoint } from './datapoint';
+import { Datapoint } from './datapoint';
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
@@ -53,7 +53,7 @@ export class Model {
   public readonly trackingZones: TrackingZone[] = [];
   public readonly facetMap: Record<string, Facet> = {}; // FIXME: this shouldn't be exposed
   
-  public readonly allPoints: DataPoint[] = [];
+  public readonly allPoints: Datapoint[] = [];
 
   protected _dataset: Dataset;
 
@@ -151,7 +151,7 @@ export class Model {
 
     if (this.xy) {
       if (this.multi) {
-        const seriesArray = (this.series as XYSeries[]).map((series) => series.getNumericalLine());
+        const seriesArray = (this.series as PlaneSeries[]).map((series) => series.createLineFromFacets());
         this._seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]);
         this.intersections = this._seriesPairAnalyzer.getIntersections();
         this.clusters = this._seriesPairAnalyzer.getClusters();
@@ -160,7 +160,7 @@ export class Model {
         this.trackingZones = this._seriesPairAnalyzer.getTrackingZones();
       }
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
-        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
+        = generateValues(this.series as PlaneSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
     }
 
     /*this.xs = mergeUniqueBy(
@@ -215,7 +215,7 @@ export class Model {
     return this._seriesMappedByKey[key] ?? null;
   }
   
-  public atKeyAndIndex(key: string, index: number): DataPoint | null {
+  public atKeyAndIndex(key: string, index: number): Datapoint | null {
     return this.atKey(key)?.[index] ?? null;
   }
 

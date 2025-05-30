@@ -20,15 +20,15 @@ import { Datatype, SeriesManifest, Theme } from "@fizz/paramanifest";
 import { Line } from "@fizz/chart-classifier-utils";
 
 import { strToId } from "../utils";
-import { DataFrame, DataFrameColumn, FacetSignature, RawDataPoint } from "../dataframe/dataframe";
+import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDatapoint } from "../dataframe/dataframe";
 import { Box, BoxSet } from "../dataframe/box";
 import { calculateFacetStats, FacetStats } from "../metadata/metadata";
 import { SingleSeriesMetadataAnalyzer } from "../metadata/series_analyzer_interface";
 import { BasicSingleSeriesAnalyzer } from "../metadata/basic_series_analyzer";
-import { DataPoint, DataPointConstructor, PlaneDatapoint } from "./datapoint";
+import { Datapoint, PlaneDatapoint } from "./datapoint";
 
 export class Series {
-  [i: number]: DataPoint;
+  [i: number]: Datapoint;
 
   public readonly key: string;
   public readonly id: string;
@@ -36,10 +36,9 @@ export class Series {
   public readonly theme: Theme;  
 
   public readonly length: number;
-  public readonly datapoints: DataPoint[] = [];
+  public readonly datapoints: Datapoint[] = [];
 
   protected readonly _dataframe: DataFrame;
-  protected readonly _datapointConstructor: DataPointConstructor;
 
   protected readonly _uniqueValuesForFacetMappedByKey: Record<string, BoxSet<Datatype>> = {};
   protected readonly _facetDatatypeMappedByKey: Record<string, Datatype> = {};
@@ -49,8 +48,8 @@ export class Series {
 
   constructor(
     public readonly manifest: SeriesManifest,
-    public readonly rawData: RawDataPoint[], 
-    public readonly facetSignatures: FacetSignature[],
+    public readonly rawData: RawDatapoint[], 
+    public readonly facetSignatures: FacetSignature[]
   ) {
     this.key = this.manifest.key;
     this.id = strToId(this.key); // TODO: see if we need to make this more unique
@@ -62,12 +61,11 @@ export class Series {
       this._facetDatatypeMappedByKey[facet.key] = facet.datatype;
     });
 
-    this._datapointConstructor = this._getDatapointConstructor();
     this._dataframe = new DataFrame(facetSignatures);
     this.length = this.rawData.length;    
-    this.rawData.forEach((datapoint) => this._dataframe.addDatapoint(datapoint));
+    this.rawData.forEach((rawDatapoint) => this._dataframe.addDatapoint(rawDatapoint));
     this._dataframe.rows.forEach((row, index) => {
-      const datapoint = new this._datapointConstructor(row, this.key, index);
+      const datapoint = this.createDatapoint(row, index);
       this[index] = datapoint;
       this.datapoints.push(datapoint);
       Object.keys(row).forEach(
@@ -79,8 +77,8 @@ export class Series {
     this.yMap = mapDatapointsYtoX(this.datapoints);*/
   }
 
-  protected _getDatapointConstructor(): DataPointConstructor {
-    return DataPoint;
+  protected createDatapoint(row: DataFrameRow, index: number): Datapoint {
+    return new Datapoint(row, this.key, index);
   }
 
   @Memoize()
@@ -106,7 +104,7 @@ export class Series {
     return this.yMap.get(y) ?? null;
   }*/
 
-  [Symbol.iterator](): Iterator<DataPoint> {
+  [Symbol.iterator](): Iterator<Datapoint> {
     return this.datapoints[Symbol.iterator]();
   }
 
@@ -121,28 +119,38 @@ export class Series {
   }
 }
 
-export class XYSeries extends Series {
+export class PlaneSeries extends Series {
   declare datapoints: PlaneDatapoint[];
+
+  constructor(
+    public readonly manifest: SeriesManifest,
+    public readonly rawData: RawDatapoint[], 
+    public readonly facetSignatures: FacetSignature[],
+    private readonly indepKey: string,
+    private readonly depKey: string
+  ) {
+    super(manifest, rawData, facetSignatures);
+  }
   
-  protected _getDatapointConstructor(): DataPointConstructor {
-    return PlaneDatapoint;
+  protected createDatapoint(row: DataFrameRow, index: number): Datapoint {
+    return new PlaneDatapoint(row, this.key, index, this.indepKey, this.depKey);
   }
 
   @Memoize()
-  public getNumericalLine(): Line {
-    const points = this.datapoints.map((point) => point.getNumericalXY());
+  public createLineFromFacets(): Line {
+    const points = this.datapoints.map((point) => point.convertToXYForLine());
     return new Line(points, this.key);
   }
 
   @Memoize()
   public getAverage(): number {
-    const points = this.datapoints.map((point) => point.getNumericalXY().y);
+    const points = this.datapoints.map((point) => point.indepBox.value as number);
     return ss.average(points);
   }
 
   @Memoize()
   public getAnalyzer(): SingleSeriesMetadataAnalyzer {
-    return new BasicSingleSeriesAnalyzer(this.getNumericalLine());
+    return new BasicSingleSeriesAnalyzer(this.createLineFromFacets());
   }
 }
 
@@ -158,10 +166,20 @@ export function seriesFromSeriesManifest(
   if (!seriesManifest.records) {
     throw new Error('only series manifests with inline data can use this method.');
   }
-  const seriesConstructor = isXYFacetSignature(facetSignatures) ? XYSeries : Series;
-  return new seriesConstructor(
+  return new Series(seriesManifest, seriesManifest.records!, facetSignatures);
+}
+
+export function planeSeriesFromSeriesManifest(
+  seriesManifest: SeriesManifest, facetSignatures: FacetSignature[], indepKey: string, depKey: string
+): Series {
+  if (!seriesManifest.records) {
+    throw new Error('only series manifests with inline data can use this method.');
+  }
+  return new PlaneSeries(
     seriesManifest, 
     seriesManifest.records!, 
-    facetSignatures
+    facetSignatures,
+    indepKey,
+    depKey
   );
 }
