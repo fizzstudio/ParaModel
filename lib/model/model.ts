@@ -22,7 +22,7 @@ import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
 import { Box, BoxSet } from "../dataframe/box";
 import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "../metadata/metadata";
-import { Series, seriesFromSeriesManifest, PlaneSeries } from './series';
+import { Series, seriesFromSeriesManifest, PlaneSeries, planeSeriesFromSeriesManifest } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 import { Datapoint } from './datapoint';
@@ -180,6 +180,18 @@ export class Model {
   }
 }
 
+function axesFromDataset(dataset: Dataset): { independentAxisKey?: string, dependentAxisKey?: string } {
+  const independentAxisKey = Object.entries(dataset.facets)
+    .filter(([_facetKey, facet]) => facet.displayType.type === 'axis')
+    .filter(([_facetKey, facet]) => facet.variableType === 'independent')
+    .map(([facetKey, _facet]) => facetKey).at(0);
+  const dependentAxisKey = Object.entries(dataset.facets)
+    .filter(([_facetKey, facet]) => facet.displayType.type === 'axis')
+    .filter(([_facetKey, facet]) => facet.variableType === 'dependent')
+    .map(([facetKey, _facet]) => facetKey).at(0);
+  return { independentAxisKey, dependentAxisKey };
+}
+
 export class PlaneModel extends Model {
   declare series: PlaneSeries[];
   [i: number]: PlaneSeries;
@@ -196,8 +208,6 @@ export class PlaneModel extends Model {
   constructor(series: PlaneSeries[], manifest: Manifest) {
     super(series, manifest);
     
-
-
     [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
       = generateValues(this.series, this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
 
@@ -221,7 +231,7 @@ export function facetsFromDataset(dataset: Dataset): FacetSignature[] {
 export function modelFromInlineData(manifest: Manifest): Model {
   const dataset = manifest.datasets[0];
   if (dataset.data.source !== 'inline') {
-    throw new Error('only manifests with inline data can use this method.');
+    throw new Error('only manifests with inline data can use this function.');
   }
   const facets = facetsFromDataset(dataset);
   const series = dataset.series.map((seriesManifest) => 
@@ -237,4 +247,34 @@ export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): 
     return new Series(seriesManifest, data[key], facets);
   });
   return new Model(series, manifest);
+}
+
+export function planeModelFromInlineData(manifest: Manifest): PlaneModel {
+  const dataset = manifest.datasets[0];
+  if (dataset.data.source !== 'inline') {
+    throw new Error('only manifests with inline data can use this function.');
+  }
+  const { independentAxisKey, dependentAxisKey } = axesFromDataset(dataset)
+  if (!independentAxisKey || !dependentAxisKey) {
+    throw new Error('only manifests with 2D axes can use this function.');
+  }
+  const facets = facetsFromDataset(dataset);
+  const series = dataset.series.map((seriesManifest) => 
+    planeSeriesFromSeriesManifest(seriesManifest, facets, independentAxisKey, dependentAxisKey)
+  );
+  return new PlaneModel(series, manifest);
+}
+
+export function planeModelFromExternalData(data: AllSeriesData, manifest: Manifest): PlaneModel {
+  const dataset = manifest.datasets[0];
+  const { independentAxisKey, dependentAxisKey } = axesFromDataset(dataset)
+  if (!independentAxisKey || !dependentAxisKey) {
+    throw new Error('only manifests with 2D axes can use this function.');
+  }
+  const facets = facetsFromDataset(dataset);
+  const series = Object.keys(data).map((key) => {
+    const seriesManifest = dataset.series.filter((s) => s.key === key)[0];
+    return new PlaneSeries(seriesManifest, data[key], facets, independentAxisKey, dependentAxisKey);
+  });
+  return new PlaneModel(series, manifest);
 }

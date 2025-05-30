@@ -181,7 +181,7 @@ export function seriesFromSeriesManifest(
 
 export function planeSeriesFromSeriesManifest(
   seriesManifest: SeriesManifest, facetSignatures: FacetSignature[], indepKey: string, depKey: string
-): Series {
+): PlaneSeries {
   if (!seriesManifest.records) {
     throw new Error('only series manifests with inline data can use this method.');
   }
