@@ -37,6 +37,7 @@ export class Series {
 
   public readonly length: number;
   public readonly datapoints: Datapoint[] = [];
+  public readonly facetKeys: string[] = [];
 
   protected readonly _dataframe: DataFrame;
 
@@ -57,6 +58,7 @@ export class Series {
     this.theme = this.manifest.theme;
 
     this.facetSignatures.forEach((facet) => {
+      this.facetKeys.push(facet.key);
       this._uniqueValuesForFacetMappedByKey[facet.key] = new BoxSet<Datatype>;
       this._facetDatatypeMappedByKey[facet.key] = facet.datatype;
     });
@@ -96,13 +98,23 @@ export class Series {
     return this._facetDatatypeMappedByKey[key] ?? null;
   }
 
-  /*atX(x: ScalarMap[X]): number[] | null {
-    return this.xMap.get(x) ?? null;
+  @Memoize()
+  public createLineFromFacets(xKey: string, yKey: string): Line | null {
+    if (!this.facetKeys.includes(xKey) || !this.facetKeys.includes(yKey)) {
+      return null;
+    }
+    const points = this.datapoints.map((point) => point.convertFacetValuesToXYForLine(xKey, yKey)!);
+    return new Line(points, this.key);
   }
 
-  atY(y: number): ScalarMap[X][] | null {
-    return this.yMap.get(y) ?? null;
-  }*/
+  @Memoize()
+  public getAverageByFacet(facetKey: string): number | null {
+    if (!this.facetKeys.includes(facetKey)) {
+      return null;
+    }
+    const points = this.datapoints.map((point) => point.facetAsNumber(facetKey)!);
+    return ss.average(points);
+  }
 
   [Symbol.iterator](): Iterator<Datapoint> {
     return this.datapoints[Symbol.iterator]();
@@ -136,22 +148,26 @@ export class PlaneSeries extends Series {
     return new PlaneDatapoint(row, this.key, index, this.indepKey, this.depKey);
   }
 
-  @Memoize()
-  public createLineFromFacets(): Line {
-    const points = this.datapoints.map((point) => point.convertToXYForLine());
-    return new Line(points, this.key);
+  public createActualLine(): Line {
+    return this.createLineFromFacets(this.indepKey, this.depKey)!;
   }
 
-  @Memoize()
-  public getAverage(): number {
-    const points = this.datapoints.map((point) => point.indepBox.value as number);
-    return ss.average(points);
+  public getIndepAverage(): number {
+    return this.getAverageByFacet(this.indepKey)!;
   }
 
   @Memoize()
   public getAnalyzer(): SingleSeriesMetadataAnalyzer {
-    return new BasicSingleSeriesAnalyzer(this.createLineFromFacets());
+    return new BasicSingleSeriesAnalyzer(this.createActualLine());
   }
+
+  /*atX(x: ScalarMap[X]): number[] | null {
+    return this.xMap.get(x) ?? null;
+  }
+
+  atY(y: number): ScalarMap[X][] | null {
+    return this.yMap.get(y) ?? null;
+  }*/
 }
 
 export function isXYFacetSignature(facets: FacetSignature[]): boolean {

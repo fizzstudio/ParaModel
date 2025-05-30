@@ -51,6 +51,14 @@ export class Datapoint {
     } 
     return this.datapointIndex;
   }
+
+  @Memoize()
+  convertFacetValuesToXYForLine(xKey: string, yKey: string): Point | null {
+    if (!(xKey in this.data) || !(yKey in this.data)) {
+      return null;
+    }
+    return { x: this.facetAsNumber(xKey)!, y: this.facetAsNumber(yKey)! };
+  }
 }
 
 export class PlaneDatapoint extends Datapoint {
@@ -78,8 +86,7 @@ export class PlaneDatapoint extends Datapoint {
     return this.data[this.depKey];
   }
 
-  @Memoize()
-  convertToXYForLine(): Point {
-    return { x: this.facetAsNumber(this.indepKey)!, y: this.facetAsNumber(this.depKey)! };
+  convertToActualXYForLine(): Point {
+    return this.convertFacetValuesToXYForLine(this.indepKey, this.depKey)!;
   }
 }
