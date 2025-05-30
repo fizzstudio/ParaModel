@@ -53,25 +53,34 @@ export class DataPoint {
   }
 }
 
-export class XYDatapoint extends DataPoint {
-  constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number) {
+export class PlaneDatapoint extends DataPoint {
+  constructor(
+    data: DataFrameRow, 
+    seriesKey: string, 
+    datapointIndex: number, 
+    private indepKey: string, 
+    private depKey: string
+  ) {
     super(data, seriesKey, datapointIndex);
-    if (!('x' in data) || !('y' in data)) {
-      throw new Error('`XYDatapointDF` must contain `x` and `y` facets')
+    if (!(indepKey in data)) {
+      throw new Error(`'PlaneDatapoint' is missing the '${indepKey}' independent axis facet value`);
+    }
+    if (!(depKey in data)) {
+      throw new Error(`'PlaneDatapoint' is missing the '${depKey}' dependent axis facet value`);
     }
   }
 
-  get x(): Box<Datatype> {
-    return this.data.x;
+  get indepValue(): Box<Datatype> {
+    return this.data[this.indepKey];
   }
 
-  get y(): Box<Datatype> {
-    return this.data.y;
+  get depValue(): Box<Datatype> {
+    return this.data[this.depKey];
   }
 
   @Memoize()
-  getNumericalXY(): Point {
-    return { x: this.facetAsNumber('x')!, y: this.facetAsNumber('y')! };
+  convertToXYForLine(): Point {
+    return { x: this.facetAsNumber(this.indepKey)!, y: this.facetAsNumber(this.depKey)! };
   }
 }
 

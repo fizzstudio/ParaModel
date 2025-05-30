@@ -25,7 +25,7 @@ import { Box, BoxSet } from "../dataframe/box";
 import { calculateFacetStats, FacetStats } from "../metadata/metadata";
 import { SingleSeriesMetadataAnalyzer } from "../metadata/series_analyzer_interface";
 import { BasicSingleSeriesAnalyzer } from "../metadata/basic_series_analyzer";
-import { DataPoint, DataPointConstructor, XYDatapoint } from "./datapoint";
+import { DataPoint, DataPointConstructor, PlaneDatapoint } from "./datapoint";
 
 export class Series {
   [i: number]: DataPoint;
@@ -122,10 +122,10 @@ export class Series {
 }
 
 export class XYSeries extends Series {
-  declare datapoints: XYDatapoint[];
+  declare datapoints: PlaneDatapoint[];
   
   protected _getDatapointConstructor(): DataPointConstructor {
-    return XYDatapoint;
+    return PlaneDatapoint;
   }
 
   @Memoize()
