@@ -17,70 +17,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import { Memoize } from "typescript-memoize";
 import * as ss from 'simple-statistics';
 import { Datatype, SeriesManifest, Theme } from "@fizz/paramanifest";
-import { Line, Point } from "@fizz/chart-classifier-utils";
+import { Line } from "@fizz/chart-classifier-utils";
 
 import { strToId } from "../utils";
-import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint } from "../dataframe/dataframe";
-import { Box, BoxSet, ScalarMap } from "../dataframe/box";
+import { DataFrame, DataFrameColumn, FacetSignature, RawDataPoint } from "../dataframe/dataframe";
+import { Box, BoxSet } from "../dataframe/box";
 import { calculateFacetStats, FacetStats } from "../metadata/metadata";
-import { calendarNumber } from "../calendar_period";
 import { SingleSeriesMetadataAnalyzer } from "../metadata/series_analyzer_interface";
 import { BasicSingleSeriesAnalyzer } from "../metadata/basic_series_analyzer";
-
-export class DataPoint {
-  constructor(protected data: DataFrameRow, public seriesKey: string, public datapointIndex: number) { }
-
-  public entries(): Iterable<[string, Box<Datatype>]> {
-    return Object.entries(this.data)[Symbol.iterator]();
-  }
-
-  public facetBox(key: string): Box<Datatype> | null {
-    return this.data[key] ?? null;
-  }
-
-  public facetValue(key: string): ScalarMap[Datatype] | null {
-    return this.data[key].value ?? null;
-  }
-
-  @Memoize()
-  public facetAsNumber(key: string): number | null {
-    const box = this.data[key];
-    if (box === undefined) {
-      return null;
-    }
-    if (box.isNumber()) {
-      return box.value;
-    } 
-    if (box.isDate()) {
-      return calendarNumber(box.value);
-    } 
-    return this.datapointIndex;
-  }
-}
-
-export class XYDatapoint extends DataPoint {
-  constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number) {
-    super(data, seriesKey, datapointIndex);
-    if (!('x' in data) || !('y' in data)) {
-      throw new Error('`XYDatapointDF` must contain `x` and `y` facets')
-    }
-  }
-
-  get x(): Box<Datatype> {
-    return this.data.x;
-  }
-
-  get y(): Box<Datatype> {
-    return this.data.y;
-  }
-
-  @Memoize()
-  getNumericalXY(): Point {
-    return { x: this.facetAsNumber('x')!, y: this.facetAsNumber('y')! };
-  }
-}
-
-type DataPointConstructor = new (data: DataFrameRow, seriesKey: string, datapointIndex: number) => DataPoint;
+import { DataPoint, DataPointConstructor, XYDatapoint } from "./datapoint";
 
 export class Series {
   [i: number]: DataPoint;

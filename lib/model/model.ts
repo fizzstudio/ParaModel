@@ -22,9 +22,10 @@ import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
 import { Box, BoxSet } from "../dataframe/box";
 import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "../metadata/metadata";
-import { DataPoint, isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
+import { isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
+import { DataPoint } from './datapoint';
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
