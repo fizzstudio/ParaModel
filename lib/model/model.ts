@@ -22,7 +22,7 @@ import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
 import { Box, BoxSet } from "../dataframe/box";
 import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "../metadata/metadata";
-import { isXYFacetSignature, Series, seriesFromSeriesManifest, PlaneSeries } from './series';
+import { Series, seriesFromSeriesManifest, PlaneSeries } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 import { Datapoint } from './datapoint';
@@ -36,21 +36,12 @@ export class Model {
 
   public readonly facetSignatures: FacetSignature[];
   public readonly facetKeys: string[] = [];
-  public readonly xy: boolean;
   public readonly dependentFacetKeys: string[] = [];
   public readonly independentFacetKeys: string[] = [];  
 
   public readonly seriesKeys: string[] = [];
   public readonly multi: boolean;
   public readonly numSeries: number;
-  public readonly seriesScaledValues?: SeriesScaledValues;
-  public readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
-  public readonly intersectionScaledValues?: ScaledNumberRounded[];
-  public readonly intersections: Intersection[] = [];
-  public readonly clusters: string[][] = [];
-  public readonly clusterOutliers: string[] = [];
-  public readonly trackingGroups: TrackingGroup[] = [];
-  public readonly trackingZones: TrackingZone[] = [];
   public readonly facetMap: Record<string, Facet> = {}; // FIXME: this shouldn't be exposed
   
   public readonly allPoints: Datapoint[] = [];
@@ -88,7 +79,6 @@ export class Model {
 
     // Facets
     this.facetSignatures = this.series[0].facetSignatures;
-    this.xy = isXYFacetSignature(this.facetSignatures);
     this.facetSignatures.forEach((facet) => {
       this.facetKeys.push(facet.key);
       this._uniqueValuesForFacetMappedByKey[facet.key] = new BoxSet<Datatype>;
@@ -147,20 +137,6 @@ export class Model {
       Object.keys(this._uniqueValuesForFacetMappedByKey).forEach((facetKey) => {
         this._uniqueValuesForFacetMappedByKey[facetKey].merge(aSeries.allFacetValuesByKey(facetKey)!);
       });
-    }
-
-    if (this.xy) {
-      if (this.multi) {
-        const seriesArray = (this.series as PlaneSeries[]).map((series) => series.createLineFromFacets());
-        this._seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]);
-        this.intersections = this._seriesPairAnalyzer.getIntersections();
-        this.clusters = this._seriesPairAnalyzer.getClusters();
-        this.clusterOutliers = this._seriesPairAnalyzer.getClusterOutliers();
-        this.trackingGroups = this._seriesPairAnalyzer.getTrackingGroups();
-        this.trackingZones = this._seriesPairAnalyzer.getTrackingZones();
-      }
-      [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
-        = generateValues(this.series as PlaneSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
     }
 
     /*this.xs = mergeUniqueBy(
@@ -247,6 +223,40 @@ export class Model {
     return this._facetMappedByKey[key] ?? null;
   }
 }
+
+export class PlaneModel extends Model {
+  declare series: PlaneSeries[];
+  [i: number]: PlaneSeries;
+
+  public readonly seriesScaledValues?: SeriesScaledValues;
+  public readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
+  public readonly intersectionScaledValues?: ScaledNumberRounded[];
+  public readonly intersections: Intersection[] = [];
+  public readonly clusters: string[][] = [];
+  public readonly clusterOutliers: string[] = [];
+  public readonly trackingGroups: TrackingGroup[] = [];
+  public readonly trackingZones: TrackingZone[] = [];
+
+  constructor(series: PlaneSeries[], manifest: Manifest) {
+    super(series, manifest);
+    
+
+
+    [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
+      = generateValues(this.series, this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
+
+    if (this.multi) {
+      const seriesArray = this.series.map((series) => series.createActualLine());
+      this._seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]); //FIXME: screensize, max/min 
+      this.intersections = this._seriesPairAnalyzer.getIntersections();
+      this.clusters = this._seriesPairAnalyzer.getClusters();
+      this.clusterOutliers = this._seriesPairAnalyzer.getClusterOutliers();
+      this.trackingGroups = this._seriesPairAnalyzer.getTrackingGroups();
+      this.trackingZones = this._seriesPairAnalyzer.getTrackingZones();
+    }
+  }
+}
+
 
 export function facetsFromDataset(dataset: Dataset): FacetSignature[] {
   return Object.keys(dataset.facets).map((key) => ({ key, datatype: dataset.facets[key].datatype }))

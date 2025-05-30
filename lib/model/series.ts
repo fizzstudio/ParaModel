@@ -170,12 +170,6 @@ export class PlaneSeries extends Series {
   }*/
 }
 
-export function isXYFacetSignature(facets: FacetSignature[]): boolean {
-  const hasX = facets.some((facet) => facet.key === 'x');
-  const hasY = facets.some((facet) => facet.key === 'y');
-  return hasX && hasY;
-}
-
 export function seriesFromSeriesManifest(
   seriesManifest: SeriesManifest, facetSignatures: FacetSignature[]
 ): Series {
