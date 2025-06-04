@@ -157,7 +157,7 @@ export class Model {
       });
     }
 
-    if (this.xy && (this.type === 'line' || this.type === 'stepline')) {
+    if (this.xy && this.type !== 'scatter') {
       if (this.multi) {
         const seriesArray = (this.series as XYSeries[]).map((series) => series.getNumericalLine());
         this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]);
