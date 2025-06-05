@@ -165,7 +165,7 @@ export class Model {
     // (undocumented)
     getFacetStats(key: string): FacetStats | null;
     // (undocumented)
-    getSeriesAnalysis(key: string): SeriesAnalysis | null;
+    getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null>;
     // (undocumented)
     protected _horizontalAxisFacetKey: string | null;
     // (undocumented)
@@ -186,8 +186,6 @@ export class Model {
     readonly numSeries: number;
     // (undocumented)
     readonly series: Series[];
-    // (undocumented)
-    seriesAnalysisDone: boolean;
     // (undocumented)
     seriesAnalysisMap?: Record<string, SeriesAnalysis>;
     // Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts

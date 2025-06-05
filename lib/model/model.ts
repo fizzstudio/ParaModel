@@ -55,8 +55,9 @@ export class Model {
   public independentFacetKey: string | null = null;
   public dependentFacet: Facet | null = null;
   public independentFacet: Facet | null = null;
+  private seriesLineMap: Record<string, Line> = {};
   public seriesAnalysisMap?: Record<string, SeriesAnalysis>;
-  public seriesAnalysisDone = false;
+  private seriesAnalysisDone = false;
 
   public seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
 
@@ -170,20 +171,16 @@ export class Model {
     if (this.xy && this.type !== 'scatter') {
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
         = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitudeNum | undefined);
-      const seriesLineMap: Record<string, Line> = {};
       for (const series of (this.series as XYSeries[])) {
-        seriesLineMap[series.key] = series.getNumericalLine();
+        this.seriesLineMap[series.key] = series.getNumericalLine();
       }
       if (this.multi) {
-        this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(Object.values(seriesLineMap), [1,1]);
+        this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(Object.values(this.seriesLineMap), [1,1]);
         this.intersections = this.seriesPairAnalyzer.getIntersections();
         this.clusters = this.seriesPairAnalyzer.getClusters();
         this.clusterOutliers = this.seriesPairAnalyzer.getClusterOutliers();
         this.trackingGroups = this.seriesPairAnalyzer.getTrackingGroups();
         this.trackingZones = this.seriesPairAnalyzer.getTrackingZones();
-      }
-      if (this.seriesAnalyzerConstructor) {
-        this.generateSeriesAnalyses(seriesLineMap);
       }
     }
 
@@ -234,11 +231,14 @@ export class Model {
     }
   }
 
-  private async generateSeriesAnalyses(seriesLineMap: Record<string, Line>): Promise<void> {
+  private async generateSeriesAnalyses(): Promise<void> {
+    if (this.seriesAnalysisDone) {
+      return
+    }
     const seriesAnalyzer = new this.seriesAnalyzerConstructor!();
     this.seriesAnalysisMap = {};
-    for (const seriesKey in seriesLineMap) {
-      this.seriesAnalysisMap[seriesKey] = await seriesAnalyzer.analyzeSeries(seriesLineMap[seriesKey]);
+    for (const seriesKey in this.seriesLineMap) {
+      this.seriesAnalysisMap[seriesKey] = await seriesAnalyzer.analyzeSeries(this.seriesLineMap[seriesKey]);
     }
     this.seriesAnalysisDone = true;
   }
@@ -281,16 +281,14 @@ export class Model {
   }
 
   @Memoize()
-  public getSeriesAnalysis(key: string): SeriesAnalysis | null {
-    if (!this.seriesAnalyzerConstructor) {
-      console.log('No seriesAnalyzerConstructor')
+  public async getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null> {
+    if (!this.xy 
+      || this.type === 'scatter' 
+      || !this.seriesAnalyzerConstructor
+      || !(key in this.keyMap)) {
       return null;
     }
-    if (!(key in this.keyMap)) {
-      console.log('No key')
-      return null;
-    }
-    while (!this.seriesAnalysisDone) { }
+    await this.generateSeriesAnalyses()
     return this.seriesAnalysisMap![key];
   }
 }
