@@ -283,9 +283,11 @@ export class Model {
   @Memoize()
   public getSeriesAnalysis(key: string): SeriesAnalysis | null {
     if (!this.seriesAnalyzerConstructor) {
+      console.log('No seriesAnalyzerConstructor')
       return null;
     }
     if (!(key in this.keyMap)) {
+      console.log('No key')
       return null;
     }
     while (!this.seriesAnalysisDone) { }
