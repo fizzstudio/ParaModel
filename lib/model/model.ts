@@ -16,6 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from 'typescript-memoize';
 import { AllSeriesData, ChartType, Dataset, Datatype, DisplayType, Facet, Manifest, Theme } from "@fizz/paramanifest";
+import type { SeriesAnalysis, SeriesAnalyzer } from "@fizz/series-analyzer";
 
 import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
@@ -25,6 +26,9 @@ import { DataPoint, isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeri
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 import { OrderOfMagnitudeNum, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { Line } from '@fizz/chart-classifier-utils';
+
+type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
@@ -51,6 +55,8 @@ export class Model {
   public independentFacetKey: string | null = null;
   public dependentFacet: Facet | null = null;
   public independentFacet: Facet | null = null;
+  public seriesAnalysisMap?: Record<string, SeriesAnalysis>;
+  public seriesAnalysisDone = false;
 
   public seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
 
@@ -69,7 +75,11 @@ export class Model {
   /*public readonly xs: ScalarMap[X][];
   public readonly ys: number[];*/
 
-  constructor(public readonly series: Series[], manifest: Manifest, private readonly seriesAnalyzer?: SeriesAnalyzer) {
+  constructor(
+    public readonly series: Series[], 
+    manifest: Manifest, 
+    private readonly seriesAnalyzerConstructor?: SeriesAnalyzerConstructor
+  ) {
     if (this.series.length === 0) {
       throw new Error('models must have at least one series');
     }
@@ -158,17 +168,23 @@ export class Model {
     }
 
     if (this.xy && this.type !== 'scatter') {
+      [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
+        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitudeNum | undefined);
+      const seriesLineMap: Record<string, Line> = {};
+      for (const series of (this.series as XYSeries[])) {
+        seriesLineMap[series.key] = series.getNumericalLine();
+      }
       if (this.multi) {
-        const seriesArray = (this.series as XYSeries[]).map((series) => series.getNumericalLine());
-        this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]);
+        this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(Object.values(seriesLineMap), [1,1]);
         this.intersections = this.seriesPairAnalyzer.getIntersections();
         this.clusters = this.seriesPairAnalyzer.getClusters();
         this.clusterOutliers = this.seriesPairAnalyzer.getClusterOutliers();
         this.trackingGroups = this.seriesPairAnalyzer.getTrackingGroups();
         this.trackingZones = this.seriesPairAnalyzer.getTrackingZones();
       }
-      [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
-        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitudeNum | undefined);
+      if (this.seriesAnalyzerConstructor) {
+        this.generateSeriesAnalyses(seriesLineMap);
+      }
     }
 
     /*this.xs = mergeUniqueBy(
@@ -216,6 +232,15 @@ export class Model {
         this._horizontalAxisFacetKey === 'x';
         this._verticalAxisFacetKey === 'y';
     }
+  }
+
+  private async generateSeriesAnalyses(seriesLineMap: Record<string, Line>): Promise<void> {
+    const seriesAnalyzer = new this.seriesAnalyzerConstructor!();
+    this.seriesAnalysisMap = {};
+    for (const seriesKey in seriesLineMap) {
+      this.seriesAnalysisMap[seriesKey] = await seriesAnalyzer.analyzeSeries(seriesLineMap[seriesKey]);
+    }
+    this.seriesAnalysisDone = true;
   }
 
   @Memoize()
