@@ -12,6 +12,8 @@ import { Facet } from '@fizz/paramanifest';
 import { Manifest } from '@fizz/paramanifest';
 import { Point } from '@fizz/chart-classifier-utils';
 import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import type { SeriesAnalysis } from '@fizz/series-analyzer';
+import type { SeriesAnalyzer } from '@fizz/series-analyzer';
 import { Theme } from '@fizz/paramanifest';
 import { Theme1 } from '@fizz/paramanifest';
 
@@ -124,7 +126,8 @@ export interface Intersection {
 
 // @public (undocumented)
 export class Model {
-    constructor(series: Series[], manifest: Manifest);
+    // Warning: (ae-forgotten-export) The symbol "SeriesAnalyzerConstructor" needs to be exported by the entry point index.d.ts
+    constructor(series: Series[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined);
     // (undocumented)
     [i: number]: Series;
     // (undocumented)
@@ -181,6 +184,10 @@ export class Model {
     readonly numSeries: number;
     // (undocumented)
     readonly series: Series[];
+    // (undocumented)
+    seriesAnalysisDone: boolean;
+    // (undocumented)
+    seriesAnalysisMap?: Record<string, SeriesAnalysis>;
     // Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
