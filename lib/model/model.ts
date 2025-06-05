@@ -285,7 +285,7 @@ export function facetsFromDataset(dataset: Dataset): FacetSignature[] {
   return Object.keys(dataset.facets).map((key) => ({ key, datatype: dataset.facets[key].datatype }))
 }
 
-export function modelFromInlineData(manifest: Manifest): Model {
+export function modelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor): Model {
   const dataset = manifest.datasets[0];
   if (dataset.data.source !== 'inline') {
     throw new Error('only manifests with inline data can use this method.');
@@ -294,14 +294,14 @@ export function modelFromInlineData(manifest: Manifest): Model {
   const series = dataset.series.map((seriesManifest) => 
     seriesFromSeriesManifest(seriesManifest, facets)
   );
-  return new Model(series, manifest);
+  return new Model(series, manifest, seriesAnalyzerConstructor);
 }
 
 // FIXME: This function does not include series labels (as seperate from series keys) or series themes
-export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): Model {
+export function modelFromExternalData(data: AllSeriesData, manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor): Model {
   const facets = facetsFromDataset(manifest.datasets[0]);
   const series = Object.keys(data).map((key) => 
     new Series(key, data[key], facets)
   );
-  return new Model(series, manifest);
+  return new Model(series, manifest, seriesAnalyzerConstructor);
 }
