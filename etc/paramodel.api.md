@@ -165,6 +165,8 @@ export class Model {
     // (undocumented)
     getFacetStats(key: string): FacetStats | null;
     // (undocumented)
+    getSeriesAnalysis(key: string): SeriesAnalysis | null;
+    // (undocumented)
     protected _horizontalAxisFacetKey: string | null;
     // (undocumented)
     independentFacet: Facet | null;

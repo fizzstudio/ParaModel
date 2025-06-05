@@ -279,6 +279,18 @@ export class Model {
   public getFacet(key: string): Facet | null {
     return this.facetMap[key] ?? null;
   }
+
+  @Memoize()
+  public getSeriesAnalysis(key: string): SeriesAnalysis | null {
+    if (!this.seriesAnalyzerConstructor) {
+      return null;
+    }
+    if (!(key in this.keyMap)) {
+      return null;
+    }
+    while (!this.seriesAnalysisDone) { }
+    return this.seriesAnalysisMap![key];
+  }
 }
 
 export function facetsFromDataset(dataset: Dataset): FacetSignature[] {
