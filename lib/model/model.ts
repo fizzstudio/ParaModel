@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from 'typescript-memoize';
-import { AllSeriesData, ChartType, Dataset, Datatype, DisplayType, Facet, Manifest, Theme, XyPoint } from "@fizz/paramanifest";
+import { AllSeriesData, ChartType, Dataset, Datatype, DisplayType, Facet, Manifest, Theme } from "@fizz/paramanifest";
 
 import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
@@ -69,7 +69,7 @@ export class Model {
   /*public readonly xs: ScalarMap[X][];
   public readonly ys: number[];*/
 
-  constructor(public readonly series: Series[], manifest: Manifest) {
+  constructor(public readonly series: Series[], manifest: Manifest, private readonly seriesAnalyzer?: SeriesAnalyzer) {
     if (this.series.length === 0) {
       throw new Error('models must have at least one series');
     }

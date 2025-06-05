@@ -75,5 +75,8 @@
     "@fizz/test-utils": "^0.3.1",
     "simple-statistics": "^7.8.8",
     "typescript-memoize": "^1.1.1"
+  },
+    "optionalDependencies": {
+    "@fizz/series-analyzer": "0.13.7"
   }
 }
