@@ -126,7 +126,6 @@ export interface Intersection {
 
 // @public (undocumented)
 export class Model {
-    // Warning: (ae-forgotten-export) The symbol "SeriesAnalyzerConstructor" needs to be exported by the entry point index.d.ts
     constructor(series: Series[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined);
     // (undocumented)
     [i: number]: Series;
@@ -271,6 +270,9 @@ export class Series {
     // (undocumented)
     readonly theme?: Theme1;
 }
+
+// @public (undocumented)
+export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
 
 // Warning: (ae-internal-missing-underscore) The name "strToId" should be prefixed with an underscore because the declaration is marked as @internal
 //

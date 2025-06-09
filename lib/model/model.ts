@@ -28,7 +28,7 @@ import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer
 import { OrderOfMagnitudeNum, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import { Line } from '@fizz/chart-classifier-utils';
 
-type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
+export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
