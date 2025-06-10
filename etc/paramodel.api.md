@@ -15,7 +15,6 @@ import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import type { SeriesAnalysis } from '@fizz/series-analyzer';
 import type { SeriesAnalyzer } from '@fizz/series-analyzer';
 import { Theme } from '@fizz/paramanifest';
-import { Theme1 } from '@fizz/paramanifest';
 
 // @public (undocumented)
 export function arrayEqualsBy<L, R>(by: (lhs: L, rhs: R) => boolean, lhs: L[], rhs: R[]): boolean;
@@ -201,8 +200,6 @@ export class Model {
     readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
     // (undocumented)
     readonly theme: Theme;
-    // Warning: (ae-forgotten-export) The symbol "TrackingGroup" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     readonly trackingGroups: TrackingGroup[];
     // Warning: (ae-forgotten-export) The symbol "TrackingZone" needs to be exported by the entry point index.d.ts
@@ -230,7 +227,7 @@ export function parseCalendar(input: string): CalendarPeriod | null;
 export class Series {
     // (undocumented)
     [Symbol.iterator](): Iterator<DataPoint>;
-    constructor(key: string, rawData: RawDataPoint[], facets: FacetSignature[], label?: string, theme?: Theme1);
+    constructor(key: string, rawData: RawDataPoint[], facets: FacetSignature[], label?: string, theme?: Theme);
     // (undocumented)
     [i: number]: DataPoint;
     // (undocumented)
@@ -247,6 +244,8 @@ export class Series {
     //
     // (undocumented)
     facet(key: string): DataFrameColumn<Datatype> | null;
+    // (undocumented)
+    facetAverage(key: string): number | null;
     // (undocumented)
     readonly facets: FacetSignature[];
     // (undocumented)
@@ -268,7 +267,7 @@ export class Series {
     // (undocumented)
     readonly rawData: RawDataPoint[];
     // (undocumented)
-    readonly theme?: Theme1;
+    readonly theme?: Theme;
 }
 
 // @public (undocumented)
@@ -278,6 +277,20 @@ export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
 //
 // @internal
 export function strToId(s: string): string;
+
+// @public
+export interface TrackingGroup {
+    // Warning: (ae-forgotten-export) The symbol "SeriesDatapoints" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    averageLine: SeriesDatapoints;
+    // Warning: (ae-forgotten-export) The symbol "Interval" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    interval: Interval;
+    keys: string[];
+    outliers: string[];
+}
 
 // @public (undocumented)
 export class XYDatapoint extends DataPoint {
