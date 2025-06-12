@@ -6,6 +6,7 @@
 
 import { AllSeriesData } from '@fizz/paramanifest';
 import { ChartType } from '@fizz/paramanifest';
+import { ChartTypeFamily } from '@fizz/paramanifest';
 import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
 import { Facet } from '@fizz/paramanifest';
@@ -155,6 +156,8 @@ export class Model {
     // (undocumented)
     readonly facets: FacetSignature[];
     // (undocumented)
+    readonly family: ChartTypeFamily;
+    // (undocumented)
     getAxisFacet(orientation: AxisOrientation): Facet | null;
     // (undocumented)
     getFacet(key: string): Facet | null;
@@ -164,6 +167,8 @@ export class Model {
     getFacetStats(key: string): FacetStats | null;
     // (undocumented)
     getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null>;
+    // (undocumented)
+    readonly grouped: boolean;
     // (undocumented)
     protected _horizontalAxisFacetKey: string | null;
     // (undocumented)

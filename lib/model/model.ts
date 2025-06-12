@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from 'typescript-memoize';
-import { AllSeriesData, ChartType, Dataset, Datatype, DisplayType, Facet, Manifest, Theme } from "@fizz/paramanifest";
+import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, Facet, Manifest, Theme } from "@fizz/paramanifest";
 import type { SeriesAnalysis, SeriesAnalyzer } from "@fizz/series-analyzer";
 
 import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
@@ -35,6 +35,8 @@ export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
 export class Model {
   [i: number]: Series;
   public readonly type: ChartType;
+  public readonly family: ChartTypeFamily;
+  public readonly grouped: boolean;
   public readonly keys: string[] = [];
   public readonly facets: FacetSignature[];
   public readonly multi: boolean;
@@ -87,6 +89,8 @@ export class Model {
     this.multi = this.series.length > 1;
     this.dataset = manifest.datasets[0];
     this.type = this.dataset.type;
+    this.family = CHART_FAMILY_MAP[this.type];
+    this.grouped = this.dataset.seriesRelations === 'grouped'; // Defaults to 'stacked'
     if (this.dataset.chartTheme) {
       this.theme = this.dataset.chartTheme;
     } else if (!this.multi) {

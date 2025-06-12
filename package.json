@@ -71,7 +71,7 @@
     "@fizz/chart-classifier-utils": "^0.16.1",
     "@fizz/chart-data": "^2.1.6-alpha.9",
     "@fizz/number-scaling-rounding": "^0.4.1-alpha.0",
-    "@fizz/paramanifest": "^0.3.3-alpha.0",
+    "@fizz/paramanifest": "^0.3.6",
     "@fizz/test-utils": "^0.3.1",
     "simple-statistics": "^7.8.8",
     "typescript-memoize": "^1.1.1"
