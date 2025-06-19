@@ -15,7 +15,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from 'typescript-memoize';
-import { AllSeriesData, ChartType, Dataset, Datatype, DisplayType, Facet, Manifest, Theme, XyPoint } from "@fizz/paramanifest";
+import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, Facet, Manifest, Theme } from "@fizz/paramanifest";
+import type { SeriesAnalysis, SeriesAnalyzer } from "@fizz/series-analyzer";
 
 import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
@@ -24,13 +25,18 @@ import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateVa
 import { DataPoint, isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
-import { OrderOfMagnitudeNum, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { Line } from '@fizz/chart-classifier-utils';
+
+export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
 export class Model {
   [i: number]: Series;
   public readonly type: ChartType;
+  public readonly family: ChartTypeFamily;
+  public readonly grouped: boolean;
   public readonly keys: string[] = [];
   public readonly facets: FacetSignature[];
   public readonly multi: boolean;
@@ -51,6 +57,9 @@ export class Model {
   public independentFacetKey: string | null = null;
   public dependentFacet: Facet | null = null;
   public independentFacet: Facet | null = null;
+  private seriesLineMap: Record<string, Line> = {};
+  public seriesAnalysisMap?: Record<string, SeriesAnalysis>;
+  private seriesAnalysisDone = false;
 
   public seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
 
@@ -69,13 +78,19 @@ export class Model {
   /*public readonly xs: ScalarMap[X][];
   public readonly ys: number[];*/
 
-  constructor(public readonly series: Series[], manifest: Manifest) {
+  constructor(
+    public readonly series: Series[], 
+    manifest: Manifest, 
+    private readonly seriesAnalyzerConstructor?: SeriesAnalyzerConstructor
+  ) {
     if (this.series.length === 0) {
       throw new Error('models must have at least one series');
     }
     this.multi = this.series.length > 1;
     this.dataset = manifest.datasets[0];
     this.type = this.dataset.type;
+    this.family = CHART_FAMILY_MAP[this.type];
+    this.grouped = this.dataset.seriesRelations === 'grouped'; // Defaults to 'stacked'
     if (this.dataset.chartTheme) {
       this.theme = this.dataset.chartTheme;
     } else if (!this.multi) {
@@ -157,18 +172,20 @@ export class Model {
       });
     }
 
-    if (this.xy) {
+    if (this.xy && this.type !== 'scatter') {
+      [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
+        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
+      for (const series of (this.series as XYSeries[])) {
+        this.seriesLineMap[series.key] = series.getNumericalLine();
+      }
       if (this.multi) {
-        const seriesArray = (this.series as XYSeries[]).map((series) => series.getNumericalLine());
-        this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]);
+        this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(Object.values(this.seriesLineMap), [1,1]);
         this.intersections = this.seriesPairAnalyzer.getIntersections();
         this.clusters = this.seriesPairAnalyzer.getClusters();
         this.clusterOutliers = this.seriesPairAnalyzer.getClusterOutliers();
         this.trackingGroups = this.seriesPairAnalyzer.getTrackingGroups();
         this.trackingZones = this.seriesPairAnalyzer.getTrackingZones();
       }
-      [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
-        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitudeNum | undefined);
     }
 
     /*this.xs = mergeUniqueBy(
@@ -218,6 +235,18 @@ export class Model {
     }
   }
 
+  private async generateSeriesAnalyses(): Promise<void> {
+    if (this.seriesAnalysisDone) {
+      return;
+    }
+    const seriesAnalyzer = new this.seriesAnalyzerConstructor!();
+    this.seriesAnalysisMap = {};
+    for (const seriesKey in this.seriesLineMap) {
+      this.seriesAnalysisMap[seriesKey] = await seriesAnalyzer.analyzeSeries(this.seriesLineMap[seriesKey]);
+    }
+    this.seriesAnalysisDone = true;
+  }
+
   @Memoize()
   public atKey(key: string): Series | null {
     return this.keyMap[key] ?? null;
@@ -254,13 +283,25 @@ export class Model {
   public getFacet(key: string): Facet | null {
     return this.facetMap[key] ?? null;
   }
+
+  @Memoize()
+  public async getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null> {
+    if (!this.xy 
+      || this.type === 'scatter' 
+      || !this.seriesAnalyzerConstructor
+      || !(key in this.keyMap)) {
+      return null;
+    }
+    await this.generateSeriesAnalyses()
+    return this.seriesAnalysisMap![key];
+  }
 }
 
 export function facetsFromDataset(dataset: Dataset): FacetSignature[] {
   return Object.keys(dataset.facets).map((key) => ({ key, datatype: dataset.facets[key].datatype }))
 }
 
-export function modelFromInlineData(manifest: Manifest): Model {
+export function modelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor): Model {
   const dataset = manifest.datasets[0];
   if (dataset.data.source !== 'inline') {
     throw new Error('only manifests with inline data can use this method.');
@@ -269,14 +310,14 @@ export function modelFromInlineData(manifest: Manifest): Model {
   const series = dataset.series.map((seriesManifest) => 
     seriesFromSeriesManifest(seriesManifest, facets)
   );
-  return new Model(series, manifest);
+  return new Model(series, manifest, seriesAnalyzerConstructor);
 }
 
 // FIXME: This function does not include series labels (as seperate from series keys) or series themes
-export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): Model {
+export function modelFromExternalData(data: AllSeriesData, manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor): Model {
   const facets = facetsFromDataset(manifest.datasets[0]);
   const series = Object.keys(data).map((key) => 
     new Series(key, data[key], facets)
   );
-  return new Model(series, manifest);
+  return new Model(series, manifest, seriesAnalyzerConstructor);
 }
