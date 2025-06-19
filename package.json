@@ -69,8 +69,8 @@
   },
   "dependencies": {
     "@fizz/chart-classifier-utils": "^0.16.1",
-    "@fizz/chart-data": "^2.1.6-alpha.9",
-    "@fizz/number-scaling-rounding": "^0.4.1-alpha.0",
+    "@fizz/chart-data": "^2.1.7",
+    "@fizz/number-scaling-rounding": "^0.5.0",
     "@fizz/paramanifest": "^0.3.6",
     "@fizz/test-utils": "^0.3.1",
     "simple-statistics": "^7.8.8",

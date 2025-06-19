@@ -25,7 +25,7 @@ import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateVa
 import { DataPoint, isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
-import { OrderOfMagnitudeNum, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import { Line } from '@fizz/chart-classifier-utils';
 
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
@@ -174,7 +174,7 @@ export class Model {
 
     if (this.xy && this.type !== 'scatter') {
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
-        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitudeNum | undefined);
+        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
       for (const series of (this.series as XYSeries[])) {
         this.seriesLineMap[series.key] = series.getNumericalLine();
       }
@@ -237,7 +237,7 @@ export class Model {
 
   private async generateSeriesAnalyses(): Promise<void> {
     if (this.seriesAnalysisDone) {
-      return
+      return;
     }
     const seriesAnalyzer = new this.seriesAnalyzerConstructor!();
     this.seriesAnalysisMap = {};
