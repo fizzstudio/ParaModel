@@ -16,7 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import * as ss from 'simple-statistics';
 import { DataPoint, XYSeries } from '../model/series';
-import { OrderOfMagnitudeNum, scaleAndRound, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { OrderOfMagnitude, scaleAndRound, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import { Intersection } from './pair_analyzer_interface';
 
 // Facet Stats
@@ -54,7 +54,7 @@ export function calculateFacetStats(facetKey: string, datapoints: DataPoint[]): 
 
 // Scaled & Rounded Numbers
 
-function scaleValues(yMultiplier: OrderOfMagnitudeNum, vals: number[]): ScaledNumberRounded[] {
+function scaleValues(yMultiplier: OrderOfMagnitude, vals: number[]): ScaledNumberRounded[] {
   const scaledInputs = vals.map((val) => ({ number: val, scale: yMultiplier }));
   return scaleAndRound(scaledInputs)
 }
@@ -79,7 +79,7 @@ export type GeneratedValues = [
 export function generateValues(
   allSeries: XYSeries[], 
   intersections: Intersection[], 
-  yMultiplier?: OrderOfMagnitudeNum
+  yMultiplier?: OrderOfMagnitude
 ): GeneratedValues {
   const rawSeriesValues: number[] = [];
   const rawStatsValues = [];

@@ -19,6 +19,7 @@ import { ManifestPicker, ManifestPickerProps } from "@fizz/test-utils";
 import { Manifest } from "@fizz/paramanifest";
 import { html, TemplateResult } from "lit";
 import { Model, modelFromInlineData } from "../../lib/index";
+import { SeriesAnalyzer } from "@fizz/series-analyzer";
 
 @customElement('model-picker')
 export class ModelPicker extends ManifestPicker {
@@ -26,7 +27,7 @@ export class ModelPicker extends ManifestPicker {
   private model?: Model;
 
   protected onManifestLoad(manifest: Manifest): void {
-    this.model = modelFromInlineData(manifest);
+    this.model = modelFromInlineData(manifest, SeriesAnalyzer);
   }
 
   protected renderManifest(manifest: Manifest): TemplateResult {

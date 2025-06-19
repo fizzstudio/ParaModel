@@ -14,7 +14,8 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { Datatype, Series as SeriesManifest, Theme1 as Theme, XyPoint } from "@fizz/paramanifest";
+import * as ss from 'simple-statistics';
+import { Datatype, SeriesManifest, Theme } from "@fizz/paramanifest";
 
 import { strToId } from "../utils";
 import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint } from "../dataframe/dataframe";
@@ -163,6 +164,16 @@ export class Series {
       return null;
     }
     return calculateFacetStats(key, this.datapoints);
+  }
+
+  @Memoize()
+  public facetAverage(key: string): number | null {
+    const facetDatatype = this.datatypeMap[key];
+    // Checks for both non-existent and non-numerical facets
+    if (facetDatatype !== 'number') {
+      return null;
+    }
+    return ss.mean(this.datapoints.map((point) => point.facetValue(key) as number));
   }
 }
 
