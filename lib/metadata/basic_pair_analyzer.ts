@@ -1,4 +1,4 @@
-/* ParaModel: Series Pair Analysis
+/* ParaModel: Basic Series Pair Analysis
 Copyright (C) 2025 Fizz Studios
 
 This program is free software: you can redistribute it and/or modify
@@ -782,19 +782,19 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
   }
 
   getTrackingGroups(): TrackingGroup[] {
-    return [];
+    return this.trackingGroups;
   }
 
   getTrackingZones(): TrackingZone[] {
-    return [];
+    return this.trackingZones;
   }
 
   getClusters(): string[][] {
-    return [];
+    return this.clusters;
   }
 
   getClusterOutliers(): string[] {
-    return [];
+    return this.clusterOutliers;
   }
   
   private generateAngleDetails(
