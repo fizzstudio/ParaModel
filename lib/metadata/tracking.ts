@@ -101,7 +101,7 @@ function breaksToIntervals(series: Line, breaks: number[]): Interval[] {
  * tracking (which is still affected by the closeness parameter), and 
  * simplifies the set of tracking groups presented to the user.
  */
-export class TrackingGroup {
+export class TrackingGroupBuilder {
 
   /**
    * Do not use; call TrackingGroup.getGroups() to create tracking groups.
@@ -119,7 +119,7 @@ export class TrackingGroup {
    * closeness required for lines to pair/group.
    * @returns The tracking groups.
    */
-  static getGroups(allSeries: Line[], minSize = 0.25, closeness = 0.9): TrackingGroup[] {
+  static getGroups(allSeries: Line[], minSize = 0.25, closeness = 0.9): TrackingGroupBuilder[] {
     const keyMap: Map<string, Line> = new Map();
     allSeries.forEach(line => keyMap.set(line.key!, line));
 
@@ -145,13 +145,13 @@ export class TrackingGroup {
         .map(rt => ({ keyPair, interval: rt.interval }));
       trackingPairs = trackingPairs.concat(tps);
     }
-    let groups = TrackingGroup.createGroupsFromPairs(trackingPairs, keyMap);
-    groups = TrackingGroup.normalizeGroups(groups);
+    let groups = TrackingGroupBuilder.createGroupsFromPairs(trackingPairs, keyMap);
+    groups = TrackingGroupBuilder.normalizeGroups(groups);
     groups.reverse();
     return groups;
   }
 
-  private static createGroupsFromPairs(trackingPairs: TrackingPair[], seriesByKey: Map<string, Line>): TrackingGroup[] {
+  private static createGroupsFromPairs(trackingPairs: TrackingPair[], seriesByKey: Map<string, Line>): TrackingGroupBuilder[] {
     // Collect intervals into a unique set
     const intervals: Interval[] = [];
     function interId(inter: Interval) {
@@ -185,7 +185,7 @@ export class TrackingGroup {
       }
     }
   
-    const groups: TrackingGroup[] = [];
+    const groups: TrackingGroupBuilder[] = [];
   
     // Find the tracking groups for each interval
     for (const [id, keys] of interKeys) {
@@ -211,7 +211,7 @@ export class TrackingGroup {
         }
       }
       for (const keySet of sets) {
-        groups.push(new TrackingGroup(keySet, intervals[id], seriesByKey));
+        groups.push(new TrackingGroupBuilder(keySet, intervals[id], seriesByKey));
       }
     }
     return groups;
@@ -222,7 +222,7 @@ export class TrackingGroup {
    * Line groups are updated in-place.
    * @internal
    */
-  static suppleteGroups(groups: TrackingGroup[]) {
+  static suppleteGroups(groups: TrackingGroupBuilder[]) {
     let didSupplete = false;
     // Sort widest to narrowest
     groups.sort((a, b) => {
@@ -254,7 +254,7 @@ export class TrackingGroup {
   /**
    * Supplete group 'other' in-place.
    */
-  private supplete(other: TrackingGroup) {
+  private supplete(other: TrackingGroupBuilder) {
     let didSupplete = false;
     if (Array.from(this.keys).some(key => other.keys.has(key))) {
       for (const key of this.keys) {
@@ -274,19 +274,19 @@ export class TrackingGroup {
    * @returns New array of tracking groups
    * @internal
    */
-  static mergeGroups(groups: TrackingGroup[]): TrackingGroup[] {
+  static mergeGroups(groups: TrackingGroupBuilder[]): TrackingGroupBuilder[] {
     if (groups.length) {
-      let merged: TrackingGroup[];
+      let merged: TrackingGroupBuilder[];
       do {
         merged = [];
-        const remove: TrackingGroup[] = [];
+        const remove: TrackingGroupBuilder[] = [];
         outer:
         for (let i = 0; i < groups.length; i++) {
           const gi = groups[i];
           for (let j = i + 1; j < groups.length; j++) {
             const gj = groups[j];
             if (isIntervalsOverlap(gi.interval, gj.interval) && setEq(gi.keys, gj.keys)) {
-              merged.push(new TrackingGroup(gi.keys, 
+              merged.push(new TrackingGroupBuilder(gi.keys, 
                 mergeIntervals(gi.interval, gj.interval), gi.seriesByKey));
               remove.push(gi, gj);
               break outer;
@@ -304,11 +304,11 @@ export class TrackingGroup {
    * we can't supplete any group further.
    * @internal
    */
-  static normalizeGroups(groups: TrackingGroup[]) {
-    let didSupplete = TrackingGroup.suppleteGroups(groups);
+  static normalizeGroups(groups: TrackingGroupBuilder[]) {
+    let didSupplete = TrackingGroupBuilder.suppleteGroups(groups);
     do {
-      groups = TrackingGroup.mergeGroups(groups);
-      didSupplete = TrackingGroup.suppleteGroups(groups);
+      groups = TrackingGroupBuilder.mergeGroups(groups);
+      didSupplete = TrackingGroupBuilder.suppleteGroups(groups);
     } while (didSupplete);
     return groups;
   }
@@ -346,12 +346,12 @@ export class TrackingGroup {
  * rather than simply sets of lines mostly to facilitate suppletion and merging.)
  * @public
  */
-export class TrackingZone {
+export class TrackingZoneBuilder {
 
   /**
    * Do not use; call TrackingZone.getZones() to create tracking zones.
    */
-  private constructor(public trackingGroups: TrackingGroup[], public interval: Interval) { 
+  private constructor(public trackingGroups: TrackingGroupBuilder[], public interval: Interval) { 
   }
 
   /**
@@ -360,7 +360,7 @@ export class TrackingZone {
    * @returns The list of tracking zones.
    * @public
    */
-  static getZones(trackingGroups: TrackingGroup[]): TrackingZone[] {
+  static getZones(trackingGroups: TrackingGroupBuilder[]): TrackingZoneBuilder[] {
     const breaks: Set<number> = new Set();
     // get x-value breaks from tracking groups
     trackingGroups.forEach(z => {
@@ -374,16 +374,16 @@ export class TrackingZone {
     // NB: This may contain intervals where no tracking is taking place
     const intervals = breaksToIntervals(
       trackingGroups[0].seriesByKey.values().next().value, sortedBreaks);
-    const trackingZones: TrackingZone[] = [];
+    const trackingZones: TrackingZoneBuilder[] = [];
     for (const interval of intervals) {
       let didCreateZone = false;
       for (const g of trackingGroups) {
         if (g.interval.start <= interval.start && g.interval.end >= interval.end) {
           const zone = trackingZones.find(z => intervalEq(interval, z.interval));
           // Create a new tracking group object that can be suppleted if necessary
-          const newG: TrackingGroup = new TrackingGroup(new Set(g.keys), interval, g.seriesByKey);
+          const newG: TrackingGroupBuilder = new TrackingGroupBuilder(new Set(g.keys), interval, g.seriesByKey);
           if (!zone) {
-            trackingZones.push(new TrackingZone([newG], interval));
+            trackingZones.push(new TrackingZoneBuilder([newG], interval));
             didCreateZone = true;
           } else {
             zone.trackingGroups.push(newG);
@@ -392,7 +392,7 @@ export class TrackingZone {
       }
       if (didCreateZone) {
         const z = trackingZones.at(-1)!;
-        z.trackingGroups = TrackingGroup.normalizeGroups(z.trackingGroups);
+        z.trackingGroups = TrackingGroupBuilder.normalizeGroups(z.trackingGroups);
       }
     }
     return trackingZones;
