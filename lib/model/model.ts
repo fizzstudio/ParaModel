@@ -29,6 +29,7 @@ import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-roun
 import { Line } from '@fizz/chart-classifier-utils';
 
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
+export type PairAnalyzerConstructor = new (seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number) => SeriesPairMetadataAnalyzer;
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
@@ -81,7 +82,8 @@ export class Model {
   constructor(
     public readonly series: Series[], 
     manifest: Manifest, 
-    private readonly seriesAnalyzerConstructor?: SeriesAnalyzerConstructor
+    private readonly seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
+    private readonly pairAnalyzerConstructor: PairAnalyzerConstructor = BasicSeriesPairMetadataAnalyzer
   ) {
     if (this.series.length === 0) {
       throw new Error('models must have at least one series');
@@ -179,7 +181,7 @@ export class Model {
         this.seriesLineMap[series.key] = series.getNumericalLine();
       }
       if (this.multi) {
-        this.seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(Object.values(this.seriesLineMap), [1,1]);
+        this.seriesPairAnalyzer = new this.pairAnalyzerConstructor(Object.values(this.seriesLineMap), [1,1]);
         this.intersections = this.seriesPairAnalyzer.getIntersections();
         this.clusters = this.seriesPairAnalyzer.getClusters();
         this.clusterOutliers = this.seriesPairAnalyzer.getClusterOutliers();

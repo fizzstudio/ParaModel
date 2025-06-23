@@ -22,6 +22,7 @@ import { classifySlope } from "@fizz/chart-message-candidates";
 import { SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from "./pair_analyzer_interface";
 import { BasicLineIntersectionDetection, BasicSeriesPairMetadataAnalyzer, IntersectionProperties } from "./basic_pair_analyzer";
 import { TrackingGroupBuilder, TrackingZoneBuilder } from "./tracking";
+import { SpatialClusters } from './clusters';
 
 /**
  * Represents the relationship between two series as they traverse
