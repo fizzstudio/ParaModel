@@ -10,6 +10,7 @@ import { ChartTypeFamily } from '@fizz/paramanifest';
 import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
 import { Facet } from '@fizz/paramanifest';
+import { Line } from '@fizz/chart-classifier-utils';
 import { Manifest } from '@fizz/paramanifest';
 import { Point } from '@fizz/chart-classifier-utils';
 import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
@@ -126,7 +127,8 @@ export interface Intersection {
 
 // @public (undocumented)
 export class Model {
-    constructor(series: Series[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined);
+    // Warning: (ae-forgotten-export) The symbol "PairAnalyzerConstructor" needs to be exported by the entry point index.d.ts
+    constructor(series: Series[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined, pairAnalyzerConstructor?: PairAnalyzerConstructor);
     // (undocumented)
     [i: number]: Series;
     // (undocumented)

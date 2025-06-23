@@ -1,4 +1,4 @@
-/* ParaModel: Series Pair Analysis
+/* ParaModel: Series Pair Analysis Interfaces
 Copyright (C) 2025 Fizz Studios
 
 This program is free software: you can redistribute it and/or modify
