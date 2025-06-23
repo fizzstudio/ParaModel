@@ -150,7 +150,7 @@ function segAt(series: Line, i: number): PointInterval {
  * Class for detecting whether time series intersect.
  * @public
  */
-export class LineIntersectionDetection {
+export class BasicLineIntersectionDetection {
   /** Segment pair properties for all segment pairs */
   public allSegPairProps: SegPairProperties[];
   /** Segment pair properties only for intersecting pairs */
@@ -164,7 +164,7 @@ export class LineIntersectionDetection {
   /** Average distance between the lines */
   public averageGap: number;
 
-  constructor(private series1: Line, private series2: Line, yScale: number) {
+  constructor(protected series1: Line, protected series2: Line, yScale: number) {
     if (series1.length !== series2.length) {
       throw new Err(Errors.numPointsNotEqual);
     }
@@ -564,7 +564,7 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
         const series = <[string, string]>[seriesA.key, seriesB.key];
 
         // Get interaction details between series A and series B
-        const interactions = new LineIntersectionDetection(seriesA, seriesB, this.yScale)
+        const interactions = new BasicLineIntersectionDetection(seriesA, seriesB, this.yScale)
         
         // Get intersection details between series A and series B
         const intersectionsDetails = interactions.intersectingSegPairs;

@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Line, type Interval, mapn } from '@fizz/chart-classifier-utils';
-import { LineIntersectionDetection } from './basic_pair_analyzer';
+import { AiLineIntersectionDetection } from './ai_pair_analyzer';
 
 /**
  * An x-value interval on a chart and an associated pair of lines that
@@ -133,7 +133,7 @@ export class TrackingGroupBuilder {
       end: yRange
     };
     for (const keyPair of keyPairs) {
-      const lid = new LineIntersectionDetection(
+      const lid = new AiLineIntersectionDetection(
         keyMap.get(keyPair[0])!, keyMap.get(keyPair[1])!, 1 / 2);
       const rts = lid.getRelativeTrajectories(diffYAxis);
       // Only keep tracking intervals no smaller than minSize percent of the chart
@@ -373,7 +373,7 @@ export class TrackingZoneBuilder {
     // Compute non-overlapping intervals.
     // NB: This may contain intervals where no tracking is taking place
     const intervals = breaksToIntervals(
-      trackingGroups[0].seriesByKey.values().next().value, sortedBreaks);
+      trackingGroups[0].seriesByKey.values().next().value!, sortedBreaks);
     const trackingZones: TrackingZoneBuilder[] = [];
     for (const interval of intervals) {
       let didCreateZone = false;
