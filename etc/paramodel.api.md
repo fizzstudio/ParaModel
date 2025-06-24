@@ -18,11 +18,65 @@ import type { SeriesAnalysis } from '@fizz/series-analyzer';
 import type { SeriesAnalyzer } from '@fizz/series-analyzer';
 import { Theme } from '@fizz/paramanifest';
 
+// Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export class AiSeriesPairMetadataAnalyzer extends BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyzer {
+    constructor(seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number);
+}
+
 // @public (undocumented)
 export function arrayEqualsBy<L, R>(by: (lhs: L, rhs: R) => boolean, lhs: L[], rhs: R[]): boolean;
 
 // @public (undocumented)
 export type AxisOrientation = 'horiz' | 'vert';
+
+// @public (undocumented)
+export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyzer {
+    constructor(seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number);
+    // (undocumented)
+    clusterOutliers: string[];
+    // (undocumented)
+    clusters: string[][];
+    // (undocumented)
+    getClusterOutliers(): string[];
+    // (undocumented)
+    getClusters(): string[][];
+    // (undocumented)
+    getIntersections(): Intersection[];
+    // (undocumented)
+    getOverlaps(): Overlap[];
+    // (undocumented)
+    getPairs(): Pair[];
+    // (undocumented)
+    getParallels(): Parallel[];
+    // (undocumented)
+    getTrackingGroups(): TrackingGroup[];
+    // (undocumented)
+    getTrackingZones(): TrackingZone[];
+    // (undocumented)
+    intersections: Intersection[];
+    // Warning: (ae-forgotten-export) The symbol "Overlap" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    overlaps: Overlap[];
+    // Warning: (ae-forgotten-export) The symbol "Pair" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    pairs: Pair[];
+    // Warning: (ae-forgotten-export) The symbol "Parallel" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    parallels: Parallel[];
+    // (undocumented)
+    trackingGroups: TrackingGroup[];
+    // Warning: (ae-forgotten-export) The symbol "TrackingZone" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    trackingZones: TrackingZone[];
+    // (undocumented)
+    yScale: number;
+}
 
 // @public
 export abstract class Box<T extends Datatype> {
@@ -193,8 +247,6 @@ export class Model {
     readonly series: Series[];
     // (undocumented)
     seriesAnalysisMap?: Record<string, SeriesAnalysis>;
-    // Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null;
     // Warning: (ae-forgotten-export) The symbol "SeriesScaledValues" needs to be exported by the entry point index.d.ts
@@ -209,8 +261,6 @@ export class Model {
     readonly theme: Theme;
     // (undocumented)
     readonly trackingGroups: TrackingGroup[];
-    // Warning: (ae-forgotten-export) The symbol "TrackingZone" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     readonly trackingZones: TrackingZone[];
     // (undocumented)
