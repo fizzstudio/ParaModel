@@ -222,10 +222,10 @@ export class Model {
 }
 
 // @public (undocumented)
-export function modelFromExternalData(data: AllSeriesData, manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor): Model;
+export function modelFromExternalData(data: AllSeriesData, manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor): Model;
 
 // @public (undocumented)
-export function modelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor): Model;
+export function modelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor): Model;
 
 // @public (undocumented)
 export function parseCalendar(input: string): CalendarPeriod | null;
