@@ -181,7 +181,6 @@ export interface Intersection {
 
 // @public (undocumented)
 export class Model {
-    // Warning: (ae-forgotten-export) The symbol "PairAnalyzerConstructor" needs to be exported by the entry point index.d.ts
     constructor(series: Series[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined, pairAnalyzerConstructor?: PairAnalyzerConstructor);
     // (undocumented)
     [i: number]: Series;
@@ -276,6 +275,9 @@ export function modelFromExternalData(data: AllSeriesData, manifest: Manifest, s
 
 // @public (undocumented)
 export function modelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor): Model;
+
+// @public (undocumented)
+export type PairAnalyzerConstructor = new (seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number) => SeriesPairMetadataAnalyzer;
 
 // @public (undocumented)
 export function parseCalendar(input: string): CalendarPeriod | null;
