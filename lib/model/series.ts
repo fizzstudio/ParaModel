@@ -124,11 +124,9 @@ export class XYSeries extends Series {
   declare datapoints: PlaneDatapoint[];
 
   constructor(
-    public readonly key: string, 
-    public readonly rawData: RawDataPoint[], 
-    public readonly facets: FacetSignature[],
-    private indepKey: string, 
-    private depKey: string,
+    key: string, 
+    rawData: RawDataPoint[], 
+    facets: FacetSignature[],
     label?: string,
     theme?: Theme
   ) {
@@ -142,7 +140,7 @@ export class XYSeries extends Series {
   }
 
   protected constructDatapoint(data: DataFrameRow, seriesKey: string, datapointIndex: number): Datapoint {
-    return new PlaneDatapoint(data, seriesKey, datapointIndex, this.indepKey, this.depKey);
+    return new PlaneDatapoint(data, seriesKey, datapointIndex, 'x', 'y');
   }
 }
 
@@ -163,8 +161,6 @@ export function seriesFromSeriesManifest(
       seriesManifest.key, 
       seriesManifest.records!, 
       facets,
-      'x',
-      'y',
       seriesManifest.label,
       seriesManifest.theme
     );

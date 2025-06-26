@@ -138,10 +138,11 @@ export class Model {
           } else {
             throw new Error('only one horizontal axis per chart');
           }
-        } else {
+        } else if (facetManifest.displayType!.orientation === 'vertical') {
           if (this._verticalAxisFacetKey === null) {
             this._verticalAxisFacetKey = key;
           } else {
+            console.log(this._verticalAxisFacetKey, key)
             throw new Error('only one vertical axis per chart');
           }
         }
