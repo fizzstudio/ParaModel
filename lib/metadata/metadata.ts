@@ -37,11 +37,11 @@ export interface FacetStats {
 }
 
 export function calculateFacetStats(facetKey: string, datapoints: Datapoint[]): FacetStats {
-  const facetValues = datapoints.map((point) => point.facetValue(facetKey) as number);
+  const facetValues = datapoints.map((point) => point.facetValueAsNumber(facetKey)!);
   const minValue = Math.min(...facetValues);
   const maxValue = Math.max(...facetValues);
-  const pointsAtMin = datapoints.filter((point) => (point.facetValue(facetKey) as number) === minValue);
-  const pointsAtMax = datapoints.filter((point) => (point.facetValue(facetKey) as number) === maxValue);
+  const pointsAtMin = datapoints.filter((point) => (point.facetValueAsNumber(facetKey)) === minValue);
+  const pointsAtMax = datapoints.filter((point) => (point.facetValueAsNumber(facetKey)) === maxValue);
 
   return {
     min: { value: minValue, datapoints: pointsAtMin },

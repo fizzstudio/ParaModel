@@ -40,16 +40,10 @@ export class Datapoint {
   @Memoize()
   public facetValueAsNumber(key: string): number | null {
     const box = this.data[key];
-    if (box === undefined) {
+    if (box === undefined || !box.isNumberLike()) {
       return null;
     }
-    if (box.isNumber()) {
-      return box.value;
-    } 
-    if (box.isDate()) {
-      return calendarNumber(box.value);
-    } 
-    return null;
+    return box.asNumber();
   }
 
   @Memoize()
