@@ -22,7 +22,8 @@ import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
 import { Box, BoxSet } from "../dataframe/box";
 import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "../metadata/metadata";
-import { DataPoint, isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
+import { Datapoint } from '../model/datapoint';
+import { isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
@@ -42,7 +43,7 @@ export class Model {
   public readonly facets: FacetSignature[];
   public readonly multi: boolean;
   public readonly numSeries: number;
-  public readonly allPoints: DataPoint[] = [];
+  public readonly allPoints: Datapoint[] = [];
   public readonly theme: Theme;
   public readonly xy: boolean;
   public readonly seriesScaledValues?: SeriesScaledValues;
@@ -254,7 +255,7 @@ export class Model {
     return this.keyMap[key] ?? null;
   }
   
-  public atKeyAndIndex(key: string, index: number): DataPoint | null {
+  public atKeyAndIndex(key: string, index: number): Datapoint | null {
     return this.atKey(key)?.[index] ?? null;
   }
 

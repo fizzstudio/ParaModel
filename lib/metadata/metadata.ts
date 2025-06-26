@@ -15,15 +15,16 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import * as ss from 'simple-statistics';
-import { DataPoint, XYSeries } from '../model/series';
+import { XYSeries } from '../model/series';
 import { OrderOfMagnitude, scaleAndRound, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import { Intersection } from './pair_analyzer_interface';
+import { Datapoint } from '../model/datapoint';
 
 // Facet Stats
 
 export interface DatapointsAtValue {
   value: number;
-  datapoints: DataPoint[];
+  datapoints: Datapoint[];
 }
 
 export interface FacetStats {
@@ -35,7 +36,7 @@ export interface FacetStats {
   mode: number;
 }
 
-export function calculateFacetStats(facetKey: string, datapoints: DataPoint[]): FacetStats {
+export function calculateFacetStats(facetKey: string, datapoints: Datapoint[]): FacetStats {
   const facetValues = datapoints.map((point) => point.facetValue(facetKey) as number);
   const minValue = Math.min(...facetValues);
   const maxValue = Math.max(...facetValues);

@@ -23,70 +23,15 @@ import { Box, BoxSet, ScalarMap } from "../dataframe/box";
 import { calculateFacetStats, FacetStats } from "../metadata/metadata";
 import { Memoize } from "typescript-memoize";
 import { Line, Point } from "@fizz/chart-classifier-utils";
-import { calendarNumber } from "../calendar_period";
-
-export class DataPoint {
-  constructor(protected data: DataFrameRow, public seriesKey: string, public datapointIndex: number) { }
-
-  public entries(): Iterable<[string, Box<Datatype>]> {
-    return Object.entries(this.data)[Symbol.iterator]();
-  }
-
-  public facetBox(key: string): Box<Datatype> | null {
-    return this.data[key] ?? null;
-  }
-
-  public facetValue(key: string): ScalarMap[Datatype] | null {
-    return this.data[key].value ?? null;
-  }
-
-  @Memoize()
-  public facetAsNumber(key: string): number | null {
-    const box = this.data[key];
-    if (box === undefined) {
-      return null;
-    }
-    if (box.isNumber()) {
-      return box.value;
-    } 
-    if (box.isDate()) {
-      return calendarNumber(box.value);
-    } 
-    return this.datapointIndex;
-  }
-}
-
-export class XYDatapoint extends DataPoint {
-  constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number) {
-    super(data, seriesKey, datapointIndex);
-    if (!('x' in data) || !('y' in data)) {
-      throw new Error('`XYDatapointDF` must contain `x` and `y` facets')
-    }
-  }
-
-  get x(): Box<Datatype> {
-    return this.data.x;
-  }
-
-  get y(): Box<Datatype> {
-    return this.data.y;
-  }
-
-  @Memoize()
-  getNumericalXY(): Point {
-    return { x: this.facetAsNumber('x')!, y: this.facetAsNumber('y')! };
-  }
-}
-
-type DataPointConstructor = new (data: DataFrameRow, seriesKey: string, datapointIndex: number) => DataPoint;
+import { Datapoint } from '../model/datapoint';
 
 export class Series {
-  [i: number]: DataPoint;
+  [i: number]: Datapoint;
   public readonly length: number;
   public readonly id: string;
   public readonly label: string;
   public readonly theme?: Theme;
-  public readonly datapoints: DataPoint[] = [];
+  public readonly datapoints: Datapoint[] = [];
 
   private readonly dataframe: DataFrame;
   private readonly uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
@@ -152,7 +97,7 @@ export class Series {
     return this.yMap.get(y) ?? null;
   }*/
 
-  [Symbol.iterator](): Iterator<DataPoint> {
+  [Symbol.iterator](): Iterator<Datapoint> {
     return this.datapoints[Symbol.iterator]();
   }
 
