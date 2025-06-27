@@ -150,7 +150,7 @@ export class Model {
       throw new Error('charts must either have 2 or 0 axes')
     }
     if (this._horizontalAxisFacetKey === null || this._verticalAxisFacetKey === null) {
-      this.setDefaultAxes();
+      //this.setDefaultAxes();
     }
 
     // Series
