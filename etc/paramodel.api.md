@@ -82,6 +82,8 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
 export abstract class Box<T extends Datatype> {
     constructor(raw: string);
     // (undocumented)
+    abstract asNumber(): number | null;
+    // (undocumented)
     abstract convertRaw(raw: string): ScalarMap[T];
     // (undocumented)
     abstract isDate(): this is {
@@ -93,6 +95,8 @@ export abstract class Box<T extends Datatype> {
     abstract isNumber(): this is {
         value: number;
     };
+    // (undocumented)
+    abstract isNumberLike(): boolean;
     // (undocumented)
     abstract isString(): this is {
         value: string;
@@ -126,8 +130,10 @@ export type CalendarPeriod = {
 };
 
 // @public (undocumented)
-export class DataPoint {
+export class Datapoint {
     constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number);
+    // (undocumented)
+    convertFacetValuesToXYForLine(xKey: string, yKey: string): Point | null;
     // Warning: (ae-forgotten-export) The symbol "DataFrameRow" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -137,11 +143,13 @@ export class DataPoint {
     // (undocumented)
     entries(): Iterable<[string, Box<Datatype>]>;
     // (undocumented)
-    facetAsNumber(key: string): number | null;
-    // (undocumented)
     facetBox(key: string): Box<Datatype> | null;
     // (undocumented)
     facetValue(key: string): ScalarMap[Datatype] | null;
+    // (undocumented)
+    facetValueAsNumber(key: string): number | null;
+    // (undocumented)
+    facetValueNumericized(key: string): number | null;
     // (undocumented)
     seriesKey: string;
 }
@@ -187,11 +195,11 @@ export class Model {
     // (undocumented)
     allFacetValues(key: string): Box<Datatype>[] | null;
     // (undocumented)
-    readonly allPoints: DataPoint[];
+    readonly allPoints: Datapoint[];
     // (undocumented)
     atKey(key: string): Series | null;
     // (undocumented)
-    atKeyAndIndex(key: string, index: number): DataPoint | null;
+    atKeyAndIndex(key: string, index: number): Datapoint | null;
     // (undocumented)
     protected _axisFacetKeys: string[];
     // (undocumented)
@@ -285,18 +293,16 @@ export function parseCalendar(input: string): CalendarPeriod | null;
 // @public (undocumented)
 export class Series {
     // (undocumented)
-    [Symbol.iterator](): Iterator<DataPoint>;
+    [Symbol.iterator](): Iterator<Datapoint>;
     constructor(key: string, rawData: RawDataPoint[], facets: FacetSignature[], label?: string, theme?: Theme);
     // (undocumented)
-    [i: number]: DataPoint;
+    [i: number]: Datapoint;
     // (undocumented)
     allFacetValues(key: string): Box<Datatype>[] | null;
-    // Warning: (ae-forgotten-export) The symbol "DataPointConstructor" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    protected datapointConstructor: DataPointConstructor;
+    protected constructDatapoint(data: DataFrameRow, seriesKey: string, datapointIndex: number): Datapoint;
     // (undocumented)
-    readonly datapoints: DataPoint[];
+    readonly datapoints: Datapoint[];
     // (undocumented)
     protected datatypeMap: Record<string, Datatype>;
     // Warning: (ae-forgotten-export) The symbol "DataFrameColumn" needs to be exported by the entry point index.d.ts
@@ -307,8 +313,6 @@ export class Series {
     facetAverage(key: string): number | null;
     // (undocumented)
     readonly facets: FacetSignature[];
-    // (undocumented)
-    protected getDatapointConstructor(): DataPointConstructor;
     // (undocumented)
     getFacetDatatype(key: string): Datatype | null;
     // (undocumented)
@@ -349,17 +353,6 @@ export interface TrackingGroup {
     interval: Interval;
     keys: string[];
     outliers: string[];
-}
-
-// @public (undocumented)
-export class XYDatapoint extends DataPoint {
-    constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number);
-    // (undocumented)
-    getNumericalXY(): Point;
-    // (undocumented)
-    get x(): Box<Datatype>;
-    // (undocumented)
-    get y(): Box<Datatype>;
 }
 
 // (No @packageDocumentation comment for this package)

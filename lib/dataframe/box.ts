@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Datatype } from "@fizz/paramanifest";
-import { calendarEquals, CalendarPeriod, parseCalendar } from "../calendar_period";
+import { calendarEquals, calendarNumber, CalendarPeriod, parseCalendar } from "../calendar_period";
 
 // TODO: This type lacks a completeness type check. This could be implemented by testing in Vitest
 // that `keyof ScalarMap extends Datatype` and vice versa and `ScalarMap[Datatype] extends Scalar` 
@@ -24,6 +24,10 @@ export type ScalarMap = {
   number: number,
   string: string,
   date: CalendarPeriod
+}
+
+export function numberLikeDatatype(datatype: Datatype | null): boolean {
+  return datatype === 'number' || datatype === 'date';
 }
 
 /**
@@ -46,6 +50,10 @@ export abstract class Box<T extends Datatype> {
   abstract isDate(): this is {value: CalendarPeriod};
 
   abstract isEqual(other: Box<T>): boolean;
+
+  abstract isNumberLike(): boolean;
+
+  abstract asNumber(): number | null;
 }
 
 /**
@@ -78,6 +86,14 @@ export class NumberBox extends Box<'number'> {
     return this.value === other.value;
   }
 
+  public isNumberLike(): boolean {
+    return true;
+  }
+
+  public asNumber(): number {
+    return this.value;
+  }
+
 }
 
 /**
@@ -104,6 +120,14 @@ export class StringBox extends Box<'string'> {
 
   public isEqual(other: Box<'string'>) {
     return this.value === other.value;
+  }
+
+  public isNumberLike(): boolean {
+    return false;
+  }
+
+  public asNumber(): null {
+    return null;
   }
 
 }
@@ -136,6 +160,14 @@ export class DateBox extends Box<'date'> {
 
   public isEqual(other: Box<'date'>): boolean {
     return calendarEquals(this.value, other.value);
+  }
+
+  public isNumberLike(): boolean {
+    return true;
+  }
+
+  public asNumber(): number {
+    return calendarNumber(this.value);
   }
 
 }

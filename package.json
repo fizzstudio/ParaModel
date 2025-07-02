@@ -70,10 +70,10 @@
   "dependencies": {
     "@fizz/breakdancer": "^0.24.0",
     "@fizz/chart-classifier-utils": "^0.16.1",
-    "@fizz/chart-data": "^2.1.8-alpha.0",
+    "@fizz/chart-data": "^2.1.9",
     "@fizz/chart-message-candidates": "^0.28.1",
     "@fizz/number-scaling-rounding": "^0.5.0",
-    "@fizz/paramanifest": "^0.3.6",
+    "@fizz/paramanifest": "^0.3.9-alpha.0",
     "@fizz/test-utils": "^0.3.1",
     "simple-statistics": "^7.8.8",
     "typescript-memoize": "^1.1.1"

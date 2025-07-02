@@ -19,79 +19,23 @@ import { Datatype, SeriesManifest, Theme } from "@fizz/paramanifest";
 
 import { strToId } from "../utils";
 import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint } from "../dataframe/dataframe";
-import { Box, BoxSet, ScalarMap } from "../dataframe/box";
+import { Box, BoxSet, numberLikeDatatype } from "../dataframe/box";
 import { calculateFacetStats, FacetStats } from "../metadata/metadata";
 import { Memoize } from "typescript-memoize";
-import { Line, Point } from "@fizz/chart-classifier-utils";
-import { calendarNumber } from "../calendar_period";
-
-export class DataPoint {
-  constructor(protected data: DataFrameRow, public seriesKey: string, public datapointIndex: number) { }
-
-  public entries(): Iterable<[string, Box<Datatype>]> {
-    return Object.entries(this.data)[Symbol.iterator]();
-  }
-
-  public facetBox(key: string): Box<Datatype> | null {
-    return this.data[key] ?? null;
-  }
-
-  public facetValue(key: string): ScalarMap[Datatype] | null {
-    return this.data[key].value ?? null;
-  }
-
-  @Memoize()
-  public facetAsNumber(key: string): number | null {
-    const box = this.data[key];
-    if (box === undefined) {
-      return null;
-    }
-    if (box.isNumber()) {
-      return box.value;
-    } 
-    if (box.isDate()) {
-      return calendarNumber(box.value);
-    } 
-    return this.datapointIndex;
-  }
-}
-
-export class XYDatapoint extends DataPoint {
-  constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number) {
-    super(data, seriesKey, datapointIndex);
-    if (!('x' in data) || !('y' in data)) {
-      throw new Error('`XYDatapointDF` must contain `x` and `y` facets')
-    }
-  }
-
-  get x(): Box<Datatype> {
-    return this.data.x;
-  }
-
-  get y(): Box<Datatype> {
-    return this.data.y;
-  }
-
-  @Memoize()
-  getNumericalXY(): Point {
-    return { x: this.facetAsNumber('x')!, y: this.facetAsNumber('y')! };
-  }
-}
-
-type DataPointConstructor = new (data: DataFrameRow, seriesKey: string, datapointIndex: number) => DataPoint;
+import { Line } from "@fizz/chart-classifier-utils";
+import { Datapoint, PlaneDatapoint } from '../model/datapoint';
 
 export class Series {
-  [i: number]: DataPoint;
+  [i: number]: Datapoint;
   public readonly length: number;
   public readonly id: string;
   public readonly label: string;
   public readonly theme?: Theme;
-  public readonly datapoints: DataPoint[] = [];
+  public readonly datapoints: Datapoint[] = [];
 
   private readonly dataframe: DataFrame;
   private readonly uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
   protected datatypeMap: Record<string, Datatype> = {};
-  protected datapointConstructor: DataPointConstructor;
 
   /*protected xMap: Map<ScalarMap[X], number[]>;
   private yMap: Map<number, ScalarMap[X][]>;*/
@@ -103,7 +47,6 @@ export class Series {
     label?: string,
     theme?: Theme
   ) {
-    this.datapointConstructor = this.getDatapointConstructor();
     this.dataframe = new DataFrame(facets);
     this.facets.forEach((facet) => {
       this.uniqueValuesForFacet[facet.key] = new BoxSet<Datatype>;
@@ -111,7 +54,7 @@ export class Series {
     });
     this.rawData.forEach((datapoint) => this.dataframe.addDatapoint(datapoint));
     this.dataframe.rows.forEach((row, index) => {
-      const datapoint = new this.datapointConstructor(row, this.key, index);
+      const datapoint = this.constructDatapoint(row, this.key, index);
       this[index] = datapoint;
       this.datapoints.push(datapoint);
       Object.keys(row).forEach(
@@ -128,8 +71,8 @@ export class Series {
     }
   }
 
-  protected getDatapointConstructor(): DataPointConstructor {
-    return DataPoint;
+  protected constructDatapoint(data: DataFrameRow, seriesKey: string, datapointIndex: number): Datapoint {
+    return new Datapoint(data, seriesKey, datapointIndex);
   }
 
   public facet(key: string): DataFrameColumn<Datatype> | null {
@@ -152,7 +95,7 @@ export class Series {
     return this.yMap.get(y) ?? null;
   }*/
 
-  [Symbol.iterator](): Iterator<DataPoint> {
+  [Symbol.iterator](): Iterator<Datapoint> {
     return this.datapoints[Symbol.iterator]();
   }
 
@@ -160,7 +103,7 @@ export class Series {
   public getFacetStats(key: string): FacetStats | null {
     const facetDatatype = this.datatypeMap[key];
     // Checks for both non-existent and non-numerical facets
-    if (facetDatatype !== 'number') {
+    if (!numberLikeDatatype(facetDatatype)) {
       return null;
     }
     return calculateFacetStats(key, this.datapoints);
@@ -170,24 +113,34 @@ export class Series {
   public facetAverage(key: string): number | null {
     const facetDatatype = this.datatypeMap[key];
     // Checks for both non-existent and non-numerical facets
-    if (facetDatatype !== 'number') {
+    if (!numberLikeDatatype(facetDatatype)) {
       return null;
     }
-    return ss.mean(this.datapoints.map((point) => point.facetValue(key) as number));
+    return ss.mean(this.datapoints.map((point) => point.facetValueAsNumber(key)!));
   }
 }
 
 export class XYSeries extends Series {
-  declare datapoints: XYDatapoint[];
+  declare datapoints: PlaneDatapoint[];
+
+  constructor(
+    key: string, 
+    rawData: RawDataPoint[], 
+    facets: FacetSignature[],
+    label?: string,
+    theme?: Theme
+  ) {
+    super(key, rawData, facets, label, theme);
+  }
 
   @Memoize()
   public getNumericalLine(): Line {
-    const points = this.datapoints.map((point) => point.getNumericalXY());
+    const points = this.datapoints.map((point) => point.convertToActualXYForLine());
     return new Line(points, this.key);
   }
 
-  protected getDatapointConstructor(): DataPointConstructor {
-    return XYDatapoint;
+  protected constructDatapoint(data: DataFrameRow, seriesKey: string, datapointIndex: number): Datapoint {
+    return new PlaneDatapoint(data, seriesKey, datapointIndex, 'x', 'y');
   }
 }
 
@@ -203,12 +156,20 @@ export function seriesFromSeriesManifest(
   if (!seriesManifest.records) {
     throw new Error('only series manifests with inline data can use this method.');
   }
-  const seriesConstructor = isXYFacetSignature(facets) ? XYSeries : Series;
-  return new seriesConstructor(
+  if (isXYFacetSignature(facets)) {
+    return new XYSeries(
+      seriesManifest.key, 
+      seriesManifest.records!, 
+      facets,
+      seriesManifest.label,
+      seriesManifest.theme
+    );
+  }
+  return new Series(
     seriesManifest.key, 
     seriesManifest.records!, 
-    facets, 
+    facets,
     seriesManifest.label,
     seriesManifest.theme
-  );
+  )
 }

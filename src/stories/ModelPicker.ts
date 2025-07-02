@@ -35,7 +35,10 @@ export class ModelPicker extends ManifestPicker {
       return html`<p>No model loaded</p>`;
     }
 
-    return html`<p>Model loaded</p>`;
+    return html`
+      <p>Model loaded</p>
+      <p>${JSON.stringify(this.model, null, 2)}</p>
+    `;
   }
   
 }
