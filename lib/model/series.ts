@@ -118,6 +118,14 @@ export class Series {
     }
     return ss.mean(this.datapoints.map((point) => point.facetValueAsNumber(key)!));
   }
+
+  @Memoize()
+  public getLabel(): string {
+    if (this.label) {
+      return this.label;
+    }
+    return this.key;
+  }
 }
 
 export class XYSeries extends Series {
