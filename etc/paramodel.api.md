@@ -318,6 +318,8 @@ export class Series {
     // (undocumented)
     getFacetStats(key: string): FacetStats | null;
     // (undocumented)
+    getLabel(): string;
+    // (undocumented)
     readonly id: string;
     // (undocumented)
     readonly key: string;
