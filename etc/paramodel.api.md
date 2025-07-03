@@ -298,7 +298,11 @@ export class PlaneDatapoint extends Datapoint {
     // (undocumented)
     get depBox(): Box<Datatype>;
     // (undocumented)
+    depKey: string;
+    // (undocumented)
     get indepBox(): Box<Datatype>;
+    // (undocumented)
+    indepKey: string;
 }
 
 // @public (undocumented)

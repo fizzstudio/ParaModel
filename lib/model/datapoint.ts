@@ -77,8 +77,8 @@ export class PlaneDatapoint extends Datapoint {
     data: DataFrameRow, 
     seriesKey: string, 
     datapointIndex: number, 
-    private indepKey: string, 
-    private depKey: string
+    public indepKey: string, 
+    public depKey: string
   ) {
     super(data, seriesKey, datapointIndex);
     if (!(indepKey in data)) {
