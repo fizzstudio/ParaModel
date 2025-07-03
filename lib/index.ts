@@ -2,7 +2,7 @@
 export { Model, facetsFromDataset, modelFromInlineData, modelFromExternalData, 
   type SeriesAnalyzerConstructor, type PairAnalyzerConstructor } from './model/model';
 export { Series } from './model/series';
-export { Datapoint } from './model/datapoint';
+export { Datapoint, PlaneDatapoint } from './model/datapoint';
 export { strToId, enumerate, arrayEqualsBy, type AxisOrientation } from './utils';
 export { Box } from './dataframe/box';
 export type { FacetSignature } from './dataframe/dataframe';
