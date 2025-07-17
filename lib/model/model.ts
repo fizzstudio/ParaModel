@@ -84,7 +84,8 @@ export class Model {
     public readonly series: Series[], 
     manifest: Manifest, 
     private readonly seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-    private readonly pairAnalyzerConstructor: PairAnalyzerConstructor = BasicSeriesPairMetadataAnalyzer
+    private readonly pairAnalyzerConstructor: PairAnalyzerConstructor = BasicSeriesPairMetadataAnalyzer,
+    protected _useWorker = true
   ) {
     if (this.series.length === 0) {
       throw new Error('models must have at least one series');
@@ -246,7 +247,10 @@ export class Model {
     const seriesAnalyzer = new this.seriesAnalyzerConstructor!();
     this.seriesAnalysisMap = {};
     for (const seriesKey in this.seriesLineMap) {
-      this.seriesAnalysisMap[seriesKey] = await seriesAnalyzer.analyzeSeries(this.seriesLineMap[seriesKey]);
+      this.seriesAnalysisMap[seriesKey] = await seriesAnalyzer.analyzeSeries(
+        this.seriesLineMap[seriesKey],
+        { useWorker: this._useWorker }
+      );
     }
     this.seriesAnalysisDone = true;
   }
@@ -296,7 +300,7 @@ export class Model {
       || !(key in this.keyMap)) {
       return null;
     }
-    await this.generateSeriesAnalyses()
+    await this.generateSeriesAnalyses();
     return this.seriesAnalysisMap![key];
   }
 }
@@ -308,7 +312,8 @@ export function facetsFromDataset(dataset: Dataset): FacetSignature[] {
 export function modelFromInlineData(
   manifest: Manifest, 
   seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-  pairAnalyzerConstructor?: PairAnalyzerConstructor
+  pairAnalyzerConstructor?: PairAnalyzerConstructor,
+  useWorker = true
 ): Model {
   const dataset = manifest.datasets[0];
   if (dataset.data.source !== 'inline') {
@@ -318,7 +323,7 @@ export function modelFromInlineData(
   const series = dataset.series.map((seriesManifest) => 
     seriesFromSeriesManifest(seriesManifest, facets)
   );
-  return new Model(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor);
+  return new Model(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
 }
 
 // FIXME: This function does not include series labels (as seperate from series keys) or series themes
@@ -326,11 +331,12 @@ export function modelFromExternalData(
   data: AllSeriesData, 
   manifest: Manifest, 
   seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-  pairAnalyzerConstructor?: PairAnalyzerConstructor
+  pairAnalyzerConstructor?: PairAnalyzerConstructor,
+  useWorker = true
 ): Model {
   const facets = facetsFromDataset(manifest.datasets[0]);
   const series = Object.keys(data).map((key) => 
     new Series(key, data[key], facets)
   );
-  return new Model(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor);
+  return new Model(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
 }
