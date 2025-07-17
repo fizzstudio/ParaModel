@@ -293,6 +293,21 @@ export type PairAnalyzerConstructor = new (seriesArray: Line[], screenCoordSysSi
 export function parseCalendar(input: string): CalendarPeriod | null;
 
 // @public (undocumented)
+export class PlaneDatapoint extends Datapoint {
+    constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number, indepKey: string, depKey: string);
+    // (undocumented)
+    convertToActualXYForLine(): Point;
+    // (undocumented)
+    get depBox(): Box<Datatype>;
+    // (undocumented)
+    depKey: string;
+    // (undocumented)
+    get indepBox(): Box<Datatype>;
+    // (undocumented)
+    indepKey: string;
+}
+
+// @public (undocumented)
 export class Series {
     // (undocumented)
     [Symbol.iterator](): Iterator<Datapoint>;
