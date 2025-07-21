@@ -97,6 +97,7 @@ export class PlaneDatapoint extends Datapoint {
     return this.data[this.depKey];
   }
 
+  // TODO: Is this needed any more with PlaneSeries?
   convertToActualXYForLine(): Point {
     return this.convertFacetValuesToXYForLine(this.indepKey, this.depKey)!;
   }
