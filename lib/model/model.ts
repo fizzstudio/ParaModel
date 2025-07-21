@@ -23,7 +23,7 @@ import { FacetSignature } from "../dataframe/dataframe";
 import { Box, BoxSet } from "../dataframe/box";
 import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "../metadata/metadata";
 import { Datapoint } from '../model/datapoint';
-import { isXYFacetSignature, Series, seriesFromSeriesManifest, XYSeries } from './series';
+import { PlaneSeries, Series, seriesFromSeriesManifest } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
@@ -45,7 +45,6 @@ export class Model {
   public readonly numSeries: number;
   public readonly allPoints: Datapoint[] = [];
   public readonly theme: Theme;
-  public readonly xy: boolean;
   public readonly seriesScaledValues?: SeriesScaledValues;
   public readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
   public readonly intersectionScaledValues?: ScaledNumberRounded[];
@@ -104,8 +103,7 @@ export class Model {
     }
 
     // Facets
-    this.facets = this.series[0].facets;
-    this.xy = isXYFacetSignature(this.facets);
+    this.facets = this.series[0].facetSignatures;
     this.facets.forEach((facet) => {
       this._facetKeys.push(facet.key);
       this.uniqueValuesForFacet[facet.key] = new BoxSet<Datatype>;
@@ -164,7 +162,7 @@ export class Model {
       }
       if (!arrayEqualsBy(
         (l, r) => (l.key === r.key) && (l.datatype === r.datatype), 
-        aSeries.facets, this.facets
+        aSeries.facetSignatures, this.facets
       )) {
         throw new Error('every series in a model must have the same facets');
       }
@@ -179,9 +177,9 @@ export class Model {
 
     if (this.xy && this.type !== 'scatter') {
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
-        = generateValues(this.series as XYSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
-      for (const series of (this.series as XYSeries[])) {
-        this.seriesLineMap[series.key] = series.getNumericalLine();
+        = generateValues(this.series as PlaneSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
+      for (const series of (this.series as PlaneSeries[])) {
+        this.seriesLineMap[series.key] = series.getActualLine();
       }
       if (this.multi) {
         this.seriesPairAnalyzer = new this.pairAnalyzerConstructor(Object.values(this.seriesLineMap), [1,1]);

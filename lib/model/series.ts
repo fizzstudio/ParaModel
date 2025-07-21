@@ -160,7 +160,7 @@ export class PlaneSeries extends Series {
   }
 
   @Memoize()
-  public createActualLine(): Line {
+  public getActualLine(): Line {
     return this.createLineFromFacets(this.indepKey, this.depKey)!;
   }
 
