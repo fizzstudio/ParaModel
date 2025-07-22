@@ -281,8 +281,57 @@ export class PlaneDatapoint extends Datapoint {
     indepKey: string;
 }
 
-// Warning: (ae-forgotten-export) The symbol "PlaneModel" needs to be exported by the entry point index.d.ts
-//
+// @public (undocumented)
+export class PlaneModel extends Model {
+    constructor(series: PlaneSeries[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined, pairAnalyzerConstructor?: PairAnalyzerConstructor, _useWorker?: boolean);
+    // (undocumented)
+    [i: number]: PlaneSeries;
+    // (undocumented)
+    readonly clusterOutliers: string[];
+    // (undocumented)
+    readonly clusters: string[][];
+    // (undocumented)
+    getAxisFacet(orientation: AxisOrientation): Facet | null;
+    // (undocumented)
+    getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null>;
+    // (undocumented)
+    readonly grouped: boolean;
+    // (undocumented)
+    horizontalAxisKey?: string;
+    // (undocumented)
+    readonly intersections: Intersection[];
+    // (undocumented)
+    readonly intersectionScaledValues?: ScaledNumberRounded[];
+    // Warning: (ae-forgotten-export) The symbol "PlaneSeries" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    series: PlaneSeries[];
+    // (undocumented)
+    protected _seriesAnalysisDone: boolean;
+    // (undocumented)
+    protected _seriesAnalysisMap?: Record<string, SeriesAnalysis>;
+    // (undocumented)
+    protected _seriesLineMap: Record<string, Line>;
+    // (undocumented)
+    protected _seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null;
+    // Warning: (ae-forgotten-export) The symbol "SeriesScaledValues" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readonly seriesScaledValues?: SeriesScaledValues;
+    // Warning: (ae-forgotten-export) The symbol "AllSeriesStatsScaledValues" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
+    // (undocumented)
+    readonly trackingGroups: TrackingGroup[];
+    // (undocumented)
+    readonly trackingZones: TrackingZone[];
+    // (undocumented)
+    protected _useWorker: boolean;
+    // (undocumented)
+    verticalAxisKey?: string;
+}
+
 // @public (undocumented)
 export function planeModelFromExternalData(data: AllSeriesData, manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean): PlaneModel;
 

@@ -1,6 +1,7 @@
 
-export { Model, facetsFromDataset, modelFromInlineData, modelFromExternalData, planeModelFromInlineData,
-  planeModelFromExternalData, type SeriesAnalyzerConstructor, type PairAnalyzerConstructor } from './model/model';
+export { Model, PlaneModel, facetsFromDataset, modelFromInlineData, modelFromExternalData, 
+  planeModelFromInlineData, planeModelFromExternalData, type SeriesAnalyzerConstructor, 
+  type PairAnalyzerConstructor } from './model/model';
 export { Series } from './model/series';
 export { Datapoint, PlaneDatapoint } from './model/datapoint';
 export { enumerate, arrayEqualsBy, type AxisOrientation } from './utils';
