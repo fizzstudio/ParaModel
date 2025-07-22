@@ -284,10 +284,10 @@ export class PlaneDatapoint extends Datapoint {
 // Warning: (ae-forgotten-export) The symbol "PlaneModel" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
-export function planeModelFromExternalData(data: AllSeriesData, manifest: Manifest): PlaneModel;
+export function planeModelFromExternalData(data: AllSeriesData, manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean): PlaneModel;
 
 // @public (undocumented)
-export function planeModelFromInlineData(manifest: Manifest): PlaneModel;
+export function planeModelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean): PlaneModel;
 
 // @public (undocumented)
 export class Series {

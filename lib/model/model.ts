@@ -348,7 +348,12 @@ export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): 
 
 }
 
-export function planeModelFromInlineData(manifest: Manifest): PlaneModel {
+export function planeModelFromInlineData(
+  manifest: Manifest,
+  seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
+  pairAnalyzerConstructor?: PairAnalyzerConstructor,
+  useWorker?: boolean
+): PlaneModel {
   const dataset = manifest.datasets[0];
   if (dataset.data.source !== 'inline') {
     throw new Error('only manifests with inline data can use this function.');
@@ -361,10 +366,16 @@ export function planeModelFromInlineData(manifest: Manifest): PlaneModel {
   const series = dataset.series.map((seriesManifest) => 
     planeSeriesFromSeriesManifest(seriesManifest, facets, independentAxisKey, dependentAxisKey)
   );
-  return new PlaneModel(series, manifest);
+  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
 }
 
-export function planeModelFromExternalData(data: AllSeriesData, manifest: Manifest): PlaneModel {
+export function planeModelFromExternalData(
+  data: AllSeriesData, 
+  manifest: Manifest,
+  seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
+  pairAnalyzerConstructor?: PairAnalyzerConstructor,
+  useWorker?: boolean
+): PlaneModel {
   const dataset = manifest.datasets[0];
   const { independentAxisKey, dependentAxisKey } = axesFromDataset(dataset);
   if (!independentAxisKey || !dependentAxisKey) {
@@ -375,5 +386,5 @@ export function planeModelFromExternalData(data: AllSeriesData, manifest: Manife
     const seriesManifest = dataset.series.filter((s) => s.key === key)[0];
     return new PlaneSeries(seriesManifest, data[key], facets, independentAxisKey, dependentAxisKey);
   });
-  return new PlaneModel(series, manifest);
+  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
 }
