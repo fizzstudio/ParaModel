@@ -14,173 +14,6 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { Memoize } from 'typescript-memoize';
-import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, Facet, Manifest, Theme } from "@fizz/paramanifest";
-import type { SeriesAnalysis, SeriesAnalyzer } from "@fizz/series-analyzer";
-
-import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
-import { FacetSignature } from "../dataframe/dataframe";
-import { Box, BoxSet } from "../dataframe/box";
-import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "../metadata/metadata";
-import { Datapoint } from '../model/datapoint';
-import { PlaneSeries, planeSeriesFromSeriesManifest, Series, seriesFromSeriesManifest } from './series';
-import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
-import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
-import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
-import { Line } from '@fizz/chart-classifier-utils';
-
-// TODO: Remove these
-export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
-export type PairAnalyzerConstructor = new (seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number) => SeriesPairMetadataAnalyzer;
-
-// Like a dictionary for series
-// TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
-export class Model {
-  [i: number]: Series;
-  public readonly type: ChartType;
-  public readonly family: ChartTypeFamily;
-  public readonly grouped: boolean;
-
-  public readonly facetSignatures: FacetSignature[];
-  public readonly facetKeys: string[] = [];
-  public readonly dependentFacetKeys: string[] = [];
-  public readonly independentFacetKeys: string[] = [];
-  public horizontalAxisKey?: string;
-  public verticalAxisKey?: string;
-
-  public readonly seriesKeys: string[] = [];
-  public readonly multi: boolean;
-  public readonly numSeries: number;
-  public seriesAnalysisMap?: Record<string, SeriesAnalysis>;
-
-  public readonly allPoints: Datapoint[] = [];
-  public readonly seriesScaledValues?: SeriesScaledValues;
-  public readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
-  public readonly intersectionScaledValues?: ScaledNumberRounded[];  
-  public readonly intersections: Intersection[] = [];
-  public readonly clusters: string[][] = [];
-  public readonly clusterOutliers: string[] = [];
-  public readonly trackingGroups: TrackingGroup[] = [];
-  public readonly trackingZones: TrackingZone[] = [];
-  //public seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
-
-  protected _dataset: Dataset;
-
-  protected _facetMap: Record<string, Facet> = {};
-  protected _facetDatatypeMap: Record<string, Datatype> = {};
-  protected _facetDisplayTypeMap: Record<string, DisplayType> = {};
-  protected _uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
-  protected _axisFacetKeys: string[] = [];
-
-  protected _seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
-  protected _seriesMap: Record<string, Series> = {};
-  protected _seriesLineMap: Record<string, Line> = {};
-  protected _seriesAnalysisDone = false;
-
-  /*public readonly xs: ScalarMap[X][];
-  public readonly ys: number[];*/
-
-  constructor(
-    public readonly series: Series[], 
-    manifest: Manifest, 
-    private readonly seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-    private readonly pairAnalyzerConstructor: PairAnalyzerConstructor = BasicSeriesPairMetadataAnalyzer,
-    protected _useWorker = true
-  ) {
-    if (this.series.length === 0) {
-      throw new Error('models must have at least one series');
-    }
-
-    // Whole Chart
-    this.multi = this.series.length > 1;
-    this._dataset = manifest.datasets[0];
-    this.type = this._dataset.type;
-    this.family = CHART_FAMILY_MAP[this.type];
-    this.grouped = this._dataset.seriesRelations === 'grouped'; // Defaults to 'stacked'
-
-    // Facets
-    this.facetSignatures = this.series[0].facetSignatures;
-    this.facetSignatures.forEach((facet) => {
-      this.facetKeys.push(facet.key);
-      this._uniqueValuesForFacet[facet.key] = new BoxSet<Datatype>;
-      this._facetDatatypeMap[facet.key] = facet.datatype;
-    });
-    this.facetKeys.forEach((key) => {
-      const facetManifest = this._dataset.facets[key];
-      this._facetDisplayTypeMap[key] = facetManifest.displayType;
-      this._facetMap[key] = facetManifest;
-      if (facetManifest.variableType === 'dependent') {
-        this.dependentFacetKeys.push(key);
-      }
-      if (facetManifest.variableType === 'independent') {
-        this.independentFacetKeys.push(key);
-      }
-      if (facetManifest.displayType.type === 'axis') {
-        if (facetManifest.displayType.orientation === 'horizontal') {
-          this.horizontalAxisKey = key;
-        } else if (facetManifest.displayType.orientation === 'vertical') {
-          this.verticalAxisKey = key;
-        }
-      }
-    });
-    if (this._axisFacetKeys.length !== 0 && this._axisFacetKeys.length !== 2) {
-      throw new Error('charts must either have 2 or 0 axes');
-    }
-
-    // Series
-    this.numSeries = this.series.length;
-    for (const [aSeries, seriesIndex] of enumerate(this.series)) {
-      if (this.seriesKeys.includes(aSeries.key)) {
-        throw new Error('every series in a model must have a unique key');
-      }
-      if (!arrayEqualsBy(
-        (l, r) => (l.key === r.key) && (l.datatype === r.datatype), 
-        aSeries.facetSignatures, this.facetSignatures
-      )) {
-        throw new Error('every series in a model must have the same facets');
-      }
-      this.seriesKeys.push(aSeries.key);
-      this[seriesIndex] = aSeries;
-      this._seriesMap[aSeries.key] = aSeries;
-      this.allPoints.push(...aSeries);
-      Object.keys(this._uniqueValuesForFacet).forEach((facetKey) => {
-        this._uniqueValuesForFacet[facetKey].merge(aSeries.allFacetValues(facetKey)!);
-      });
-    }
-
-    /*if (this.xy && this.type !== 'scatter') {
-      [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
-        = generateValues(this.series as PlaneSeries[], this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
-      for (const series of (this.series as PlaneSeries[])) {
-        this.seriesLineMap[series.key] = series.getActualLine();
-      }
-      if (this.multi) {
-        this.seriesPairAnalyzer = new this.pairAnalyzerConstructor(Object.values(this.seriesLineMap), [1,1]);
-        this.intersections = this.seriesPairAnalyzer.getIntersections();
-        this.clusters = this.seriesPairAnalyzer.getClusters();
-        this.clusterOutliers = this.seriesPairAnalyzer.getClusterOutliers();
-        this.trackingGroups = this.seriesPairAnalyzer.getTrackingGroups();
-        this.trackingZones = this.seriesPairAnalyzer.getTrackingZones();
-      }
-    }*/
-
-    /*this.xs = mergeUniqueBy(
-      (lhs, rhs) => xDatatype === 'date'
-        ? calendarEquals(lhs as CalendarPeriod, rhs as CalendarPeriod)
-        : lhs === rhs,
-      ...this.series.map((series) => series.xs));
-    this.ys = mergeUnique(...this.series.map((series) => series.ys));
-    this.boxedXs = mergeUniqueBy(
-      (lhs: Box<X>, rhs: Box<X>) => lhs.raw === rhs.raw,
-      ...this.series.map((series) => series.boxedXs)
-    );
-    this.boxedYs = mergeUniqueBy(
-      (lhs: Box<'number'>, rhs: Box<'number'>) => lhs.raw === rhs.raw,
-      ...this.series.map((series) => series.boxedYs)
-    );*/
-
-  }
-
   // TODO: Transfer to ParaLoader
   // Note that this method will do nothing if the default circumstances aren't met
   /*private setDefaultAxes(): void {
@@ -212,19 +45,106 @@ export class Model {
     }
   }*/
 
-  private async generateSeriesAnalyses(): Promise<void> {
-    if (this._seriesAnalysisDone) {
-      return;
+import { Memoize } from 'typescript-memoize';
+import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, Facet, Manifest, Theme } from "@fizz/paramanifest";
+import type { SeriesAnalysis, SeriesAnalyzer } from "@fizz/series-analyzer";
+
+import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
+import { FacetSignature } from "../dataframe/dataframe";
+import { Box, BoxSet } from "../dataframe/box";
+import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "../metadata/metadata";
+import { Datapoint } from '../model/datapoint';
+import { PlaneSeries, planeSeriesFromSeriesManifest, Series, seriesFromSeriesManifest } from './series';
+import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
+import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
+import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { Line } from '@fizz/chart-classifier-utils';
+
+// TODO: Remove these
+export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
+export type PairAnalyzerConstructor = new (seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number) => SeriesPairMetadataAnalyzer;
+
+// Like a dictionary for series
+// TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
+export class Model {
+  [i: number]: Series;
+  public readonly type: ChartType;
+  public readonly family: ChartTypeFamily;
+
+  public readonly facetSignatures: FacetSignature[];
+  public readonly facetKeys: string[] = [];
+  public readonly dependentFacetKeys: string[] = [];
+  public readonly independentFacetKeys: string[] = [];
+
+  public readonly seriesKeys: string[] = [];
+  public readonly multi: boolean;
+  public readonly numSeries: number;
+
+  public readonly allPoints: Datapoint[] = [];
+
+  protected _dataset: Dataset;
+
+  protected _facetMap: Record<string, Facet> = {};
+  protected _facetDatatypeMap: Record<string, Datatype> = {};
+  protected _facetDisplayTypeMap: Record<string, DisplayType> = {};
+  protected _uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
+  protected _axisFacetKeys: string[] = [];
+
+  protected _seriesMap: Record<string, Series> = {};
+
+  constructor(public readonly series: Series[], manifest: Manifest) {
+    if (this.series.length === 0) {
+      throw new Error('models must have at least one series');
     }
-    const seriesAnalyzer = new this.seriesAnalyzerConstructor!();
-    this.seriesAnalysisMap = {};
-    for (const seriesKey in this._seriesLineMap) {
-      this.seriesAnalysisMap[seriesKey] = await seriesAnalyzer.analyzeSeries(
-        this._seriesLineMap[seriesKey],
-        { useWorker: this._useWorker }
-      );
+
+    // Whole Chart
+    this.multi = this.series.length > 1;
+    this._dataset = manifest.datasets[0];
+    this.type = this._dataset.type;
+    this.family = CHART_FAMILY_MAP[this.type];
+
+    // Facets
+    this.facetSignatures = this.series[0].facetSignatures;
+    this.facetSignatures.forEach((facet) => {
+      this.facetKeys.push(facet.key);
+      this._uniqueValuesForFacet[facet.key] = new BoxSet<Datatype>;
+      this._facetDatatypeMap[facet.key] = facet.datatype;
+    });
+    this.facetKeys.forEach((key) => {
+      const facetManifest = this._dataset.facets[key];
+      this._facetDisplayTypeMap[key] = facetManifest.displayType;
+      this._facetMap[key] = facetManifest;
+      if (facetManifest.variableType === 'dependent') {
+        this.dependentFacetKeys.push(key);
+      }
+      if (facetManifest.variableType === 'independent') {
+        this.independentFacetKeys.push(key);
+      }
+    });
+    /*if (this._axisFacetKeys.length !== 0 && this._axisFacetKeys.length !== 2) {
+      throw new Error('charts must either have 2 or 0 axes');
+    }*/
+
+    // Series
+    this.numSeries = this.series.length;
+    for (const [aSeries, seriesIndex] of enumerate(this.series)) {
+      if (this.seriesKeys.includes(aSeries.key)) {
+        throw new Error('every series in a model must have a unique key');
+      }
+      if (!arrayEqualsBy(
+        (l, r) => (l.key === r.key) && (l.datatype === r.datatype), 
+        aSeries.facetSignatures, this.facetSignatures
+      )) {
+        throw new Error('every series in a model must have the same facets');
+      }
+      this.seriesKeys.push(aSeries.key);
+      this[seriesIndex] = aSeries;
+      this._seriesMap[aSeries.key] = aSeries;
+      this.allPoints.push(...aSeries);
+      Object.keys(this._uniqueValuesForFacet).forEach((facetKey) => {
+        this._uniqueValuesForFacet[facetKey].merge(aSeries.allFacetValues(facetKey)!);
+      });
     }
-    this._seriesAnalysisDone = true;
   }
 
   @Memoize()
@@ -252,34 +172,19 @@ export class Model {
   }
 
   @Memoize()
-  public getAxisFacet(orientation: AxisOrientation): Facet | null {
-    if (orientation === 'horiz') {
-      return this.horizontalAxisKey ? this._facetMap[this.horizontalAxisKey] : null;
-    }
-    return this.verticalAxisKey ? this._facetMap[this.verticalAxisKey] : null;
-  }
-
-  @Memoize()
   public getFacet(key: string): Facet | null {
     return this._facetMap[key] ?? null;
   }
-
-  /*@Memoize()
-  public async getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null> {
-    if (!this.xy 
-      || this.type === 'scatter' 
-      || !this.seriesAnalyzerConstructor
-      || !(key in this.keyMap)) {
-      return null;
-    }
-    await this.generateSeriesAnalyses();
-    return this.seriesAnalysisMap![key];
-  }*/
 }
 
 export class PlaneModel extends Model {
   declare series: PlaneSeries[];
   [i: number]: PlaneSeries;
+
+  public readonly grouped: boolean;
+
+  public horizontalAxisKey?: string;
+  public verticalAxisKey?: string;
 
   public readonly seriesScaledValues?: SeriesScaledValues;
   public readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
@@ -289,22 +194,105 @@ export class PlaneModel extends Model {
   public readonly clusterOutliers: string[] = [];
   public readonly trackingGroups: TrackingGroup[] = [];
   public readonly trackingZones: TrackingZone[] = [];
+ 
+  protected _seriesAnalysisMap?: Record<string, SeriesAnalysis>;
+  protected _seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
+  protected _seriesLineMap: Record<string, Line> = {};
+  protected _seriesAnalysisDone = false;
 
-  constructor(series: PlaneSeries[], manifest: Manifest) {
+  /*public readonly xs: ScalarMap[X][];
+  public readonly ys: number[];*/
+
+  constructor(
+    series: PlaneSeries[], 
+    manifest: Manifest,
+    private readonly seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
+    private readonly pairAnalyzerConstructor: PairAnalyzerConstructor = BasicSeriesPairMetadataAnalyzer,
+    protected _useWorker = true
+  ) {
     super(series, manifest);
-    
-    [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
-      = generateValues(this.series, this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
 
-    if (this.multi) {
-      const seriesArray = this.series.map((series) => series.getActualLine());
-      this._seriesPairAnalyzer = new BasicSeriesPairMetadataAnalyzer(seriesArray, [1,1]); //FIXME: screensize, max/min 
-      this.intersections = this._seriesPairAnalyzer.getIntersections();
-      this.clusters = this._seriesPairAnalyzer.getClusters();
-      this.clusterOutliers = this._seriesPairAnalyzer.getClusterOutliers();
-      this.trackingGroups = this._seriesPairAnalyzer.getTrackingGroups();
-      this.trackingZones = this._seriesPairAnalyzer.getTrackingZones();
+    this.grouped = this._dataset.seriesRelations === 'grouped'; // Defaults to 'stacked'
+
+    this.facetKeys.forEach((key) => {
+      const facetManifest = this._dataset.facets[key];
+      if (facetManifest.displayType.type === 'axis') {
+        if (facetManifest.displayType.orientation === 'horizontal') {
+          this.horizontalAxisKey = key;
+        } else if (facetManifest.displayType.orientation === 'vertical') {
+          this.verticalAxisKey = key;
+        }
+      }
+    });
+
+    if (this.type !== 'scatter') {
+      [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
+        = generateValues(this.series, this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
+      for (const series of (this.series as PlaneSeries[])) {
+        this._seriesLineMap[series.key] = series.getActualLine();
+      }
+      if (this.multi) {
+        this._seriesPairAnalyzer = new this.pairAnalyzerConstructor(
+          Object.values(this._seriesLineMap), [1,1] //FIXME: screensize, max/min 
+        );
+        this.intersections = this._seriesPairAnalyzer.getIntersections();
+        this.clusters = this._seriesPairAnalyzer.getClusters();
+        this.clusterOutliers = this._seriesPairAnalyzer.getClusterOutliers();
+        this.trackingGroups = this._seriesPairAnalyzer.getTrackingGroups();
+        this.trackingZones = this._seriesPairAnalyzer.getTrackingZones();
+      }
     }
+
+    /*this.xs = mergeUniqueBy(
+      (lhs, rhs) => xDatatype === 'date'
+        ? calendarEquals(lhs as CalendarPeriod, rhs as CalendarPeriod)
+        : lhs === rhs,
+      ...this.series.map((series) => series.xs));
+    this.ys = mergeUnique(...this.series.map((series) => series.ys));
+    this.boxedXs = mergeUniqueBy(
+      (lhs: Box<X>, rhs: Box<X>) => lhs.raw === rhs.raw,
+      ...this.series.map((series) => series.boxedXs)
+    );
+    this.boxedYs = mergeUniqueBy(
+      (lhs: Box<'number'>, rhs: Box<'number'>) => lhs.raw === rhs.raw,
+      ...this.series.map((series) => series.boxedYs)
+    );*/
+  }
+
+  private async generateSeriesAnalyses(): Promise<void> {
+    if (this._seriesAnalysisDone) {
+      return;
+    }
+    const seriesAnalyzer = new this.seriesAnalyzerConstructor!();
+    this._seriesAnalysisMap = {};
+    for (const seriesKey in this._seriesLineMap) {
+      this._seriesAnalysisMap[seriesKey] = await seriesAnalyzer.analyzeSeries(
+        this._seriesLineMap[seriesKey],
+        { useWorker: this._useWorker }
+      );
+    }
+    this._seriesAnalysisDone = true;
+  }
+
+  @Memoize()
+  public getAxisFacet(orientation: AxisOrientation): Facet | null {
+    if (orientation === 'horiz') {
+      return this.horizontalAxisKey ? this._facetMap[this.horizontalAxisKey] : null;
+    }
+    return this.verticalAxisKey ? this._facetMap[this.verticalAxisKey] : null;
+  }
+
+  @Memoize()
+  public async getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null> {
+    if (
+      this.type === 'scatter' 
+      || !this.seriesAnalyzerConstructor
+      || !this.seriesKeys.includes(key)
+    ) {
+      return null;
+    }
+    await this.generateSeriesAnalyses();
+    return this._seriesAnalysisMap![key];
   }
 }
 
@@ -324,12 +312,7 @@ function axesFromDataset(dataset: Dataset): { independentAxisKey?: string, depen
   return { independentAxisKey, dependentAxisKey };
 }
 
-export function modelFromInlineData(
-  manifest: Manifest, 
-  seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-  pairAnalyzerConstructor?: PairAnalyzerConstructor,
-  useWorker = true
-): Model {
+export function modelFromInlineData(manifest: Manifest): Model {
   const dataset = manifest.datasets[0];
   if (dataset.data.source !== 'inline') {
     throw new Error('only manifests with inline data can use this method.');
@@ -338,22 +321,16 @@ export function modelFromInlineData(
   const series = dataset.series.map((seriesManifest) => 
     seriesFromSeriesManifest(seriesManifest, facets)
   );
-  return new Model(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
+  return new Model(series, manifest);
 }
 
-export function modelFromExternalData(
-  data: AllSeriesData, 
-  manifest: Manifest, 
-  seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-  pairAnalyzerConstructor?: PairAnalyzerConstructor,
-  useWorker = true
-): Model {
+export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): Model {
   const facets = facetsFromDataset(manifest.datasets[0]);
   const series = Object.keys(data).map((key) => {
     const seriesManifest = manifest.datasets[0].series.filter((s) => s.key === key)[0];
     return new Series(seriesManifest, data[key], facets);
   });
-  return new Model(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
+  return new Model(series, manifest);
 
 }
 
