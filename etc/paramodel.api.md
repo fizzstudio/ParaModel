@@ -14,6 +14,8 @@ import { Facet } from '@fizz/paramanifest';
 import { Line } from '@fizz/chart-classifier-utils';
 import { Manifest } from '@fizz/paramanifest';
 import { Point } from '@fizz/chart-classifier-utils';
+import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import type { SeriesAnalysis } from '@fizz/series-analyzer';
 import type { SeriesAnalyzer } from '@fizz/series-analyzer';
 import { SeriesManifest } from '@fizz/paramanifest';
 import { Theme } from '@fizz/paramanifest';
@@ -278,6 +280,14 @@ export class PlaneDatapoint extends Datapoint {
     // (undocumented)
     indepKey: string;
 }
+
+// Warning: (ae-forgotten-export) The symbol "PlaneModel" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export function planeModelFromExternalData(data: AllSeriesData, manifest: Manifest): PlaneModel;
+
+// @public (undocumented)
+export function planeModelFromInlineData(manifest: Manifest): PlaneModel;
 
 // @public (undocumented)
 export class Series {
