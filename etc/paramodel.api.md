@@ -16,6 +16,7 @@ import { Manifest } from '@fizz/paramanifest';
 import { Point } from '@fizz/chart-classifier-utils';
 import type { SeriesAnalyzer } from '@fizz/series-analyzer';
 import { SeriesManifest } from '@fizz/paramanifest';
+import { Theme } from '@fizz/paramanifest';
 
 // Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts
 //
@@ -218,11 +219,15 @@ export class Model {
     // (undocumented)
     readonly family: ChartTypeFamily;
     // (undocumented)
+    getChartTheme(): Theme | null;
+    // (undocumented)
     getFacet(key: string): Facet | null;
     // Warning: (ae-forgotten-export) The symbol "FacetStats" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
     getFacetStats(key: string): FacetStats | null;
+    // (undocumented)
+    getSeriesTheme(key: string): Theme | null;
     // (undocumented)
     readonly independentFacetKeys: string[];
     // (undocumented)
@@ -235,6 +240,10 @@ export class Model {
     readonly seriesKeys: string[];
     // (undocumented)
     protected _seriesMap: Record<string, Series>;
+    // (undocumented)
+    protected _seriesThemeMap: Record<string, Theme | undefined>;
+    // (undocumented)
+    protected _theme?: Theme;
     // (undocumented)
     readonly type: ChartType;
     // Warning: (ae-forgotten-export) The symbol "BoxSet" needs to be exported by the entry point index.d.ts
@@ -327,11 +336,6 @@ export class Series {
 
 // @public (undocumented)
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
-
-// Warning: (ae-internal-missing-underscore) The name "strToId" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal
-export function strToId(s: string): string;
 
 // @public
 export interface TrackingGroup {
