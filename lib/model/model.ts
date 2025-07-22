@@ -83,6 +83,7 @@ export class Model {
   public readonly allPoints: Datapoint[] = [];
 
   protected _dataset: Dataset;
+  protected _theme?: Theme;
 
   protected _facetMap: Record<string, Facet> = {};
   protected _facetDatatypeMap: Record<string, Datatype> = {};
@@ -91,6 +92,7 @@ export class Model {
   protected _axisFacetKeys: string[] = [];
 
   protected _seriesMap: Record<string, Series> = {};
+  protected _seriesThemeMap: Record<string, Theme | undefined> = {};
 
   constructor(public readonly series: Series[], manifest: Manifest) {
     if (this.series.length === 0) {
@@ -102,6 +104,7 @@ export class Model {
     this._dataset = manifest.datasets[0];
     this.type = this._dataset.type;
     this.family = CHART_FAMILY_MAP[this.type];
+    this._theme = this._dataset.chartTheme; // May be undefined 
 
     // Facets
     this.facetSignatures = this.series[0].facetSignatures;
@@ -144,6 +147,7 @@ export class Model {
       Object.keys(this._uniqueValuesForFacet).forEach((facetKey) => {
         this._uniqueValuesForFacet[facetKey].merge(aSeries.allFacetValues(facetKey)!);
       });
+      this._seriesThemeMap[aSeries.key] = aSeries.manifest.theme; // May be undefined
     }
   }
 
@@ -174,6 +178,16 @@ export class Model {
   @Memoize()
   public getFacet(key: string): Facet | null {
     return this._facetMap[key] ?? null;
+  }
+
+  @Memoize()
+  public getChartTheme(): Theme | null {
+    return this._theme ?? null;
+  }
+
+  @Memoize()
+  public getSeriesTheme(key: string): Theme | null {
+    return this._seriesThemeMap[key] ?? null;
   }
 }
 

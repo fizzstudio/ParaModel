@@ -15,9 +15,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import * as ss from 'simple-statistics';
-import { Datatype, SeriesManifest, Theme } from "@fizz/paramanifest";
+import { Datatype, SeriesManifest, strToId } from "@fizz/paramanifest";
 
-import { strToId } from "../utils";
 import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint } from "../dataframe/dataframe";
 import { Box, BoxSet, numberLikeDatatype } from "../dataframe/box";
 import { calculateFacetStats, FacetStats } from "../metadata/metadata";
