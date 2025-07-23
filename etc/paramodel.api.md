@@ -342,7 +342,7 @@ export function planeModelFromInlineData(manifest: Manifest, seriesAnalyzerConst
 export class Series {
     // (undocumented)
     [Symbol.iterator](): Iterator<Datapoint>;
-    constructor(manifest: SeriesManifest, rawData: RawDataPoint[], facetSignatures: FacetSignature[]);
+    constructor(manifest: SeriesManifest, rawData: RawDataPoint[], facetSignatures: FacetSignature[], indepKey?: string | undefined, depKey?: string | undefined);
     // (undocumented)
     [i: number]: Datapoint;
     // (undocumented)
@@ -357,6 +357,8 @@ export class Series {
     protected readonly _dataframe: DataFrame;
     // (undocumented)
     readonly datapoints: Datapoint[];
+    // (undocumented)
+    protected readonly depKey?: string | undefined;
     // (undocumented)
     facetAverage(key: string): number | null;
     // Warning: (ae-forgotten-export) The symbol "DataFrameColumn" needs to be exported by the entry point index.d.ts
@@ -377,6 +379,8 @@ export class Series {
     getLabel(): string;
     // (undocumented)
     readonly id: string;
+    // (undocumented)
+    protected readonly indepKey?: string | undefined;
     // (undocumented)
     readonly key: string;
     // (undocumented)

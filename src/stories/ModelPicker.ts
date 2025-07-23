@@ -16,9 +16,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { customElement } from "lit/decorators.js";
 import { ManifestPicker, ManifestPickerProps } from "@fizz/test-utils";
-import { Manifest } from "@fizz/paramanifest";
+import { isPastryType, Manifest } from "@fizz/paramanifest";
 import { html, TemplateResult } from "lit";
-import { Model, modelFromInlineData } from "../../lib/index";
+import { Model, modelFromInlineData, planeModelFromInlineData } from "../../lib/index";
 import { SeriesAnalyzer } from "@fizz/series-analyzer";
 
 @customElement('model-picker')
@@ -27,7 +27,9 @@ export class ModelPicker extends ManifestPicker {
   private model?: Model;
 
   protected onManifestLoad(manifest: Manifest): void {
-    this.model = modelFromInlineData(manifest, SeriesAnalyzer);
+    this.model = isPastryType(manifest.datasets[0].type) 
+      ? modelFromInlineData(manifest)
+      : planeModelFromInlineData(manifest, SeriesAnalyzer)
   }
 
   protected renderManifest(manifest: Manifest): TemplateResult {

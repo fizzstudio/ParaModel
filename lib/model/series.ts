@@ -43,7 +43,9 @@ export class Series {
   constructor(
     public readonly manifest: SeriesManifest,
     public readonly rawData: RawDataPoint[], 
-    public readonly facetSignatures: FacetSignature[]
+    public readonly facetSignatures: FacetSignature[],
+    protected readonly indepKey?: string,
+    protected readonly depKey?: string
   ) {
     this.key = this.manifest.key;
     this.id = strToId(this.key); // TODO: see if we need to make this more unique
@@ -133,18 +135,20 @@ export class Series {
 
 export class PlaneSeries extends Series {
   declare datapoints: PlaneDatapoint[];
+  declare indepKey: string;
+  declare depKey: string;
   
   /*protected xMap: Map<ScalarMap[X], number[]>;
   private yMap: Map<number, ScalarMap[X][]>;*/
 
   constructor(
-    public readonly manifest: SeriesManifest,
-    public readonly rawData: RawDataPoint[], 
-    public readonly facetSignatures: FacetSignature[],
-    private readonly indepKey: string,
-    private readonly depKey: string
+    manifest: SeriesManifest,
+    rawData: RawDataPoint[], 
+    facetSignatures: FacetSignature[],
+    indepKey: string,
+    depKey: string
   ) {
-    super(manifest, rawData, facetSignatures);
+    super(manifest, rawData, facetSignatures, indepKey, depKey);
 
     console.assert(this.facetKeys.includes(indepKey), `[ParaModel/Internal]: PlaneSeries constructed with unknown indepKey ${indepKey}`);
     console.assert(this.facetKeys.includes(depKey), `[ParaModel/Internal]: PlaneSeries constructed with unknown depKey ${depKey}`);
