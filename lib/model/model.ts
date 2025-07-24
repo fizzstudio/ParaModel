@@ -59,7 +59,7 @@ import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone }
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import { Line } from '@fizz/chart-classifier-utils';
-import { synthesizeChartTheme } from '../theme_synthesis';
+import { synthesizeChartTheme, synthesizeSeriesTheme } from '../theme_synthesis';
 
 // TODO: Remove these
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
@@ -182,13 +182,18 @@ export class Model {
   }
 
   @Memoize()
+  public hasExplictChartTheme(): boolean {
+    return this._theme !== undefined;
+  }
+
+  @Memoize()
   public getChartTheme(): Theme | null {
     return this._theme ?? synthesizeChartTheme(this);
   }
 
   @Memoize()
   public getSeriesTheme(key: string): Theme | null {
-    return this._seriesThemeMap[key] ?? null;
+    return this._seriesThemeMap[key] ?? synthesizeSeriesTheme(key, this);
   }
 }
 

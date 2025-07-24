@@ -231,6 +231,8 @@ export class Model {
     // (undocumented)
     getSeriesTheme(key: string): Theme | null;
     // (undocumented)
+    hasExplictChartTheme(): boolean;
+    // (undocumented)
     readonly independentFacetKeys: string[];
     // (undocumented)
     readonly multi: boolean;
