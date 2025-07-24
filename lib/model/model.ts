@@ -69,6 +69,8 @@ export type PairAnalyzerConstructor = new (seriesArray: Line[], screenCoordSysSi
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
 export class Model {
   [i: number]: Series;
+
+  public readonly title?: string;
   public readonly type: ChartType;
   public readonly family: ChartTypeFamily;
 
@@ -103,6 +105,7 @@ export class Model {
     // Whole Chart
     this.multi = this.series.length > 1;
     this._dataset = manifest.datasets[0];
+    this.title = this._dataset.title;
     this.type = this._dataset.type;
     this.family = CHART_FAMILY_MAP[this.type];
     this._theme = this._dataset.chartTheme; // May be undefined 
@@ -187,12 +190,15 @@ export class Model {
   }
 
   @Memoize()
-  public getChartTheme(): Theme | null {
+  public getChartTheme(): Theme {
     return this._theme ?? synthesizeChartTheme(this);
   }
 
   @Memoize()
   public getSeriesTheme(key: string): Theme | null {
+    if (this.atKey(key) === null) {
+      return null;
+    }
     return this._seriesThemeMap[key] ?? synthesizeSeriesTheme(key, this);
   }
 }

@@ -221,7 +221,7 @@ export class Model {
     // (undocumented)
     readonly family: ChartTypeFamily;
     // (undocumented)
-    getChartTheme(): Theme | null;
+    getChartTheme(): Theme;
     // (undocumented)
     getFacet(key: string): Facet | null;
     // Warning: (ae-forgotten-export) The symbol "FacetStats" needs to be exported by the entry point index.d.ts
@@ -248,6 +248,8 @@ export class Model {
     protected _seriesThemeMap: Record<string, Theme | undefined>;
     // (undocumented)
     protected _theme?: Theme;
+    // (undocumented)
+    readonly title?: string;
     // (undocumented)
     readonly type: ChartType;
     // Warning: (ae-forgotten-export) The symbol "BoxSet" needs to be exported by the entry point index.d.ts
