@@ -9,6 +9,7 @@ import { ChartType } from '@fizz/paramanifest';
 import { ChartTypeFamily } from '@fizz/paramanifest';
 import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
+import { DisplayType } from '@fizz/paramanifest';
 import { Facet } from '@fizz/paramanifest';
 import { Line } from '@fizz/chart-classifier-utils';
 import { Manifest } from '@fizz/paramanifest';
@@ -16,6 +17,7 @@ import { Point } from '@fizz/chart-classifier-utils';
 import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import type { SeriesAnalysis } from '@fizz/series-analyzer';
 import type { SeriesAnalyzer } from '@fizz/series-analyzer';
+import { SeriesManifest } from '@fizz/paramanifest';
 import { Theme } from '@fizz/paramanifest';
 
 // Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts
@@ -189,7 +191,7 @@ export interface Intersection {
 
 // @public (undocumented)
 export class Model {
-    constructor(series: Series[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined, pairAnalyzerConstructor?: PairAnalyzerConstructor, _useWorker?: boolean);
+    constructor(series: Series[], manifest: Manifest);
     // (undocumented)
     [i: number]: Series;
     // (undocumented)
@@ -203,25 +205,23 @@ export class Model {
     // (undocumented)
     protected _axisFacetKeys: string[];
     // (undocumented)
-    readonly clusterOutliers: string[];
+    protected _dataset: Dataset;
     // (undocumented)
-    readonly clusters: string[][];
+    readonly dependentFacetKeys: string[];
     // (undocumented)
-    protected datatypeMap: Record<string, Datatype>;
+    protected _facetDatatypeMap: Record<string, Datatype>;
     // (undocumented)
-    dependentFacet: Facet | null;
+    protected _facetDisplayTypeMap: Record<string, DisplayType>;
     // (undocumented)
-    dependentFacetKey: string | null;
+    readonly facetKeys: string[];
     // (undocumented)
-    protected _facetKeys: string[];
+    protected _facetMap: Record<string, Facet>;
     // (undocumented)
-    readonly facetMap: Record<string, Facet>;
-    // (undocumented)
-    readonly facets: FacetSignature[];
+    readonly facetSignatures: FacetSignature[];
     // (undocumented)
     readonly family: ChartTypeFamily;
     // (undocumented)
-    getAxisFacet(orientation: AxisOrientation): Facet | null;
+    getChartTheme(): Theme;
     // (undocumented)
     getFacet(key: string): Facet | null;
     // Warning: (ae-forgotten-export) The symbol "FacetStats" needs to be exported by the entry point index.d.ts
@@ -229,23 +229,11 @@ export class Model {
     // (undocumented)
     getFacetStats(key: string): FacetStats | null;
     // (undocumented)
-    getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null>;
+    getSeriesTheme(key: string): Theme | null;
     // (undocumented)
-    readonly grouped: boolean;
+    hasExplictChartTheme(): boolean;
     // (undocumented)
-    protected _horizontalAxisFacetKey: string | null;
-    // (undocumented)
-    independentFacet: Facet | null;
-    // (undocumented)
-    independentFacetKey: string | null;
-    // (undocumented)
-    readonly intersections: Intersection[];
-    // (undocumented)
-    readonly intersectionScaledValues?: ScaledNumberRounded[];
-    // (undocumented)
-    protected keyMap: Record<string, Series>;
-    // (undocumented)
-    readonly keys: string[];
+    readonly independentFacetKeys: string[];
     // (undocumented)
     readonly multi: boolean;
     // (undocumented)
@@ -253,38 +241,28 @@ export class Model {
     // (undocumented)
     readonly series: Series[];
     // (undocumented)
-    seriesAnalysisMap?: Record<string, SeriesAnalysis>;
+    readonly seriesKeys: string[];
     // (undocumented)
-    seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null;
-    // Warning: (ae-forgotten-export) The symbol "SeriesScaledValues" needs to be exported by the entry point index.d.ts
-    //
+    protected _seriesMap: Record<string, Series>;
     // (undocumented)
-    readonly seriesScaledValues?: SeriesScaledValues;
-    // Warning: (ae-forgotten-export) The symbol "AllSeriesStatsScaledValues" needs to be exported by the entry point index.d.ts
-    //
+    protected _seriesThemeMap: Record<string, Theme | undefined>;
     // (undocumented)
-    readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
+    protected _theme?: Theme;
     // (undocumented)
-    readonly theme: Theme;
-    // (undocumented)
-    readonly trackingGroups: TrackingGroup[];
-    // (undocumented)
-    readonly trackingZones: TrackingZone[];
+    readonly title?: string;
     // (undocumented)
     readonly type: ChartType;
+    // Warning: (ae-forgotten-export) The symbol "BoxSet" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
-    protected _useWorker: boolean;
-    // (undocumented)
-    protected _verticalAxisFacetKey: string | null;
-    // (undocumented)
-    readonly xy: boolean;
+    protected _uniqueValuesForFacet: Record<string, BoxSet<Datatype>>;
 }
 
 // @public (undocumented)
-export function modelFromExternalData(data: AllSeriesData, manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean): Model;
+export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): Model;
 
 // @public (undocumented)
-export function modelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean): Model;
+export function modelFromInlineData(manifest: Manifest): Model;
 
 // @public (undocumented)
 export type PairAnalyzerConstructor = new (seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number) => SeriesPairMetadataAnalyzer;
@@ -308,10 +286,67 @@ export class PlaneDatapoint extends Datapoint {
 }
 
 // @public (undocumented)
+export class PlaneModel extends Model {
+    constructor(series: PlaneSeries[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined, pairAnalyzerConstructor?: PairAnalyzerConstructor, _useWorker?: boolean);
+    // (undocumented)
+    [i: number]: PlaneSeries;
+    // (undocumented)
+    readonly clusterOutliers: string[];
+    // (undocumented)
+    readonly clusters: string[][];
+    // (undocumented)
+    getAxisFacet(orientation: AxisOrientation): Facet | null;
+    // (undocumented)
+    getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null>;
+    // (undocumented)
+    readonly grouped: boolean;
+    // (undocumented)
+    horizontalAxisKey?: string;
+    // (undocumented)
+    readonly intersections: Intersection[];
+    // (undocumented)
+    readonly intersectionScaledValues?: ScaledNumberRounded[];
+    // Warning: (ae-forgotten-export) The symbol "PlaneSeries" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    series: PlaneSeries[];
+    // (undocumented)
+    protected _seriesAnalysisDone: boolean;
+    // (undocumented)
+    protected _seriesAnalysisMap?: Record<string, SeriesAnalysis>;
+    // (undocumented)
+    protected _seriesLineMap: Record<string, Line>;
+    // (undocumented)
+    protected _seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null;
+    // Warning: (ae-forgotten-export) The symbol "SeriesScaledValues" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readonly seriesScaledValues?: SeriesScaledValues;
+    // Warning: (ae-forgotten-export) The symbol "AllSeriesStatsScaledValues" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
+    // (undocumented)
+    readonly trackingGroups: TrackingGroup[];
+    // (undocumented)
+    readonly trackingZones: TrackingZone[];
+    // (undocumented)
+    protected _useWorker: boolean;
+    // (undocumented)
+    verticalAxisKey?: string;
+}
+
+// @public (undocumented)
+export function planeModelFromExternalData(data: AllSeriesData, manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean): PlaneModel;
+
+// @public (undocumented)
+export function planeModelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean): PlaneModel;
+
+// @public (undocumented)
 export class Series {
     // (undocumented)
     [Symbol.iterator](): Iterator<Datapoint>;
-    constructor(key: string, rawData: RawDataPoint[], facets: FacetSignature[], label?: string, theme?: Theme);
+    constructor(manifest: SeriesManifest, rawData: RawDataPoint[], facetSignatures: FacetSignature[], indepKey?: string | undefined, depKey?: string | undefined);
     // (undocumented)
     [i: number]: Datapoint;
     // (undocumented)
@@ -319,17 +354,27 @@ export class Series {
     // (undocumented)
     protected constructDatapoint(data: DataFrameRow, seriesKey: string, datapointIndex: number): Datapoint;
     // (undocumented)
+    createLineFromFacets(xKey: string, yKey: string): Line | null;
+    // Warning: (ae-forgotten-export) The symbol "DataFrame" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    protected readonly _dataframe: DataFrame;
+    // (undocumented)
     readonly datapoints: Datapoint[];
     // (undocumented)
-    protected datatypeMap: Record<string, Datatype>;
+    protected readonly depKey?: string | undefined;
+    // (undocumented)
+    facetAverage(key: string): number | null;
     // Warning: (ae-forgotten-export) The symbol "DataFrameColumn" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    facet(key: string): DataFrameColumn<Datatype> | null;
+    facetBoxes(key: string): DataFrameColumn<Datatype> | null;
     // (undocumented)
-    facetAverage(key: string): number | null;
+    protected readonly _facetDatatypeMappedByKey: Record<string, Datatype>;
     // (undocumented)
-    readonly facets: FacetSignature[];
+    readonly facetKeys: string[];
+    // (undocumented)
+    readonly facetSignatures: FacetSignature[];
     // (undocumented)
     getFacetDatatype(key: string): Datatype | null;
     // (undocumented)
@@ -339,26 +384,25 @@ export class Series {
     // (undocumented)
     readonly id: string;
     // (undocumented)
+    protected readonly indepKey?: string | undefined;
+    // (undocumented)
     readonly key: string;
     // (undocumented)
     readonly label: string;
     // (undocumented)
     readonly length: number;
+    // (undocumented)
+    readonly manifest: SeriesManifest;
     // Warning: (ae-forgotten-export) The symbol "RawDataPoint" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
     readonly rawData: RawDataPoint[];
     // (undocumented)
-    readonly theme?: Theme;
+    protected readonly _uniqueValuesForFacetMappedByKey: Record<string, BoxSet<Datatype>>;
 }
 
 // @public (undocumented)
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
-
-// Warning: (ae-internal-missing-underscore) The name "strToId" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal
-export function strToId(s: string): string;
 
 // @public
 export interface TrackingGroup {

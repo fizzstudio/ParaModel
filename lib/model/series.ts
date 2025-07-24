@@ -15,9 +15,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import * as ss from 'simple-statistics';
-import { Datatype, SeriesManifest, Theme } from "@fizz/paramanifest";
+import { Datatype, SeriesManifest, strToId } from "@fizz/paramanifest";
 
-import { strToId } from "../utils";
 import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint } from "../dataframe/dataframe";
 import { Box, BoxSet, numberLikeDatatype } from "../dataframe/box";
 import { calculateFacetStats, FacetStats } from "../metadata/metadata";
@@ -27,91 +26,82 @@ import { Datapoint, PlaneDatapoint } from '../model/datapoint';
 
 export class Series {
   [i: number]: Datapoint;
-  public readonly length: number;
+
+  public readonly key: string;
   public readonly id: string;
   public readonly label: string;
-  public readonly theme?: Theme;
+
+  public readonly length: number;
   public readonly datapoints: Datapoint[] = [];
+  public readonly facetKeys: string[] = [];
 
-  private readonly dataframe: DataFrame;
-  private readonly uniqueValuesForFacet: Record<string, BoxSet<Datatype>> = {};
-  protected datatypeMap: Record<string, Datatype> = {};
+  protected readonly _dataframe: DataFrame;
 
-  /*protected xMap: Map<ScalarMap[X], number[]>;
-  private yMap: Map<number, ScalarMap[X][]>;*/
+  protected readonly _uniqueValuesForFacetMappedByKey: Record<string, BoxSet<Datatype>> = {};
+  protected readonly _facetDatatypeMappedByKey: Record<string, Datatype> = {};
 
   constructor(
-    public readonly key: string, 
+    public readonly manifest: SeriesManifest,
     public readonly rawData: RawDataPoint[], 
-    public readonly facets: FacetSignature[],
-    label?: string,
-    theme?: Theme
+    public readonly facetSignatures: FacetSignature[],
+    protected readonly indepKey?: string,
+    protected readonly depKey?: string
   ) {
-    this.dataframe = new DataFrame(facets);
-    this.facets.forEach((facet) => {
-      this.uniqueValuesForFacet[facet.key] = new BoxSet<Datatype>;
-      this.datatypeMap[facet.key] = facet.datatype;
+    this.key = this.manifest.key;
+    this.id = strToId(this.key); // TODO: see if we need to make this more unique
+    this.label = this.manifest.label ?? this.key;
+
+    this.facetSignatures.forEach((facet) => {
+      this.facetKeys.push(facet.key);
+      this._uniqueValuesForFacetMappedByKey[facet.key] = new BoxSet<Datatype>;
+      this._facetDatatypeMappedByKey[facet.key] = facet.datatype;
     });
-    this.rawData.forEach((datapoint) => this.dataframe.addDatapoint(datapoint));
-    this.dataframe.rows.forEach((row, index) => {
+
+    this._dataframe = new DataFrame(facetSignatures);
+    this.length = this.rawData.length;
+    this.rawData.forEach((datapoint) => this._dataframe.addDatapoint(datapoint));
+    this._dataframe.rows.forEach((row, index) => {
       const datapoint = this.constructDatapoint(row, this.key, index);
       this[index] = datapoint;
       this.datapoints.push(datapoint);
       Object.keys(row).forEach(
-        (facetKey) => this.uniqueValuesForFacet[facetKey].add(row[facetKey])
+        (facetKey) => this._uniqueValuesForFacetMappedByKey[facetKey].add(row[facetKey])
       );
     });
-    /*this.xMap = mapDatapointsXtoY(this.datapoints);
-    this.yMap = mapDatapointsYtoX(this.datapoints);*/
-    this.length = this.rawData.length;
-    this.id = strToId(this.key); // TODO: see if we need to make this more unique
-    this.label = label ?? this.key;
-    if (theme) {
-      this.theme = theme;
-    }
   }
 
   protected constructDatapoint(data: DataFrameRow, seriesKey: string, datapointIndex: number): Datapoint {
     return new Datapoint(data, seriesKey, datapointIndex);
   }
 
-  public facet(key: string): DataFrameColumn<Datatype> | null {
-    return this.dataframe.facet(key);
-  }
-
-  public allFacetValues(key: string): Box<Datatype>[] | null {
-    return this.uniqueValuesForFacet[key]?.values ?? null;
-  }
-
-  public getFacetDatatype(key: string): Datatype | null {
-    return this.datatypeMap[key] ?? null;
-  }
-
-  /*atX(x: ScalarMap[X]): number[] | null {
-    return this.xMap.get(x) ?? null;
-  }
-
-  atY(y: number): ScalarMap[X][] | null {
-    return this.yMap.get(y) ?? null;
-  }*/
-
-  [Symbol.iterator](): Iterator<Datapoint> {
-    return this.datapoints[Symbol.iterator]();
+  @Memoize()
+  public facetBoxes(key: string): DataFrameColumn<Datatype> | null {
+    return this._dataframe.facet(key);
   }
 
   @Memoize()
-  public getFacetStats(key: string): FacetStats | null {
-    const facetDatatype = this.datatypeMap[key];
-    // Checks for both non-existent and non-numerical facets
-    if (!numberLikeDatatype(facetDatatype)) {
+  public allFacetValues(key: string): Box<Datatype>[] | null {
+    return this._uniqueValuesForFacetMappedByKey[key]?.values ?? null;
+  }
+
+  @Memoize()
+  public getFacetDatatype(key: string): Datatype | null {
+    return this._facetDatatypeMappedByKey[key] ?? null;
+  }
+
+  // TODO: X and Y datatypes should be number-like
+  @Memoize()
+  public createLineFromFacets(xKey: string, yKey: string): Line | null {
+    if (!this.facetKeys.includes(xKey) || !this.facetKeys.includes(yKey)) {
       return null;
     }
-    return calculateFacetStats(key, this.datapoints);
+    const points = this.datapoints.map((point) => point.convertFacetValuesToXYForLine(xKey, yKey)!);
+    return new Line(points, this.key);
   }
 
   @Memoize()
   public facetAverage(key: string): number | null {
-    const facetDatatype = this.datatypeMap[key];
+    const facetDatatype = this._facetDatatypeMappedByKey[key];
     // Checks for both non-existent and non-numerical facets
     if (!numberLikeDatatype(facetDatatype)) {
       return null;
@@ -119,6 +109,21 @@ export class Series {
     return ss.mean(this.datapoints.map((point) => point.facetValueAsNumber(key)!));
   }
 
+  @Memoize()
+  public getFacetStats(key: string): FacetStats | null {
+    const facetDatatype = this._facetDatatypeMappedByKey[key];
+    // Checks for both non-existent and non-numerical facets
+    if (!numberLikeDatatype(facetDatatype)) {
+      return null;
+    }
+    return calculateFacetStats(key, this.datapoints);
+  }
+
+  [Symbol.iterator](): Iterator<Datapoint> {
+    return this.datapoints[Symbol.iterator]();
+  }
+
+  // Deprecated
   @Memoize()
   public getLabel(): string {
     if (this.label) {
@@ -128,56 +133,80 @@ export class Series {
   }
 }
 
-export class XYSeries extends Series {
+export class PlaneSeries extends Series {
   declare datapoints: PlaneDatapoint[];
+  declare indepKey: string;
+  declare depKey: string;
+  
+  /*protected xMap: Map<ScalarMap[X], number[]>;
+  private yMap: Map<number, ScalarMap[X][]>;*/
 
   constructor(
-    key: string, 
+    manifest: SeriesManifest,
     rawData: RawDataPoint[], 
-    facets: FacetSignature[],
-    label?: string,
-    theme?: Theme
+    facetSignatures: FacetSignature[],
+    indepKey: string,
+    depKey: string
   ) {
-    super(key, rawData, facets, label, theme);
+    super(manifest, rawData, facetSignatures, indepKey, depKey);
+
+    console.assert(this.facetKeys.includes(indepKey), `[ParaModel/Internal]: PlaneSeries constructed with unknown indepKey ${indepKey}`);
+    console.assert(this.facetKeys.includes(depKey), `[ParaModel/Internal]: PlaneSeries constructed with unknown depKey ${depKey}`);
+    console.assert(numberLikeDatatype(this.getFacetDatatype(depKey)), `[ParaModel/Internal]: PlaneSeries depKey ${depKey} has non-number-like ${this.getFacetDatatype(depKey)} datatype`);
+
+    /*this.xMap = mapDatapointsXtoY(this.datapoints);
+    this.yMap = mapDatapointsYtoX(this.datapoints);*/
+  }
+  
+  protected constructDatapoint(data: DataFrameRow, seriesKey: string, datapointIndex: number): Datapoint {
+    return new PlaneDatapoint(data, seriesKey, datapointIndex, this.indepKey, this.depKey);
   }
 
   @Memoize()
-  public getNumericalLine(): Line {
-    const points = this.datapoints.map((point) => point.convertToActualXYForLine());
-    return new Line(points, this.key);
+  public getActualLine(): Line {
+    return this.createLineFromFacets(this.indepKey, this.depKey)!;
   }
 
-  protected constructDatapoint(data: DataFrameRow, seriesKey: string, datapointIndex: number): Datapoint {
-    return new PlaneDatapoint(data, seriesKey, datapointIndex, 'x', 'y');
+  @Memoize()
+  public getIndepAverage(): number {
+    return this.facetAverage(this.indepKey)!;
   }
-}
 
-export function isXYFacetSignature(facets: FacetSignature[]): boolean {
-  const hasX = facets.some((facet) => facet.key === 'x');
-  const hasY = facets.some((facet) => facet.key === 'y');
-  return hasX && hasY;
+  // TODO: Add This
+  /*@Memoize()
+  public getAnalyzer(): SingleSeriesMetadataAnalyzer {
+    return new BasicSingleSeriesAnalyzer(this.createActualLine());
+  }*/
+
+  /*atX(x: ScalarMap[X]): number[] | null {
+    return this.xMap.get(x) ?? null;
+  }
+
+  atY(y: number): ScalarMap[X][] | null {
+    return this.yMap.get(y) ?? null;
+  }*/
 }
 
 export function seriesFromSeriesManifest(
-  seriesManifest: SeriesManifest, facets: FacetSignature[]
+  seriesManifest: SeriesManifest, facetSignatures: FacetSignature[]
 ): Series {
   if (!seriesManifest.records) {
     throw new Error('only series manifests with inline data can use this method.');
   }
-  if (isXYFacetSignature(facets)) {
-    return new XYSeries(
-      seriesManifest.key, 
-      seriesManifest.records!, 
-      facets,
-      seriesManifest.label,
-      seriesManifest.theme
-    );
+  return new Series(seriesManifest, seriesManifest.records!, facetSignatures);
+}
+
+export function planeSeriesFromSeriesManifest(
+  seriesManifest: SeriesManifest, facetSignatures: FacetSignature[], indepKey: string, depKey: string
+): PlaneSeries {
+  if (!seriesManifest.records) {
+    throw new Error('only series manifests with inline data can use this method.');
   }
-  return new Series(
-    seriesManifest.key, 
+  return new PlaneSeries(
+    seriesManifest, 
     seriesManifest.records!, 
-    facets,
-    seriesManifest.label,
-    seriesManifest.theme
-  )
+    facetSignatures,
+    indepKey,
+    depKey
+  );
 }
