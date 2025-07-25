@@ -209,6 +209,8 @@ export class Model {
     // (undocumented)
     readonly dependentFacetKeys: string[];
     // (undocumented)
+    readonly description?: string;
+    // (undocumented)
     protected _facetDatatypeMap: Record<string, Datatype>;
     // (undocumented)
     protected _facetDisplayTypeMap: Record<string, DisplayType>;
