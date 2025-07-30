@@ -222,6 +222,8 @@ export class PlaneModel extends Model {
 
   public horizontalAxisKey?: string;
   public verticalAxisKey?: string;
+  public dependentAxisKey?: string;
+  public independentAxisKey?: string;
 
   public readonly seriesScaledValues?: SeriesScaledValues;
   public readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
@@ -261,6 +263,8 @@ export class PlaneModel extends Model {
         }
       }
     });
+    this.dependentAxisKey = this.dependentFacetKeys[0]; // FIXME: Assumes only 1 dependent facet
+    this.independentAxisKey = this.independentFacetKeys[0]; // FIXME: Assumes only 1 dependent facet
 
     if (this.type !== 'scatter') {
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
@@ -269,8 +273,12 @@ export class PlaneModel extends Model {
         this._seriesLineMap[series.key] = series.getActualLine();
       }
       if (this.multi) {
+        const yAxisInterval = this.getAxisInterval(this.getAxisOrientation('dependent'))!
         this._seriesPairAnalyzer = new this.pairAnalyzerConstructor(
-          Object.values(this._seriesLineMap), [1,1] //FIXME: screensize, max/min 
+          Object.values(this._seriesLineMap), 
+          [1,1], //FIXME: get actual screen size
+          yAxisInterval.start,
+          yAxisInterval.end
         );
         this.intersections = this._seriesPairAnalyzer.getIntersections();
         this.clusters = this._seriesPairAnalyzer.getClusters();
@@ -304,8 +312,10 @@ export class PlaneModel extends Model {
     this._seriesAnalysisMap = {};
     for (const seriesKey in this._seriesLineMap) {
       this._seriesAnalysisMap[seriesKey] = await seriesAnalyzer.analyzeSeries(
-        this._seriesLineMap[seriesKey],
-        { useWorker: this._useWorker }
+        this._seriesLineMap[seriesKey], { 
+          useWorker: this._useWorker,
+          yAxis: this.getAxisInterval(this.getAxisOrientation('dependent'))!
+        }
       );
     }
     this._seriesAnalysisDone = true;
@@ -317,6 +327,15 @@ export class PlaneModel extends Model {
       return this.horizontalAxisKey ? this._facetMap[this.horizontalAxisKey] : null;
     }
     return this.verticalAxisKey ? this._facetMap[this.verticalAxisKey] : null;
+  }
+
+  @Memoize()
+  public getAxisOrientation(depIndep: 'dependent'| 'independent'): AxisOrientation {
+    const facetKey = depIndep === 'dependent' ? this.dependentAxisKey : this.independentAxisKey;
+    if (facetKey === this.verticalAxisKey) {
+      return 'vert';
+    }
+    return 'horiz';
   }
 
   @Memoize()
