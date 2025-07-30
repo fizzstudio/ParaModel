@@ -11,6 +11,7 @@ import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
 import { DisplayType } from '@fizz/paramanifest';
 import { Facet } from '@fizz/paramanifest';
+import { Interval } from '@fizz/chart-classifier-utils';
 import { Line } from '@fizz/chart-classifier-utils';
 import { Manifest } from '@fizz/paramanifest';
 import { Point } from '@fizz/chart-classifier-utils';
@@ -226,6 +227,8 @@ export class Model {
     getChartTheme(): Theme;
     // (undocumented)
     getFacet(key: string): Facet | null;
+    // (undocumented)
+    getFacetInterval(key: string): Interval | null;
     // Warning: (ae-forgotten-export) The symbol "FacetStats" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -297,13 +300,21 @@ export class PlaneModel extends Model {
     // (undocumented)
     readonly clusters: string[][];
     // (undocumented)
+    dependentAxisKey?: string;
+    // (undocumented)
     getAxisFacet(orientation: AxisOrientation): Facet | null;
+    // (undocumented)
+    getAxisInterval(orientation: AxisOrientation): Interval | null;
+    // (undocumented)
+    getAxisOrientation(depIndep: 'dependent' | 'independent'): AxisOrientation;
     // (undocumented)
     getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null>;
     // (undocumented)
     readonly grouped: boolean;
     // (undocumented)
     horizontalAxisKey?: string;
+    // (undocumented)
+    independentAxisKey?: string;
     // (undocumented)
     readonly intersections: Intersection[];
     // (undocumented)
@@ -412,10 +423,10 @@ export interface TrackingGroup {
     //
     // (undocumented)
     averageLine: SeriesDatapoints;
-    // Warning: (ae-forgotten-export) The symbol "Interval" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "Interval_2" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    interval: Interval;
+    interval: Interval_2;
     keys: string[];
     outliers: string[];
 }
