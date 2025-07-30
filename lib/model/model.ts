@@ -265,7 +265,11 @@ export class PlaneModel extends Model {
     });
     this.dependentAxisKey = this.dependentFacetKeys[0]; // FIXME: Assumes only 1 dependent facet
     this.independentAxisKey = this.independentFacetKeys[0]; // FIXME: Assumes only 1 dependent facet
-
+    // FIXME: Temporary until manifests have guaranteed axis keys
+    if (this.horizontalAxisKey === undefined || this.verticalAxisKey === undefined) {
+      this.horizontalAxisKey = this.independentAxisKey;
+      this.verticalAxisKey = this.dependentAxisKey;
+    }
     if (this.type !== 'scatter') {
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
         = generateValues(this.series, this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
@@ -273,7 +277,8 @@ export class PlaneModel extends Model {
         this._seriesLineMap[series.key] = series.getActualLine();
       }
       if (this.multi) {
-        const yAxisInterval = this.getAxisInterval(this.getAxisOrientation('dependent'))!
+        const yAxisInterval = this.getAxisInterval(this.getAxisOrientation('dependent'))!;
+        console.log('y1', yAxisInterval, this.getAxisOrientation('dependent'))
         this._seriesPairAnalyzer = new this.pairAnalyzerConstructor(
           Object.values(this._seriesLineMap), 
           [1,1], //FIXME: get actual screen size
@@ -341,11 +346,13 @@ export class PlaneModel extends Model {
   @Memoize()
   public getAxisInterval(orientation: AxisOrientation): Interval | null {
     const facetKey = orientation === 'horiz' ? this.horizontalAxisKey! : this.verticalAxisKey!;
+    console.log('fk', facetKey)
     const naturalInterval = this.getFacetInterval(facetKey);
     if (!naturalInterval) {
       return null;
     }
     let { start, end } = naturalInterval;
+    console.log('y2', start, end)
     const settingsMin = this._dataset.settings?.axis?.[facetKey as 'x' | 'y']?.minValue ?? 'unset';
     const settingsMax = this._dataset.settings?.axis?.[facetKey as 'x' | 'y']?.maxValue ?? 'unset';
     if (settingsMin !== 'unset') {
