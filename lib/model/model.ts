@@ -58,7 +58,7 @@ import { PlaneSeries, planeSeriesFromSeriesManifest, Series, seriesFromSeriesMan
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
-import { Line } from '@fizz/chart-classifier-utils';
+import { Interval, Line } from '@fizz/chart-classifier-utils';
 import { synthesizeChartTheme, synthesizeSeriesTheme } from '../theme_synthesis';
 
 // TODO: Remove these
@@ -182,6 +182,15 @@ export class Model {
   }
 
   @Memoize()
+  public getFacetInterval(key: string): Interval | null {
+    const facetStats = this.getFacetStats(key);
+    if (!facetStats) {
+      return null;
+    }
+    return { start: facetStats.min.value, end: facetStats.max.value };
+  }
+
+  @Memoize()
   public getFacet(key: string): Facet | null {
     return this._facetMap[key] ?? null;
   }
@@ -213,6 +222,8 @@ export class PlaneModel extends Model {
 
   public horizontalAxisKey?: string;
   public verticalAxisKey?: string;
+  public dependentAxisKey?: string;
+  public independentAxisKey?: string;
 
   public readonly seriesScaledValues?: SeriesScaledValues;
   public readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
@@ -252,6 +263,8 @@ export class PlaneModel extends Model {
         }
       }
     });
+    this.dependentAxisKey = this.dependentFacetKeys[0]; // FIXME: Assumes only 1 dependent facet
+    this.independentAxisKey = this.independentFacetKeys[0]; // FIXME: Assumes only 1 dependent facet
 
     if (this.type !== 'scatter') {
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
@@ -260,8 +273,12 @@ export class PlaneModel extends Model {
         this._seriesLineMap[series.key] = series.getActualLine();
       }
       if (this.multi) {
+        const yAxisInterval = this.getAxisInterval(this.getAxisOrientation('dependent'))!
         this._seriesPairAnalyzer = new this.pairAnalyzerConstructor(
-          Object.values(this._seriesLineMap), [1,1] //FIXME: screensize, max/min 
+          Object.values(this._seriesLineMap), 
+          [1,1], //FIXME: get actual screen size
+          yAxisInterval.start,
+          yAxisInterval.end
         );
         this.intersections = this._seriesPairAnalyzer.getIntersections();
         this.clusters = this._seriesPairAnalyzer.getClusters();
@@ -295,8 +312,10 @@ export class PlaneModel extends Model {
     this._seriesAnalysisMap = {};
     for (const seriesKey in this._seriesLineMap) {
       this._seriesAnalysisMap[seriesKey] = await seriesAnalyzer.analyzeSeries(
-        this._seriesLineMap[seriesKey],
-        { useWorker: this._useWorker }
+        this._seriesLineMap[seriesKey], { 
+          useWorker: this._useWorker,
+          yAxis: this.getAxisInterval(this.getAxisOrientation('dependent'))!
+        }
       );
     }
     this._seriesAnalysisDone = true;
@@ -308,6 +327,34 @@ export class PlaneModel extends Model {
       return this.horizontalAxisKey ? this._facetMap[this.horizontalAxisKey] : null;
     }
     return this.verticalAxisKey ? this._facetMap[this.verticalAxisKey] : null;
+  }
+
+  @Memoize()
+  public getAxisOrientation(depIndep: 'dependent'| 'independent'): AxisOrientation {
+    const facetKey = depIndep === 'dependent' ? this.dependentAxisKey : this.independentAxisKey;
+    if (facetKey === this.verticalAxisKey) {
+      return 'vert';
+    }
+    return 'horiz';
+  }
+
+  @Memoize()
+  public getAxisInterval(orientation: AxisOrientation): Interval | null {
+    const facetKey = orientation === 'horiz' ? this.horizontalAxisKey! : this.verticalAxisKey!;
+    const naturalInterval = this.getFacetInterval(facetKey);
+    if (!naturalInterval) {
+      return null;
+    }
+    let { start, end } = naturalInterval;
+    const settingsMin = this._dataset.settings?.axis?.[facetKey as 'x' | 'y']?.minValue ?? 'unset';
+    const settingsMax = this._dataset.settings?.axis?.[facetKey as 'x' | 'y']?.maxValue ?? 'unset';
+    if (settingsMin !== 'unset') {
+      start = settingsMin;
+    }
+    if (settingsMax !== 'unset') {
+      end = settingsMax;
+    }
+    return { start, end };
   }
 
   @Memoize()
