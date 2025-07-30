@@ -58,7 +58,7 @@ import { PlaneSeries, planeSeriesFromSeriesManifest, Series, seriesFromSeriesMan
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
-import { Line } from '@fizz/chart-classifier-utils';
+import { Interval, Line } from '@fizz/chart-classifier-utils';
 import { synthesizeChartTheme, synthesizeSeriesTheme } from '../theme_synthesis';
 
 // TODO: Remove these
@@ -179,6 +179,15 @@ export class Model {
       return null;
     }
     return calculateFacetStats(key, this.allPoints);
+  }
+
+  @Memoize()
+  public getFacetInterval(key: string): Interval | null {
+    const facetStats = this.getFacetStats(key);
+    if (!facetStats) {
+      return null;
+    }
+    return { start: facetStats.min.value, end: facetStats.max.value };
   }
 
   @Memoize()
@@ -308,6 +317,25 @@ export class PlaneModel extends Model {
       return this.horizontalAxisKey ? this._facetMap[this.horizontalAxisKey] : null;
     }
     return this.verticalAxisKey ? this._facetMap[this.verticalAxisKey] : null;
+  }
+
+  @Memoize()
+  public getAxisInterval(orientation: AxisOrientation): Interval | null {
+    const facetKey = orientation === 'horiz' ? this.horizontalAxisKey! : this.verticalAxisKey!;
+    const naturalInterval = this.getFacetInterval(facetKey);
+    if (!naturalInterval) {
+      return null;
+    }
+    let { start, end } = naturalInterval;
+    const settingsMin = this._dataset.settings?.axis?.[facetKey as 'x' | 'y']?.minValue ?? 'unset';
+    const settingsMax = this._dataset.settings?.axis?.[facetKey as 'x' | 'y']?.maxValue ?? 'unset';
+    if (settingsMin !== 'unset') {
+      start = settingsMin;
+    }
+    if (settingsMax !== 'unset') {
+      end = settingsMax;
+    }
+    return { start, end };
   }
 
   @Memoize()
