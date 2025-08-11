@@ -212,6 +212,10 @@ export class Model {
     }
     return this._seriesThemeMap[key] ?? synthesizeSeriesTheme(key, this);
   }
+
+  public isPlaneModel(): boolean {
+    return false;
+  }
 }
 
 export class PlaneModel extends Model {
@@ -372,6 +376,10 @@ export class PlaneModel extends Model {
     }
     await this.generateSeriesAnalyses();
     return this._seriesAnalysisMap![key];
+  }
+
+  public isPlaneModel(): boolean {
+    return true;
   }
 }
 
