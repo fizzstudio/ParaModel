@@ -212,10 +212,6 @@ export class Model {
     }
     return this._seriesThemeMap[key] ?? synthesizeSeriesTheme(key, this);
   }
-
-  public version(): string {
-    return '0.5.6-alpha.0';
-  }
 }
 
 export class PlaneModel extends Model {
