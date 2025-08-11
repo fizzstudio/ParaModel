@@ -240,7 +240,7 @@ export class Model {
     // (undocumented)
     readonly independentFacetKeys: string[];
     // (undocumented)
-    isPlaneModel(): boolean;
+    isPlaneModel(): this is PlaneModel;
     // (undocumented)
     readonly multi: boolean;
     // (undocumented)
@@ -322,7 +322,7 @@ export class PlaneModel extends Model {
     // (undocumented)
     readonly intersectionScaledValues?: ScaledNumberRounded[];
     // (undocumented)
-    isPlaneModel(): boolean;
+    isPlaneModel(): this is PlaneModel;
     // Warning: (ae-forgotten-export) The symbol "PlaneSeries" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)

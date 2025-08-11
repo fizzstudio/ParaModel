@@ -213,7 +213,7 @@ export class Model {
     return this._seriesThemeMap[key] ?? synthesizeSeriesTheme(key, this);
   }
 
-  public isPlaneModel(): boolean {
+  public isPlaneModel(): this is PlaneModel {
     return false;
   }
 }
@@ -378,7 +378,7 @@ export class PlaneModel extends Model {
     return this._seriesAnalysisMap![key];
   }
 
-  public isPlaneModel(): boolean {
+  public isPlaneModel(): this is PlaneModel {
     return true;
   }
 }
