@@ -261,6 +261,8 @@ export class Model {
     //
     // (undocumented)
     protected _uniqueValuesForFacet: Record<string, BoxSet<Datatype>>;
+    // (undocumented)
+    version(): string;
 }
 
 // @public (undocumented)
