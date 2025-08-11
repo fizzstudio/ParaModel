@@ -240,6 +240,8 @@ export class Model {
     // (undocumented)
     readonly independentFacetKeys: string[];
     // (undocumented)
+    isPlaneModel(): boolean;
+    // (undocumented)
     readonly multi: boolean;
     // (undocumented)
     readonly numSeries: number;
@@ -261,8 +263,6 @@ export class Model {
     //
     // (undocumented)
     protected _uniqueValuesForFacet: Record<string, BoxSet<Datatype>>;
-    // (undocumented)
-    version(): string;
 }
 
 // @public (undocumented)
@@ -321,6 +321,8 @@ export class PlaneModel extends Model {
     readonly intersections: Intersection[];
     // (undocumented)
     readonly intersectionScaledValues?: ScaledNumberRounded[];
+    // (undocumented)
+    isPlaneModel(): boolean;
     // Warning: (ae-forgotten-export) The symbol "PlaneSeries" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
