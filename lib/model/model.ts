@@ -381,6 +381,16 @@ export class PlaneModel extends Model {
   public isPlaneModel(): this is PlaneModel {
     return true;
   }
+
+  @Memoize()
+  public getChordAt(facetKey: string, value: Box<Datatype>): Datapoint[] | null {
+    const datatype = this._facetDatatypeMap[facetKey];
+    if (datatype === undefined || value.datatype() !== datatype) {
+      return null;
+    }
+    return this.series.map((series) => series.datapointAt(facetKey, value))
+      .filter((datapoint) => datapoint !== null);
+  }
 }
 
 export function facetsFromDataset(dataset: Dataset): FacetSignature[] {

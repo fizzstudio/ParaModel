@@ -123,6 +123,21 @@ export class Series {
     return this.datapoints[Symbol.iterator]();
   }
 
+  // Assumes at most one datapoint at that value at that facet
+  @Memoize()
+  public datapointAt(facetKey: string, value: Box<Datatype>): Datapoint | null {
+    const datatype = this._facetDatatypeMappedByKey[facetKey];
+    if (datatype === undefined || value.datatype() !== datatype) {
+      return null;
+    }
+    for (const datapoint of this.datapoints) {
+      if (datapoint.facetBox(facetKey)!.isEqual(value)) {
+        return datapoint;
+      }
+    }
+    return null;
+  }
+
   // Deprecated
   @Memoize()
   public getLabel(): string {
