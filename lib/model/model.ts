@@ -383,7 +383,6 @@ export class PlaneModel extends Model {
     return true;
   }
 
-  @Memoize()
   public getChordAt(facetKey: string, value: Box<Datatype>): Datapoint[] | null {
     const datatype = this._facetDatatypeMap[facetKey];
     if (datatype === undefined || value.datatype() !== datatype) {
