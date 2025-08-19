@@ -131,7 +131,7 @@ export class Series {
       return null;
     }
     for (const datapoint of this.datapoints) {
-      console.log('datapointAt', datapoint, datapoint.facetBox(facetKey)!.isEqual(value))
+      console.log('datapointAt', datapoint, value, datapoint.facetBox(facetKey)!.isEqual(value))
       if (datapoint.facetBox(facetKey)!.isEqual(value)) {
         return datapoint;
       }
