@@ -70,7 +70,7 @@
   "dependencies": {
     "@fizz/breakdancer": "^0.24.0",
     "@fizz/chart-classifier-utils": "^0.16.1",
-    "@fizz/chart-data": "^2.2.3",
+    "@fizz/chart-data": "^2.2.4",
     "@fizz/chart-message-candidates": "^0.28.1",
     "@fizz/number-scaling-rounding": "^0.5.2",
     "@fizz/paramanifest": "^0.5.8",
