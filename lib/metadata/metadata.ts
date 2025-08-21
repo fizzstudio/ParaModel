@@ -99,7 +99,7 @@ export function generateValues(
 
   const rawValues = rawSeriesValues.concat(rawStatsValues);
 
-  rawValues.push(...intersections.map((intersection) => intersection.value))
+  rawValues.push(...intersections.map((intersection) => intersection.value));
 
   const scaled = scaleValues(yMultiplier ?? 1, rawValues);
 

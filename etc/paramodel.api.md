@@ -89,6 +89,8 @@ export abstract class Box<T extends Datatype> {
     // (undocumented)
     abstract convertRaw(raw: string): ScalarMap[T];
     // (undocumented)
+    abstract datatype(): T;
+    // (undocumented)
     abstract isDate(): this is {
         value: CalendarPeriod;
     };
@@ -310,6 +312,8 @@ export class PlaneModel extends Model {
     // (undocumented)
     getAxisOrientation(depIndep: 'dependent' | 'independent'): AxisOrientation;
     // (undocumented)
+    getChordAt(facetKey: string, value: Box<Datatype>): Datapoint[] | null;
+    // (undocumented)
     getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null>;
     // (undocumented)
     readonly grouped: boolean;
@@ -376,6 +380,8 @@ export class Series {
     //
     // (undocumented)
     protected readonly _dataframe: DataFrame;
+    // (undocumented)
+    datapointAt(facetKey: string, value: Box<Datatype>): Datapoint | null;
     // (undocumented)
     readonly datapoints: Datapoint[];
     // (undocumented)

@@ -54,6 +54,8 @@ export abstract class Box<T extends Datatype> {
   abstract isNumberLike(): boolean;
 
   abstract asNumber(): number | null;
+
+  abstract datatype(): T;
 }
 
 /**
@@ -94,6 +96,9 @@ export class NumberBox extends Box<'number'> {
     return this.value;
   }
 
+  public datatype(): 'number' {
+    return 'number';
+  }
 }
 
 /**
@@ -130,6 +135,9 @@ export class StringBox extends Box<'string'> {
     return null;
   }
 
+  public datatype(): 'string' {
+    return 'string';
+  }
 }
 
 /**
@@ -170,6 +178,9 @@ export class DateBox extends Box<'date'> {
     return calendarNumber(this.value);
   }
 
+  public datatype(): 'date' {
+    return 'date';
+  }
 }
 
 type BoxConstructor<T extends Datatype> = new (raw: string) => Box<T>;

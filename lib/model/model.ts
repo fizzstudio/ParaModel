@@ -275,8 +275,6 @@ export class PlaneModel extends Model {
       this.verticalAxisKey = this.dependentAxisKey;
     }
     if (this.type !== 'scatter') {
-      [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
-        = generateValues(this.series, this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
       for (const series of (this.series as PlaneSeries[])) {
         this._seriesLineMap[series.key] = series.getActualLine();
       }
@@ -294,6 +292,9 @@ export class PlaneModel extends Model {
         this.trackingGroups = this._seriesPairAnalyzer.getTrackingGroups();
         this.trackingZones = this._seriesPairAnalyzer.getTrackingZones();
       }
+      // NOTE: `generateValues` must come after `pairAnalyzer` as `generateValues` uses the intersections defined by `pairAnalyzer`
+      [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
+        = generateValues(this.series, this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
     }
 
     /*this.xs = mergeUniqueBy(
@@ -380,6 +381,15 @@ export class PlaneModel extends Model {
 
   public isPlaneModel(): this is PlaneModel {
     return true;
+  }
+
+  public getChordAt(facetKey: string, value: Box<Datatype>): Datapoint[] | null {
+    const datatype = this._facetDatatypeMap[facetKey];
+    if (datatype === undefined || value.datatype() !== datatype) {
+      return null;
+    }
+    return this.series.map((series) => series.datapointAt(facetKey, value))
+      .filter((datapoint) => datapoint !== null);
   }
 }
 
