@@ -18,6 +18,12 @@ import { zip } from "@fizz/chart-classifier-utils";
 
 export type AxisOrientation = 'horiz' | 'vert';
 
+export class ParaModelError extends Error {
+  constructor(msg: string) {
+    super(`[ParaModel]: ${msg}`);
+  }
+}
+
 // Container Handling
 
 export function enumerate<T>(iterable: Iterable<T>): [T, number][] {

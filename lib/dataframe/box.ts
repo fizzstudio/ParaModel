@@ -15,7 +15,9 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Datatype } from "@fizz/paramanifest";
-import { calendarEquals, calendarNumber, CalendarPeriod, parseCalendar } from "../calendar_period";
+import { Temporal } from "temporal-polyfill";
+import { ParaModelError } from "../utils";
+//import { calendarEquals, calendarNumber, CalendarPeriod, parseCalendar } from "../calendar_period";
 
 // TODO: This type lacks a completeness type check. This could be implemented by testing in Vitest
 // that `keyof ScalarMap extends Datatype` and vice versa and `ScalarMap[Datatype] extends Scalar` 
@@ -23,7 +25,7 @@ import { calendarEquals, calendarNumber, CalendarPeriod, parseCalendar } from ".
 export type ScalarMap = {
   number: number,
   string: string,
-  date: CalendarPeriod
+  date: Temporal.PlainDateTime
 }
 
 export function numberLikeDatatype(datatype: Datatype | null): boolean {
@@ -47,7 +49,7 @@ export abstract class Box<T extends Datatype> {
 
   abstract isString(): this is {value: string};
 
-  abstract isDate(): this is {value: CalendarPeriod};
+  abstract isDate(): this is {value: Temporal.PlainDateTime};
 
   abstract isEqual(other: Box<T>): boolean;
 
@@ -80,7 +82,7 @@ export class NumberBox extends Box<'number'> {
     return false;
   }
 
-  public isDate(): this is {value: CalendarPeriod} {
+  public isDate(): this is {value: Temporal.PlainDateTime} {
     return false;
   }
 
@@ -119,7 +121,7 @@ export class StringBox extends Box<'string'> {
     return true;
   }
 
-  public isDate(): this is {value: CalendarPeriod} {
+  public isDate(): this is {value: Temporal.PlainDateTime} {
     return false;
   }
 
@@ -146,12 +148,13 @@ export class StringBox extends Box<'string'> {
  */
 export class DateBox extends Box<'date'> {
 
-  convertRaw(raw: string): CalendarPeriod {
-    const date = parseCalendar(raw);
-    if (date === null) {
-      throw new Error('x values in Calendar Datapoints must be parsable');
+  convertRaw(raw: string): Temporal.PlainDateTime {
+    try {
+      const date = Temporal.PlainDateTime.from(raw);
+      return date;
+    } catch (err) {
+      throw new ParaModelError(`Date string "${raw}" could not be parsed. Parsing error: ${err}`);
     }
-    return date;
   }
   
   public isNumber(): this is {value: number} {
@@ -162,20 +165,23 @@ export class DateBox extends Box<'date'> {
     return false;
   }
 
-  public isDate(): this is {value: CalendarPeriod} {
+  public isDate(): this is {value: Temporal.PlainDateTime} {
     return true;
   }
 
   public isEqual(other: Box<'date'>): boolean {
-    return calendarEquals(this.value, other.value);
+    return Temporal.PlainDateTime.compare(this.value, other.value) === 0;
   }
 
   public isNumberLike(): boolean {
     return true;
   }
 
+  // Temporal requires PlaneDateTimes be converted to ZonedDateTimes to get their milliseconds since
+  //   the epoch (1/1/1970). We convert PlaneDateTimes to an arbitrary time zone here (UTC, i.e. 
+  //   Greenwich mean time) as we are only concerned with the relative differences between PlaneDateTimes
   public asNumber(): number {
-    return calendarNumber(this.value);
+    return this.value.toZonedDateTime('UTC').epochMilliseconds
   }
 
   public datatype(): 'date' {
