@@ -142,6 +142,27 @@ export class StringBox extends Box<'string'> {
   }
 }
 
+// @simonvarey: This is a temp fix until ParaLoader outputs RFC9557 datetime strings
+const QUARTER_START_MONTHS = ['01', '04', '07', '10']
+
+// @simonvarey: This is a temp fix until ParaLoader outputs RFC9557 datetime strings
+function parseDateToRFC9557(input: string): string | null {
+  let yearNumber = parseFloat(input);
+  let quarterNumber = 0;
+  if (input[0] === 'Q') {
+    quarterNumber = parseInt(input[1]) - 1;
+    if (input[3] === "'") {
+      yearNumber = parseInt(input.substring(4)) + 2000;
+    } else {
+      yearNumber = parseInt(input.substring(3));
+    }
+  }
+  if (Number.isNaN(yearNumber) || Number.isNaN(quarterNumber)) {
+    return null;
+  }
+  return `${yearNumber}${QUARTER_START_MONTHS[quarterNumber]}01`
+}
+
 /**
  * Box holding a date.
  * @public
@@ -149,11 +170,15 @@ export class StringBox extends Box<'string'> {
 export class DateBox extends Box<'date'> {
 
   convertRaw(raw: string): Temporal.PlainDateTime {
+    const rfc9557 = parseDateToRFC9557(raw);
+    if (rfc9557 === null) {
+      throw new ParaModelError(`Raw date string "${raw}" could not be parsed.`);
+    }
     try {
-      const date = Temporal.PlainDateTime.from(raw);
+      const date = Temporal.PlainDateTime.from(rfc9557);
       return date;
     } catch (err) {
-      throw new ParaModelError(`Date string "${raw}" could not be parsed. Parsing error: ${err}`);
+      throw new ParaModelError(`RFC9557 date string "${rfc9557}" could not be parsed. Parsing error: ${err}`);
     }
   }
   
