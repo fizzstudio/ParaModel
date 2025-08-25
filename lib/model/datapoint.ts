@@ -20,7 +20,6 @@ import { Point } from "@fizz/chart-classifier-utils";
 
 import { DataFrameRow } from "../dataframe/dataframe";
 import { Box, ScalarMap } from "../dataframe/box";
-import { calendarNumber } from "../calendar_period";
 
 export class Datapoint {
   constructor(protected data: DataFrameRow, public seriesKey: string, public datapointIndex: number) { }
@@ -56,7 +55,7 @@ export class Datapoint {
       return box.value;
     } 
     if (box.isDate()) {
-      return calendarNumber(box.value);
+      return box.asNumber();
     } 
     return this.datapointIndex;
   }
