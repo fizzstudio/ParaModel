@@ -16,9 +16,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { customElement } from "lit/decorators.js";
 import { ManifestPicker, ManifestPickerProps } from "@fizz/test-utils";
-import { isPastryType, Manifest } from "@fizz/paramanifest";
+import { isPastryType } from "@fizz/paramanifest";
 import { html, TemplateResult } from "lit";
-import { Model, modelFromInlineData, planeModelFromInlineData } from "../../lib/index";
+import { BasicSeriesPairMetadataAnalyzer, Model, modelFromInlineData, PlaneModel, planeModelFromInlineData } from "../../lib/index";
 import { SeriesAnalyzer } from "@fizz/series-analyzer";
 
 @customElement('model-picker')
@@ -26,13 +26,17 @@ export class ModelPicker extends ManifestPicker {
 
   private model?: Model;
 
-  protected onManifestLoad(manifest: Manifest): void {
-    this.model = isPastryType(manifest.datasets[0].type) 
-      ? modelFromInlineData(manifest)
-      : planeModelFromInlineData(manifest, SeriesAnalyzer)
+  protected async onManifestLoad(): Promise<void> {
+    if (isPastryType(this.manifest!.datasets[0].type)) {
+      this.model = modelFromInlineData(this.manifest!);
+    } else {
+      this.model = planeModelFromInlineData(this.manifest!, SeriesAnalyzer, BasicSeriesPairMetadataAnalyzer);
+      // Just to trigger series analyses
+      const _ = await (this.model as PlaneModel).getSeriesAnalysis(this.model.seriesKeys[0]);
+    }
   }
 
-  protected renderManifest(manifest: Manifest): TemplateResult {
+  protected async renderManifest(): Promise<TemplateResult> {
     if (!this.model) {
       return html`<p>No model loaded</p>`;
     }
