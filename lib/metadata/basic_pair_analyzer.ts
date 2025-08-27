@@ -165,6 +165,7 @@ export class BasicLineIntersectionDetection {
   public averageGap: number;
 
   constructor(protected series1: Line, protected series2: Line, yScale: number) {
+    console.log('blid', series1)
     if (series1.length !== series2.length) {
       throw new Err(Errors.numPointsNotEqual);
     }
@@ -561,7 +562,7 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
         if (seriesB.key === undefined) {
           throw new Err(Errors.seriesWithoutKey);
         }
-        const series = <[string, string]>[seriesA.key, seriesB.key];
+        const series = [seriesA.key, seriesB.key] as [string, string];
 
         // Get interaction details between series A and series B
         const interactions = new BasicLineIntersectionDetection(seriesA, seriesB, this.yScale)
@@ -579,7 +580,7 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
           }
 
           // Case: Intersection is not overlap - given it is not disjoint, it must be an intersection, so cast is allowed
-          const isect = <IntersectionProperties>intersectionDetails.intersection;
+          const isect = intersectionDetails.intersection as IntersectionProperties;
           let record;
           const angle = this.generateAngleDetails(intersectionDetails, series, 'start')
           let inAngle;

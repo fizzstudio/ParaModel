@@ -43,7 +43,7 @@ export class ModelPicker extends ManifestPicker {
 
     return html`
       <p>Model loaded</p>
-      <p>${JSON.stringify(this.model, null, 2)}</p>
+      <pre>${JSON.stringify(this.model, null, 2)}</pre>
     `;
   }
   

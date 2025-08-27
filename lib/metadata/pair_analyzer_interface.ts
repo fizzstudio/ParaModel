@@ -206,7 +206,7 @@ export interface TrackingGroup {
    * The keys of the series which are not in this group, if any.
    */
   outliers: string[];
-  interval: Interval;
+  valueInterval: [number, number];
   averageLine: SeriesDatapoints;
 }
 
@@ -220,7 +220,7 @@ export interface TrackingZone {
    * @minItems 1
    */
   groups: TrackingGroup[];
-  interval: Interval;
+  valueInterval: [number, number];
 }
 
 // Analyzer
