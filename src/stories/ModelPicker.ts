@@ -18,7 +18,7 @@ import { customElement } from "lit/decorators.js";
 import { ManifestPicker, ManifestPickerProps } from "@fizz/test-utils";
 import { isPastryType } from "@fizz/paramanifest";
 import { html, TemplateResult } from "lit";
-import { BasicSeriesPairMetadataAnalyzer, Model, modelFromInlineData, PlaneModel, planeModelFromInlineData } from "../../lib/index";
+import { AiSeriesPairMetadataAnalyzer, Model, modelFromInlineData, PlaneModel, planeModelFromInlineData } from "../../lib/index";
 import { SeriesAnalyzer } from "@fizz/series-analyzer";
 
 @customElement('model-picker')
@@ -30,7 +30,7 @@ export class ModelPicker extends ManifestPicker {
     if (isPastryType(this.manifest!.datasets[0].type)) {
       this.model = modelFromInlineData(this.manifest!);
     } else {
-      this.model = planeModelFromInlineData(this.manifest!, SeriesAnalyzer, BasicSeriesPairMetadataAnalyzer);
+      this.model = planeModelFromInlineData(this.manifest!, SeriesAnalyzer, AiSeriesPairMetadataAnalyzer);
       // Just to trigger series analyses
       const _ = await (this.model as PlaneModel).getSeriesAnalysis(this.model.seriesKeys[0]);
     }
