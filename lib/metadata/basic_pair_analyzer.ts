@@ -15,7 +15,9 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Line, mapn, Point, PointInterval, slopeToAngle } from "@fizz/chart-classifier-utils";
-import { Overlap, SeriesPairMetadataAnalyzer, Intersection, Parallel, Pair, TrackingGroup, TrackingZone, Angle } from "./pair_analyzer_interface";
+import { Overlap, SeriesPairMetadataAnalyzer, Intersection, Parallel, Pair, TrackingGroup, 
+  TrackingZone, Angle, 
+  Transverse} from "./pair_analyzer_interface";
 
 // Errors
 
@@ -116,20 +118,6 @@ interface AngleIncludingOverlap {
 type ParallelEnd = 'converge' | 'diverge';
 
 type TransverseKind = 'cross' | 'touch' | 'edge';
-
-type TransverseCross = {
-  kind: 'cross',
-  topToBottom: string,
-  bottomToTop: string
-}
-
-type TransverseTouchEdge = {
-  kind: 'touch' | 'edge',
-  top: string,
-  bottom: string
-}
-
-type Transverse = TransverseCross | TransverseTouchEdge;
 
 // Helper
 
@@ -584,7 +572,7 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
           const angle = this.generateAngleDetails(intersectionDetails, series, 'start')
           let inAngle;
           let outAngle;
-          let transversality;
+          let transversality: Transverse;
           
           // Subcase: Intersection is at a record
           if (isect.atRecord) {
