@@ -185,10 +185,10 @@ export interface Intersection {
     //
     // (undocumented)
     series: SeriesPair;
-    // Warning: (ae-forgotten-export) The symbol "TransverseObj" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "Transverse" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    transversality: TransverseObj;
+    transversality: Transverse;
     value: number;
 }
 
