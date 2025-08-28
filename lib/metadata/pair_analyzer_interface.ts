@@ -56,12 +56,22 @@ export interface AngleDetails {
   };
 }
 
+export type TransverseCross = {
+  kind: 'cross',
+  topToBottom: string,
+  bottomToTop: string
+}
+
+export type TransverseTouchEdge = {
+  kind: 'touch' | 'edge',
+  top: string,
+  bottom: string
+}
+
 /**
  * Whether the intersecting lines cross or touch, and which line is on top of the other.
  */
-export interface TransverseObj {
-  [k: string]: unknown;
-}
+export type Transverse = TransverseCross | TransverseTouchEdge;
 
 /**
  * The metadata for an intersection of two lines
@@ -97,7 +107,7 @@ export interface Intersection {
    * The angle between the intersecting lines as they leave the intersection, or null if the intersection is at the end of the graph.
    */
   outgoingAngle: null | Angle;
-  transversality: TransverseObj;
+  transversality: Transverse;
 }
 
 /**
