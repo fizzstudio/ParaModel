@@ -58,6 +58,6 @@ export function arrayEqualsBy<L, R>(by: (lhs: L, rhs: R) => boolean, lhs: L[], r
 export function utcTimestampToPlainDateTime(utcTimestamp: number): Temporal.PlainDateTime {
   const utcInstant = Temporal.Instant.fromEpochMilliseconds(utcTimestamp);
   const utcDateTime = utcInstant.toZonedDateTimeISO('UTC');
-  console.log('uttpdt', utcInstant, utcDateTime, utcDateTime.toPlainDateTime())
+  console.log('uttpdt', utcInstant.toString(), utcDateTime.toString(), utcDateTime.toPlainDateTime().toString())
   return utcDateTime.toPlainDateTime();
 }

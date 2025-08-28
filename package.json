@@ -25,7 +25,8 @@
   "scripts": {
     "dev": "storybook dev --no-open",
     "build": "rimraf dist && tsc && vite build && api-extractor run --local --verbose",
-    "test": "vitest run",
+    "test": "vitest",
+    "pretest": "npm run build",
     "coverage": "vitest run --coverage",
     "doc": "api-documenter markdown --input-folder ./temp --output-folder ./docs",
     "pubalpha": "npm version prerelease --preid alpha && npm publish --tag alpha",
