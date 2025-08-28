@@ -152,7 +152,6 @@ export class BasicLineIntersectionDetection {
   public averageGap: number;
 
   constructor(protected series1: Line, protected series2: Line, yScale: number) {
-    console.log('blid', series1)
     if (series1.length !== series2.length) {
       throw new Err(Errors.numPointsNotEqual);
     }
@@ -402,8 +401,6 @@ export class BasicLineIntersectionDetection {
   findSlope(seg: PointInterval, yScale: number): number {
     // Is this check necessary? If everything else is programmed correctly it shouldn't arise.
     if (seg.end.x <= seg.start.x) {
-      // FIXME: do we assume seg.end.x === seg.start.x + 1 ??
-      if (seg.end.x !== seg.start.x + 1) { console.log('seg.end.x === seg.start.x + 1', seg) }
       throw new Err(Errors.segStartNotBeforeEnd);
     }
     const rise = seg.end.y -  seg.start.y;
@@ -588,9 +585,9 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
             // Subsubcase: Independent intersection at record
             record = {
               // the exact record the intersection took place at
-              label: isect.crosspoint.x.toString(),
-              before: null,
-              after: null
+              labelValue: isect.crosspoint.x,
+              beforeValue: null,
+              afterValue: null
             };
             // Subsubsubcase: Intersection is at first record
             if (isect.crosspoint.x === seriesA.points[0].x) {
@@ -623,10 +620,10 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
           // Subcase: Intersection is between records
           } else {
             record = {
-              label: null,
+              labelValue: null,
               // the intersection occurred between two record indexes, therefore the prior and post record labels are populated
-              before: intersectionDetails.segs[0].start.x.toString(),
-              after: intersectionDetails.segs[0].end.x.toString()
+              beforeValue: intersectionDetails.segs[0].start.x,
+              afterValue: intersectionDetails.segs[0].end.x
             };
             inAngle = angle;
             outAngle = angle;

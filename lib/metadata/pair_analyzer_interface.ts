@@ -82,17 +82,20 @@ export interface Intersection {
    */
   record: {
     /**
+     * (@simonvarey: This is now the value, not the label)
      * The (x-)label where the intersection occurs, if it occurs exactly on an (x-)label, and otherwise null
      */
-    label: string | null;
+    labelValue: number | null;
     /**
+     * (@simonvarey: This is now the value, not the label)
      * The closest (x-)label before the intersection, if it occurs between two (x-)labels, and otherwise null
      */
-    before: string | null;
+    beforeValue: number | null;
     /**
+     * (@simonvarey: This is now the value, not the label)
      * The closest (x-)label after the intersection, if it occurs between two (x-)labels, and otherwise null
      */
-    after: string | null;
+    afterValue: number | null;
   };
   /**
    * The y-value of the intersection

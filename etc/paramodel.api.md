@@ -158,9 +158,9 @@ export interface Intersection {
     incomingAngle: null | Angle;
     outgoingAngle: null | Angle;
     record: {
-        label: string | null;
-        before: string | null;
-        after: string | null;
+        labelValue: number | null;
+        beforeValue: number | null;
+        afterValue: number | null;
     };
     // Warning: (ae-forgotten-export) The symbol "SeriesPair" needs to be exported by the entry point index.d.ts
     //
