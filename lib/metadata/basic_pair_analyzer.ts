@@ -16,8 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Line, mapn, Point, PointInterval, slopeToAngle } from "@fizz/chart-classifier-utils";
 import { Overlap, SeriesPairMetadataAnalyzer, Intersection, Parallel, Pair, TrackingGroup, 
-  TrackingZone, Angle, 
-  Transverse} from "./pair_analyzer_interface";
+  TrackingZone, Angle, Transverse} from "./pair_analyzer_interface";
 
 // Errors
 
@@ -35,7 +34,7 @@ const Errors = {
  */
 const ErrorMessages = {
   [Errors.numPointsNotEqual]: 'number of points in each time series must be equal',
-  [Errors.segStartNotBeforeEnd]: 'The start x value of a segment must be greater than the end x value of the segment.',
+  [Errors.segStartNotBeforeEnd]: 'The start x value of a segment must be less than the end x value of the segment.',
   [Errors.seriesWithoutKey]: 'Every series must have a key'
 };
 
