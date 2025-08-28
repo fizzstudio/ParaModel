@@ -411,12 +411,10 @@ export interface TrackingGroup {
     //
     // (undocumented)
     averageLine: SeriesDatapoints;
-    // Warning: (ae-forgotten-export) The symbol "Interval_2" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    interval: Interval_2;
     keys: string[];
     outliers: string[];
+    // (undocumented)
+    valueInterval: [number, number];
 }
 
 // (No @packageDocumentation comment for this package)
