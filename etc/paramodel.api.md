@@ -418,7 +418,7 @@ export interface TrackingGroup {
 }
 
 // @public (undocumented)
-export function utcTimestampToPlaneDateTime(utcTimestamp: number): Temporal.PlainDateTime;
+export function utcTimestampToPlainDateTime(utcTimestamp: number): Temporal.PlainDateTime;
 
 // (No @packageDocumentation comment for this package)
 
