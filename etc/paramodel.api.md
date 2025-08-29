@@ -19,6 +19,7 @@ import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import type { SeriesAnalysis } from '@fizz/series-analyzer';
 import type { SeriesAnalyzer } from '@fizz/series-analyzer';
 import { SeriesManifest } from '@fizz/paramanifest';
+import { Temporal } from 'temporal-polyfill';
 import { Theme } from '@fizz/paramanifest';
 
 // Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts
@@ -92,7 +93,7 @@ export abstract class Box<T extends Datatype> {
     abstract datatype(): T;
     // (undocumented)
     abstract isDate(): this is {
-        value: CalendarPeriod;
+        value: Temporal.PlainDateTime;
     };
     // (undocumented)
     abstract isEqual(other: Box<T>): boolean;
@@ -113,26 +114,6 @@ export abstract class Box<T extends Datatype> {
     // (undocumented)
     readonly value: ScalarMap[T];
 }
-
-// @public (undocumented)
-export function calendarEquals(lhs: CalendarPeriod, rhs: CalendarPeriod): boolean;
-
-// @public (undocumented)
-export function calendarGoBack(period: CalendarPeriod, step: CalendarPeriod): CalendarPeriod;
-
-// @public (undocumented)
-export function calendarGoForward(period: CalendarPeriod, step: CalendarPeriod): CalendarPeriod;
-
-// @public (undocumented)
-export function calendarNumber(period: CalendarPeriod): number;
-
-// @public (undocumented)
-export type CalendarPeriod = {
-    year?: number;
-    quarter?: number;
-    month?: number;
-    day?: number;
-};
 
 // @public (undocumented)
 export class Datapoint {
@@ -177,9 +158,9 @@ export interface Intersection {
     incomingAngle: null | Angle;
     outgoingAngle: null | Angle;
     record: {
-        label: string | null;
-        before: string | null;
-        after: string | null;
+        labelValue: number | null;
+        beforeValue: number | null;
+        afterValue: number | null;
     };
     // Warning: (ae-forgotten-export) The symbol "SeriesPair" needs to be exported by the entry point index.d.ts
     //
@@ -275,9 +256,6 @@ export function modelFromInlineData(manifest: Manifest): Model;
 
 // @public (undocumented)
 export type PairAnalyzerConstructor = new (seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number) => SeriesPairMetadataAnalyzer;
-
-// @public (undocumented)
-export function parseCalendar(input: string): CalendarPeriod | null;
 
 // @public (undocumented)
 export class PlaneDatapoint extends Datapoint {
@@ -433,13 +411,14 @@ export interface TrackingGroup {
     //
     // (undocumented)
     averageLine: SeriesDatapoints;
-    // Warning: (ae-forgotten-export) The symbol "Interval_2" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    interval: Interval_2;
     keys: string[];
     outliers: string[];
+    // (undocumented)
+    valueInterval: [number, number];
 }
+
+// @public (undocumented)
+export function utcTimestampToPlainDateTime(utcTimestamp: number): Temporal.PlainDateTime;
 
 // (No @packageDocumentation comment for this package)
 

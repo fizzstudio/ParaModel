@@ -149,11 +149,11 @@ export class AiSeriesPairMetadataAnalyzer extends BasicSeriesPairMetadataAnalyze
     this.clusterOutliers = clusters.noise.map((line) => line.key!);
   }
 
-    private generateTrackingGroupMetadata(tg: TrackingGroupBuilder): TrackingGroup {
+  private generateTrackingGroupMetadata(tg: TrackingGroupBuilder): TrackingGroup {
     return {
       keys: Array.from(tg.keys),
       outliers: tg.outliers(),
-      interval: [`${tg.interval.start}`, `${tg.interval.end}`],
+      valueInterval: [tg.interval.start, tg.interval.end],
       averageLine: tg.averageLine().points.map((point) => [point.x, point.y])
     }
   }
@@ -161,7 +161,7 @@ export class AiSeriesPairMetadataAnalyzer extends BasicSeriesPairMetadataAnalyze
   private generateTrackingZoneMetadata(tz: TrackingZoneBuilder): TrackingZone {
     return {
       groups: tz.trackingGroups.map((tg) => this.generateTrackingGroupMetadata(tg)),
-      interval: [`${tz.interval.start}`, `${tz.interval.end}`]
+      valueInterval: [tz.interval.start, tz.interval.end]
     }
   }
   

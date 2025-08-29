@@ -15,8 +15,19 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { zip } from "@fizz/chart-classifier-utils";
+import { Temporal } from "temporal-polyfill";
+
+// Types
 
 export type AxisOrientation = 'horiz' | 'vert';
+
+// Errors
+
+export class ParaModelError extends Error {
+  constructor(msg: string) {
+    super(`[ParaModel]: ${msg}`);
+  }
+}
 
 // Container Handling
 
@@ -40,4 +51,12 @@ export function arrayEqualsBy<L, R>(by: (lhs: L, rhs: R) => boolean, lhs: L[], r
     }
   }
   return true;
+}
+
+// Date Handling
+
+export function utcTimestampToPlainDateTime(utcTimestamp: number): Temporal.PlainDateTime {
+  const utcInstant = Temporal.Instant.fromEpochMilliseconds(utcTimestamp);
+  const utcDateTime = utcInstant.toZonedDateTimeISO('UTC');
+  return utcDateTime.toPlainDateTime();
 }

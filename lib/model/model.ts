@@ -274,7 +274,7 @@ export class PlaneModel extends Model {
       this.horizontalAxisKey = this.independentAxisKey;
       this.verticalAxisKey = this.dependentAxisKey;
     }
-    if (this.type !== 'scatter') {
+    if (this.family === 'line' || this.family === 'bar' || this.family === 'histogram') {
       for (const series of (this.series as PlaneSeries[])) {
         this._seriesLineMap[series.key] = series.getActualLine();
       }

@@ -16,8 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Line, mapn, Point, PointInterval, slopeToAngle } from "@fizz/chart-classifier-utils";
 import { Overlap, SeriesPairMetadataAnalyzer, Intersection, Parallel, Pair, TrackingGroup, 
-  TrackingZone, Angle, 
-  Transverse} from "./pair_analyzer_interface";
+  TrackingZone, Angle, Transverse} from "./pair_analyzer_interface";
 
 // Errors
 
@@ -35,7 +34,7 @@ const Errors = {
  */
 const ErrorMessages = {
   [Errors.numPointsNotEqual]: 'number of points in each time series must be equal',
-  [Errors.segStartNotBeforeEnd]: 'The start x value of a segment must be greater than the end x value of the segment.',
+  [Errors.segStartNotBeforeEnd]: 'The start x value of a segment must be less than the end x value of the segment.',
   [Errors.seriesWithoutKey]: 'Every series must have a key'
 };
 
@@ -402,8 +401,6 @@ export class BasicLineIntersectionDetection {
   findSlope(seg: PointInterval, yScale: number): number {
     // Is this check necessary? If everything else is programmed correctly it shouldn't arise.
     if (seg.end.x <= seg.start.x) {
-      // FIXME: do we assume seg.end.x === seg.start.x + 1 ??
-      if (seg.end.x !== seg.start.x + 1) { console.log('seg.end.x === seg.start.x + 1', seg) }
       throw new Err(Errors.segStartNotBeforeEnd);
     }
     const rise = seg.end.y -  seg.start.y;
@@ -549,7 +546,7 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
         if (seriesB.key === undefined) {
           throw new Err(Errors.seriesWithoutKey);
         }
-        const series = <[string, string]>[seriesA.key, seriesB.key];
+        const series = [seriesA.key, seriesB.key] as [string, string];
 
         // Get interaction details between series A and series B
         const interactions = new BasicLineIntersectionDetection(seriesA, seriesB, this.yScale)
@@ -567,7 +564,7 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
           }
 
           // Case: Intersection is not overlap - given it is not disjoint, it must be an intersection, so cast is allowed
-          const isect = <IntersectionProperties>intersectionDetails.intersection;
+          const isect = intersectionDetails.intersection as IntersectionProperties;
           let record;
           const angle = this.generateAngleDetails(intersectionDetails, series, 'start')
           let inAngle;
@@ -588,9 +585,9 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
             // Subsubcase: Independent intersection at record
             record = {
               // the exact record the intersection took place at
-              label: isect.crosspoint.x.toString(),
-              before: null,
-              after: null
+              labelValue: isect.crosspoint.x,
+              beforeValue: null,
+              afterValue: null
             };
             // Subsubsubcase: Intersection is at first record
             if (isect.crosspoint.x === seriesA.points[0].x) {
@@ -623,10 +620,10 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
           // Subcase: Intersection is between records
           } else {
             record = {
-              label: null,
+              labelValue: null,
               // the intersection occurred between two record indexes, therefore the prior and post record labels are populated
-              before: intersectionDetails.segs[0].start.x.toString(),
-              after: intersectionDetails.segs[0].end.x.toString()
+              beforeValue: intersectionDetails.segs[0].start.x,
+              afterValue: intersectionDetails.segs[0].end.x
             };
             inAngle = angle;
             outAngle = angle;
