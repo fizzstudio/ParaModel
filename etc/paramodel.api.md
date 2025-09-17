@@ -129,6 +129,8 @@ export class Datapoint {
     // (undocumented)
     entries(): Iterable<[string, Box<Datatype>]>;
     // (undocumented)
+    equals(other: Datapoint): boolean;
+    // (undocumented)
     facetBox(key: string): Box<Datatype> | null;
     // (undocumented)
     facetValue(key: string): ScalarMap[Datatype] | null;

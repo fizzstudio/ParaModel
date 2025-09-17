@@ -18,7 +18,7 @@ import { Memoize } from "typescript-memoize";
 import { Datatype } from "@fizz/paramanifest";
 import { Point } from "@fizz/chart-classifier-utils";
 
-import { DataFrameRow } from "../dataframe/dataframe";
+import { DataFrameRow, dataFrameRowEquals } from "../dataframe/dataframe";
 import { Box, ScalarMap } from "../dataframe/box";
 
 export class Datapoint {
@@ -61,13 +61,18 @@ export class Datapoint {
   }
 
   @Memoize()
-  convertFacetValuesToXYForLine(xKey: string, yKey: string): Point | null {
+  public convertFacetValuesToXYForLine(xKey: string, yKey: string): Point | null {
     const x = this.facetValueNumericized(xKey);
     const y = this.facetValueNumericized(yKey);
     if (x === null || y === null) {
       return null;
     }
     return { x , y };
+  }
+
+  public equals(other: Datapoint): boolean {
+    return dataFrameRowEquals(this.data, other.data) 
+      && this.seriesKey === other.seriesKey && this.datapointIndex === other.datapointIndex;
   }
 }
 

@@ -18,6 +18,7 @@ import { mapn } from '@fizz/chart-classifier-utils';
 
 import { Box, BOX_CONSTRUCTORS } from './box';
 import { Datatype } from '@fizz/paramanifest';
+import { arrayEqualsBy } from '../utils';
 
 /*
 import { 
@@ -72,6 +73,18 @@ export type FacetSignature = { key: string, datatype: Datatype };
 
 export type DataFrameColumn<T extends Datatype> = Box<T>[];
 export type DataFrameRow = Record<string, Box<Datatype>>;
+
+export function dataFrameRowEquals(self: DataFrameRow, other: DataFrameRow): boolean {
+  if (!arrayEqualsBy((l, r) => l === r, Object.keys(self), Object.keys(other))) {
+    return false;
+  }
+  for (const facet in self) {
+    if (!self[facet].isEqual(other[facet])) {
+      return false;
+    }
+  }
+  return true;
+}
 
 /**
  * Spreadsheet-like container for a series. Each column is a facet/dimension, 
