@@ -139,6 +139,8 @@ export class Datapoint {
     // (undocumented)
     facetValueNumericized(key: string): number | null;
     // (undocumented)
+    getNavcode(): string;
+    // (undocumented)
     seriesKey: string;
 }
 

@@ -74,6 +74,11 @@ export class Datapoint {
     return dataFrameRowEquals(this.data, other.data) 
       && this.seriesKey === other.seriesKey && this.datapointIndex === other.datapointIndex;
   }
+
+  @Memoize()
+  public getNavcode(): string {
+    return `datapoint-${this.seriesKey}-${this.datapointIndex}`;
+  }
 }
 
 export class PlaneDatapoint extends Datapoint {
