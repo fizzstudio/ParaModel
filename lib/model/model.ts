@@ -216,6 +216,24 @@ export class Model {
   public isPlaneModel(): this is PlaneModel {
     return false;
   }
+
+  public prevDatapoint(datapoint: Datapoint): Datapoint | null {
+    const series = this.atKey(datapoint.seriesKey);
+    if (series === null) {
+      return null;
+    }
+    const prev = series.datapoints.at(datapoint.datapointIndex - 1);
+    return prev ?? null;
+  }
+
+  public nextDatapoint(datapoint: Datapoint): Datapoint | null {
+    const series = this.atKey(datapoint.seriesKey);
+    if (series === null) {
+      return null;
+    }
+    const next = series.datapoints.at(datapoint.datapointIndex + 1);
+    return next ?? null;
+  }
 }
 
 export class PlaneModel extends Model {

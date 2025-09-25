@@ -229,7 +229,11 @@ export class Model {
     // (undocumented)
     readonly multi: boolean;
     // (undocumented)
+    nextDatapoint(datapoint: Datapoint): Datapoint | null;
+    // (undocumented)
     readonly numSeries: number;
+    // (undocumented)
+    prevDatapoint(datapoint: Datapoint): Datapoint | null;
     // (undocumented)
     readonly series: Series[];
     // (undocumented)
