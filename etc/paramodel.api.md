@@ -156,6 +156,18 @@ export type FacetSignature = {
     datatype: Datatype;
 };
 
+// @public (undocumented)
+export class GenericRangeBuilder<P> {
+    constructor(startPoint: P);
+    // (undocumented)
+    add(point: P): void;
+    // (undocumented)
+    points: P[];
+}
+
+// @public (undocumented)
+export function groupAdjacent<P>(points: P[], isStepBetween: (back: P, forward: P) => boolean): (P | GenericRangeBuilder<P>)[];
+
 // @public
 export interface Intersection {
     // Warning: (ae-forgotten-export) The symbol "Angle" needs to be exported by the entry point index.d.ts
