@@ -77,7 +77,7 @@ export class Datapoint {
 
   @Memoize()
   public getNavcode(): string {
-    return `datapoint-${strToId(this.seriesKey)}-${this.datapointIndex}`;
+    return `datapoint-${this.seriesKey}-${this.datapointIndex}`;
   }
 }
 
