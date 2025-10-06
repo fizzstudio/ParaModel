@@ -148,6 +148,8 @@ export class Series {
 }
 
 export class PlaneSeries extends Series {
+  /*declare*/ [i: number]: PlaneDatapoint;
+
   declare datapoints: PlaneDatapoint[];
   declare indepKey: string;
   declare depKey: string;
