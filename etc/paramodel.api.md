@@ -139,6 +139,8 @@ export class Datapoint {
     // (undocumented)
     facetValueNumericized(key: string): number | null;
     // (undocumented)
+    getNavcode(): string;
+    // (undocumented)
     seriesKey: string;
 }
 
@@ -153,6 +155,18 @@ export type FacetSignature = {
     key: string;
     datatype: Datatype;
 };
+
+// @public (undocumented)
+export class GenericRangeBuilder<P> {
+    constructor(startPoint: P);
+    // (undocumented)
+    add(point: P): void;
+    // (undocumented)
+    points: P[];
+}
+
+// @public (undocumented)
+export function groupAdjacent<P>(points: P[], isStepBetween: (back: P, forward: P) => boolean): (P | GenericRangeBuilder<P>)[];
 
 // @public
 export interface Intersection {

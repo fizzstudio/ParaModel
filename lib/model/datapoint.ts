@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from "typescript-memoize";
-import { Datatype } from "@fizz/paramanifest";
+import { Datatype, strToId } from "@fizz/paramanifest";
 import { Point } from "@fizz/chart-classifier-utils";
 
 import { DataFrameRow, dataFrameRowEquals } from "../dataframe/dataframe";
@@ -73,6 +73,11 @@ export class Datapoint {
   public equals(other: Datapoint): boolean {
     return dataFrameRowEquals(this.data, other.data) 
       && this.seriesKey === other.seriesKey && this.datapointIndex === other.datapointIndex;
+  }
+
+  @Memoize()
+  public getNavcode(): string {
+    return `datapoint-${this.seriesKey}-${this.datapointIndex}`;
   }
 }
 

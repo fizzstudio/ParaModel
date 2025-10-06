@@ -60,3 +60,55 @@ export function utcTimestampToPlainDateTime(utcTimestamp: number): Temporal.Plai
   const utcDateTime = utcInstant.toZonedDateTimeISO('UTC');
   return utcDateTime.toPlainDateTime();
 }
+
+// Data Grouping
+
+export class GenericRangeBuilder<P> {
+  points: P[];
+
+  constructor(startPoint: P) {
+    this.points = [startPoint];
+  }
+
+  add(point: P): void {
+    this.points.push(point);
+  }
+}
+
+export function groupAdjacent<P>(
+  points: P[], 
+  isStepBetween: (back: P, forward: P) => boolean
+): (P | GenericRangeBuilder<P>)[] {
+  //Quick exit for no points or single point
+  if (points.length <= 1) {
+    return points;
+  }
+
+  const pointsAndGroups: (P | GenericRangeBuilder<P>)[] = [];
+  //First point
+  if (isStepBetween(points[0], points[1])) {
+    pointsAndGroups.push(new GenericRangeBuilder(points[0]));
+  } else {
+    pointsAndGroups.push(points[0]);
+  }
+  //Middle points (if any)
+  for (let i = 1; i < (points.length - 1); i++) {
+    if (isStepBetween(points[i - 1], points[i])) {
+      const latest = pointsAndGroups.at(-1) as GenericRangeBuilder<P>;
+      latest.add(points[i]);
+    } else if (isStepBetween(points[i], points[i +  1])) {
+      pointsAndGroups.push(new GenericRangeBuilder<P>(points[i]));
+    } else {
+      pointsAndGroups.push(points[i]);
+    }
+  }
+  //Last point
+  if (isStepBetween(points.at(-2)!, points.at(-1)!)) {
+    const latest = pointsAndGroups.at(-1) as GenericRangeBuilder<P>;
+    latest.add(points.at(-1)!);
+  } else {
+    pointsAndGroups.push(points.at(-1)!);
+  }
+
+  return pointsAndGroups;
+}
