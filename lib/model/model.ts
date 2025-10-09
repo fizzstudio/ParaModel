@@ -348,6 +348,12 @@ export class PlaneModel extends Model {
     this._seriesAnalysisDone = true;
   }
 
+  // @override
+  @Memoize()
+  public atKey(key: string): PlaneSeries | null {
+    return super.atKey(key) as PlaneSeries | null;
+  }
+
   @Memoize()
   public getAxisFacet(orientation: AxisOrientation): Facet | null {
     if (orientation === 'horiz') {
