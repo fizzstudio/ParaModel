@@ -2,7 +2,7 @@
 export { Model, PlaneModel, facetsFromDataset, modelFromInlineData, modelFromExternalData, 
   planeModelFromInlineData, planeModelFromExternalData, type SeriesAnalyzerConstructor, 
   type PairAnalyzerConstructor } from './model/model';
-export { Series } from './model/series';
+export { Series, PlaneSeries } from './model/series';
 export { Datapoint, PlaneDatapoint } from './model/datapoint';
 export { enumerate, arrayEqualsBy, utcTimestampToPlainDateTime, groupAdjacent, 
   type AxisOrientation, GenericRangeBuilder } from './utils';

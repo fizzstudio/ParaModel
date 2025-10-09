@@ -325,8 +325,6 @@ export class PlaneModel extends Model {
     readonly intersectionScaledValues?: ScaledNumberRounded[];
     // (undocumented)
     isPlaneModel(): this is PlaneModel;
-    // Warning: (ae-forgotten-export) The symbol "PlaneSeries" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     series: PlaneSeries[];
     // (undocumented)
@@ -360,6 +358,26 @@ export function planeModelFromExternalData(data: AllSeriesData, manifest: Manife
 
 // @public (undocumented)
 export function planeModelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean): PlaneModel;
+
+// @public (undocumented)
+export class PlaneSeries extends Series {
+    // Warning: (ae-forgotten-export) The symbol "RawDataPoint" needs to be exported by the entry point index.d.ts
+    constructor(manifest: SeriesManifest, rawData: RawDataPoint[], facetSignatures: FacetSignature[], indepKey: string, depKey: string);
+    // (undocumented)
+    [i: number]: PlaneDatapoint;
+    // (undocumented)
+    protected constructDatapoint(data: DataFrameRow, seriesKey: string, datapointIndex: number): Datapoint;
+    // (undocumented)
+    datapoints: PlaneDatapoint[];
+    // (undocumented)
+    depKey: string;
+    // (undocumented)
+    getActualLine(): Line;
+    // (undocumented)
+    getIndepAverage(): number;
+    // (undocumented)
+    indepKey: string;
+}
 
 // @public (undocumented)
 export class Series {
@@ -414,8 +432,6 @@ export class Series {
     readonly length: number;
     // (undocumented)
     readonly manifest: SeriesManifest;
-    // Warning: (ae-forgotten-export) The symbol "RawDataPoint" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     readonly rawData: RawDataPoint[];
     // (undocumented)
