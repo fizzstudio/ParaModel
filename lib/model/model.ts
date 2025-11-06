@@ -46,13 +46,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
   }*/
 
 import { Memoize } from 'typescript-memoize';
-import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, Facet, Manifest, Theme } from "@fizz/paramanifest";
+import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, 
+  Facet, Manifest, Theme } from "@fizz/paramanifest";
 import type { SeriesAnalysis, SeriesAnalyzer } from "@fizz/series-analyzer";
 
 import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
 import { Box, BoxSet } from "../dataframe/box";
-import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, SeriesScaledValues } from "../metadata/metadata";
+import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, 
+  SeriesScaledValues } from "../metadata/metadata";
 import { Datapoint } from '../model/datapoint';
 import { PlaneSeries, planeSeriesFromSeriesManifest, Series, seriesFromSeriesManifest } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
