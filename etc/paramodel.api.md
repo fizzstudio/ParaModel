@@ -423,8 +423,6 @@ export class Series {
     // (undocumented)
     getLabel(): string;
     // (undocumented)
-    readonly id: string;
-    // (undocumented)
     protected readonly indepKey?: string | undefined;
     // (undocumented)
     readonly key: string;
@@ -434,6 +432,8 @@ export class Series {
     readonly length: number;
     // (undocumented)
     readonly manifest: SeriesManifest;
+    // (undocumented)
+    readonly originalKey: string;
     // (undocumented)
     readonly rawData: RawDataPoint[];
     // (undocumented)

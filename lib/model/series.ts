@@ -28,7 +28,7 @@ export class Series {
   [i: number]: Datapoint;
 
   public readonly key: string;
-  public readonly id: string;
+  public readonly originalKey: string;
   public readonly label: string;
 
   public readonly length: number;
@@ -47,9 +47,9 @@ export class Series {
     protected readonly indepKey?: string,
     protected readonly depKey?: string
   ) {
-    this.key = this.manifest.key;
-    this.id = strToId(this.key); // TODO: see if we need to make this more unique
-    this.label = this.manifest.label ?? this.key;
+    this.originalKey = this.manifest.key;
+    this.key = strToId(this.originalKey);
+    this.label = this.manifest.label ?? this.originalKey;
 
     this.facetSignatures.forEach((facet) => {
       this.facetKeys.push(facet.key);
