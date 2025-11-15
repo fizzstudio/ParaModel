@@ -247,6 +247,8 @@ export class Model {
     // (undocumented)
     readonly numSeries: number;
     // (undocumented)
+    readonly originalSeriesKeys: string[];
+    // (undocumented)
     prevDatapoint(datapoint: Datapoint): Datapoint | null;
     // (undocumented)
     readonly series: Series[];

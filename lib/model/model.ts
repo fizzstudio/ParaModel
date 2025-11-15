@@ -83,6 +83,7 @@ export class Model {
   public readonly independentFacetKeys: string[] = [];
 
   public readonly seriesKeys: string[] = [];
+  public readonly originalSeriesKeys: string[] = [];
   public readonly multi: boolean;
   public readonly numSeries: number;
 
@@ -149,6 +150,7 @@ export class Model {
         throw new Error('every series in a model must have the same facets');
       }
       this.seriesKeys.push(aSeries.key);
+      this.originalSeriesKeys.push(aSeries.originalKey);
       this[seriesIndex] = aSeries;
       this._seriesMap[aSeries.key] = aSeries;
       this.allPoints.push(...aSeries);
