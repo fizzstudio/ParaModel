@@ -100,6 +100,7 @@ export class Model {
 
   protected _seriesMap: Record<string, Series> = {};
   protected _seriesThemeMap: Record<string, Theme | undefined> = {};
+  protected _seriesLabelMap: Record<string, string> = {};
 
   constructor(public readonly series: Series[], manifest: Manifest) {
     if (this.series.length === 0) {
@@ -153,6 +154,7 @@ export class Model {
       this.originalSeriesKeys.push(aSeries.originalKey);
       this[seriesIndex] = aSeries;
       this._seriesMap[aSeries.key] = aSeries;
+      this._seriesLabelMap[aSeries.key] = aSeries.getLabel();
       this.allPoints.push(...aSeries);
       Object.keys(this._uniqueValuesForFacet).forEach((facetKey) => {
         this._uniqueValuesForFacet[facetKey].merge(aSeries.allFacetValues(facetKey)!);
@@ -237,6 +239,15 @@ export class Model {
     }
     const next = series.datapoints.at(datapoint.datapointIndex + 1);
     return next ?? null;
+  }
+
+  @Memoize()
+  public atLabel(label: string): Series | null {
+    const key = this._seriesLabelMap[label];
+    if (key === undefined) {
+      return null;
+    }
+    return this.atKey(key)!;
   }
 }
 
