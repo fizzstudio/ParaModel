@@ -203,6 +203,8 @@ export class Model {
     // (undocumented)
     atKeyAndIndex(key: string, index: number): Datapoint | null;
     // (undocumented)
+    atLabel(label: string): Series | null;
+    // (undocumented)
     protected _axisFacetKeys: string[];
     // (undocumented)
     protected _dataset: Dataset;
@@ -254,6 +256,8 @@ export class Model {
     readonly series: Series[];
     // (undocumented)
     readonly seriesKeys: string[];
+    // (undocumented)
+    protected _seriesLabelMap: Record<string, string>;
     // (undocumented)
     protected _seriesMap: Record<string, Series>;
     // (undocumented)
