@@ -154,7 +154,7 @@ export class Model {
       this.originalSeriesKeys.push(aSeries.originalKey);
       this[seriesIndex] = aSeries;
       this._seriesMap[aSeries.key] = aSeries;
-      this._seriesLabelMap[aSeries.key] = aSeries.getLabel();
+      this._seriesLabelMap[aSeries.getLabel()] = aSeries.key;
       this.allPoints.push(...aSeries);
       Object.keys(this._uniqueValuesForFacet).forEach((facetKey) => {
         this._uniqueValuesForFacet[facetKey].merge(aSeries.allFacetValues(facetKey)!);
