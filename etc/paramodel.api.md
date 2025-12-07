@@ -144,6 +144,32 @@ export class Datapoint {
     seriesKey: string;
 }
 
+// @public
+export class DateBox extends Box<'date'> {
+    // (undocumented)
+    asNumber(): number;
+    // (undocumented)
+    convertRaw(raw: string): Temporal.PlainDateTime;
+    // (undocumented)
+    datatype(): 'date';
+    // (undocumented)
+    isDate(): this is {
+        value: Temporal.PlainDateTime;
+    };
+    // (undocumented)
+    isEqual(other: Box<'date'>): boolean;
+    // (undocumented)
+    isNumber(): this is {
+        value: number;
+    };
+    // (undocumented)
+    isNumberLike(): boolean;
+    // (undocumented)
+    isString(): this is {
+        value: string;
+    };
+}
+
 // @public (undocumented)
 export function enumerate<T>(iterable: Iterable<T>): [T, number][];
 
@@ -279,6 +305,32 @@ export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): 
 
 // @public (undocumented)
 export function modelFromInlineData(manifest: Manifest): Model;
+
+// @public
+export class NumberBox extends Box<'number'> {
+    // (undocumented)
+    asNumber(): number;
+    // (undocumented)
+    convertRaw(raw: string): number;
+    // (undocumented)
+    datatype(): 'number';
+    // (undocumented)
+    isDate(): this is {
+        value: Temporal.PlainDateTime;
+    };
+    // (undocumented)
+    isEqual(other: Box<'number'>): boolean;
+    // (undocumented)
+    isNumber(): this is {
+        value: number;
+    };
+    // (undocumented)
+    isNumberLike(): boolean;
+    // (undocumented)
+    isString(): this is {
+        value: string;
+    };
+}
 
 // @public (undocumented)
 export type PairAnalyzerConstructor = new (seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number) => SeriesPairMetadataAnalyzer;
@@ -448,6 +500,32 @@ export class Series {
 
 // @public (undocumented)
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
+
+// @public
+export class StringBox extends Box<'string'> {
+    // (undocumented)
+    asNumber(): null;
+    // (undocumented)
+    convertRaw(raw: string): string;
+    // (undocumented)
+    datatype(): 'string';
+    // (undocumented)
+    isDate(): this is {
+        value: Temporal.PlainDateTime;
+    };
+    // (undocumented)
+    isEqual(other: Box<'string'>): boolean;
+    // (undocumented)
+    isNumber(): this is {
+        value: number;
+    };
+    // (undocumented)
+    isNumberLike(): boolean;
+    // (undocumented)
+    isString(): this is {
+        value: string;
+    };
+}
 
 // @public
 export interface TrackingGroup {
