@@ -17,7 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import * as ss from 'simple-statistics';
 import { Datatype, SeriesManifest, strToId } from "@fizz/paramanifest";
 
-import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint } from "../dataframe/dataframe";
+import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDatapoint } from "../dataframe/dataframe";
 import { Box, BoxSet, numberLikeDatatype } from "../dataframe/box";
 import { calculateFacetStats, FacetStats } from "../metadata/metadata";
 import { Memoize } from "typescript-memoize";
@@ -42,7 +42,7 @@ export class Series {
 
   constructor(
     public readonly manifest: SeriesManifest,
-    public readonly rawData: RawDataPoint[], 
+    public readonly rawData: RawDatapoint[], 
     public readonly facetSignatures: FacetSignature[],
     protected readonly indepKey?: string,
     protected readonly depKey?: string
@@ -159,7 +159,7 @@ export class PlaneSeries extends Series {
 
   constructor(
     manifest: SeriesManifest,
-    rawData: RawDataPoint[], 
+    rawData: RawDatapoint[], 
     facetSignatures: FacetSignature[],
     indepKey: string,
     depKey: string
