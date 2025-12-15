@@ -19,10 +19,11 @@ import { Datatype, SeriesManifest, strToId } from "@fizz/paramanifest";
 
 import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDatapoint } from "../dataframe/dataframe";
 import { Box, BoxSet, numberLikeDatatype } from "../dataframe/box";
-import { calculateFacetStats, FacetStats } from "../metadata/metadata";
+import { calculateFacetStats, FacetStats, SeriesScaledValues, SeriesStatsScaledValues } from "../metadata/metadata";
 import { Memoize } from "typescript-memoize";
 import { Line } from "@fizz/chart-classifier-utils";
 import { Datapoint, PlaneDatapoint } from '../model/datapoint';
+import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 
 export class Series {
   [i: number]: Datapoint;
@@ -34,6 +35,9 @@ export class Series {
   public readonly length: number;
   public readonly datapoints: Datapoint[] = [];
   public readonly facetKeys: string[] = [];
+
+  public scaledValues: ScaledNumberRounded[] | null = null;
+  public statsScaledValues: SeriesStatsScaledValues | null = null;
 
   protected readonly _dataframe: DataFrame;
 

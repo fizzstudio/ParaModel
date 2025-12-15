@@ -328,6 +328,10 @@ export class PlaneModel extends Model {
       // NOTE: `generateValues` must come after `pairAnalyzer` as `generateValues` uses the intersections defined by `pairAnalyzer`
       [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
         = generateValues(this.series, this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
+      for (const key of this.seriesKeys) {
+        this._seriesMap[key].scaledValues = this.seriesScaledValues[key];
+        this._seriesMap[key].statsScaledValues = this.seriesStatsScaledValues[key];
+      }
     }
 
     /*this.xs = mergeUniqueBy(

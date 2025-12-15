@@ -62,7 +62,7 @@ function scaleValues(yMultiplier: OrderOfMagnitude, vals: number[]): ScaledNumbe
 
 export type SeriesScaledValues = Record<string, ScaledNumberRounded[]>;
 
-type SeriesStatsScaledValues = {
+export type SeriesStatsScaledValues = {
   start: ScaledNumberRounded;
   end: ScaledNumberRounded;
   max: ScaledNumberRounded;
