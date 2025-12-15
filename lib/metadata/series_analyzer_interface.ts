@@ -160,6 +160,8 @@ export interface SequenceInfo {
 }
 
 export interface SingleSeriesMetadataAnalyzer {
+  /** Whether the analyzer provides AI-enhanced trend information */
+  hasTrends(): boolean;
   /** Basic time series statistics */
   getStats(): SeriesStats;
   /** Measure of variability in data */

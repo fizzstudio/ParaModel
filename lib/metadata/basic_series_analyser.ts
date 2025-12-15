@@ -1,4 +1,4 @@
-import { Interval, Line, Point } from "@fizz/chart-classifier-utils";
+import { Line, Point } from "@fizz/chart-classifier-utils";
 import * as ss from 'simple-statistics';
 
 import { Category, RunInfo, SegmentInfo, SequenceInfo, SeriesStats, SingleSeriesMetadataAnalyzer } from "./series_analyzer_interface";
@@ -166,6 +166,11 @@ export class BasicSingleSeriesAnalyzer implements SingleSeriesMetadataAnalyzer {
    * @remarks
    */
   constructor(private series: Line) { }
+
+  /** Whether the analyzer provides AI-enhanced trend information */
+  hasTrends(): boolean {
+    return false;
+  }
 
   /** Basic time series statistics */
   @Memoize()
