@@ -421,8 +421,8 @@ export function planeModelFromInlineData(manifest: Manifest, seriesAnalyzerConst
 
 // @public (undocumented)
 export class PlaneSeries extends Series {
-    // Warning: (ae-forgotten-export) The symbol "RawDataPoint" needs to be exported by the entry point index.d.ts
-    constructor(manifest: SeriesManifest, rawData: RawDataPoint[], facetSignatures: FacetSignature[], indepKey: string, depKey: string);
+    // Warning: (ae-forgotten-export) The symbol "RawDatapoint" needs to be exported by the entry point index.d.ts
+    constructor(manifest: SeriesManifest, rawData: RawDatapoint[], facetSignatures: FacetSignature[], indepKey: string, depKey: string);
     // (undocumented)
     [i: number]: PlaneDatapoint;
     // (undocumented)
@@ -443,7 +443,7 @@ export class PlaneSeries extends Series {
 export class Series {
     // (undocumented)
     [Symbol.iterator](): Iterator<Datapoint>;
-    constructor(manifest: SeriesManifest, rawData: RawDataPoint[], facetSignatures: FacetSignature[], indepKey?: string | undefined, depKey?: string | undefined);
+    constructor(manifest: SeriesManifest, rawData: RawDatapoint[], facetSignatures: FacetSignature[], indepKey?: string | undefined, depKey?: string | undefined);
     // (undocumented)
     [i: number]: Datapoint;
     // (undocumented)
@@ -493,7 +493,13 @@ export class Series {
     // (undocumented)
     readonly originalKey: string;
     // (undocumented)
-    readonly rawData: RawDataPoint[];
+    readonly rawData: RawDatapoint[];
+    // (undocumented)
+    scaledValues: ScaledNumberRounded[] | null;
+    // Warning: (ae-forgotten-export) The symbol "SeriesStatsScaledValues" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    statsScaledValues: SeriesStatsScaledValues | null;
     // (undocumented)
     protected readonly _uniqueValuesForFacetMappedByKey: Record<string, BoxSet<Datatype>>;
 }

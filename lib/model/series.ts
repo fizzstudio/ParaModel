@@ -17,12 +17,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import * as ss from 'simple-statistics';
 import { Datatype, SeriesManifest, strToId } from "@fizz/paramanifest";
 
-import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDataPoint } from "../dataframe/dataframe";
+import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDatapoint } from "../dataframe/dataframe";
 import { Box, BoxSet, numberLikeDatatype } from "../dataframe/box";
-import { calculateFacetStats, FacetStats } from "../metadata/metadata";
+import { calculateFacetStats, FacetStats, SeriesScaledValues, SeriesStatsScaledValues } from "../metadata/metadata";
 import { Memoize } from "typescript-memoize";
 import { Line } from "@fizz/chart-classifier-utils";
 import { Datapoint, PlaneDatapoint } from '../model/datapoint';
+import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 
 export class Series {
   [i: number]: Datapoint;
@@ -35,6 +36,9 @@ export class Series {
   public readonly datapoints: Datapoint[] = [];
   public readonly facetKeys: string[] = [];
 
+  public scaledValues: ScaledNumberRounded[] | null = null;
+  public statsScaledValues: SeriesStatsScaledValues | null = null;
+
   protected readonly _dataframe: DataFrame;
 
   protected readonly _uniqueValuesForFacetMappedByKey: Record<string, BoxSet<Datatype>> = {};
@@ -42,7 +46,7 @@ export class Series {
 
   constructor(
     public readonly manifest: SeriesManifest,
-    public readonly rawData: RawDataPoint[], 
+    public readonly rawData: RawDatapoint[], 
     public readonly facetSignatures: FacetSignature[],
     protected readonly indepKey?: string,
     protected readonly depKey?: string
@@ -159,7 +163,7 @@ export class PlaneSeries extends Series {
 
   constructor(
     manifest: SeriesManifest,
-    rawData: RawDataPoint[], 
+    rawData: RawDatapoint[], 
     facetSignatures: FacetSignature[],
     indepKey: string,
     depKey: string
