@@ -14,10 +14,11 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { Datatype } from "@fizz/paramanifest";
 import { Temporal } from "temporal-polyfill";
+
+import { Datatype } from "@fizz/paramanifest";
+
 import { ParaModelError } from "../utils";
-//import { calendarEquals, calendarNumber, CalendarPeriod, parseCalendar } from "../calendar_period";
 
 // TODO: This type lacks a completeness type check. This could be implemented by testing in Vitest
 // that `keyof ScalarMap extends Datatype` and vice versa and `ScalarMap[Datatype] extends Scalar` 
