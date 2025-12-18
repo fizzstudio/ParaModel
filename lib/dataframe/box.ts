@@ -19,6 +19,7 @@ import { Temporal } from "temporal-polyfill";
 import { Datatype } from "@fizz/paramanifest";
 
 import { ParaModelError } from "../utils";
+import { compareDateValues, convertStandardFormatToDateValue, DateValue, parseDateToStandardFormat } from "./date";
 
 // TODO: This type lacks a completeness type check. This could be implemented by testing in Vitest
 // that `keyof ScalarMap extends Datatype` and vice versa and `ScalarMap[Datatype] extends Scalar` 
@@ -26,7 +27,7 @@ import { ParaModelError } from "../utils";
 export type ScalarMap = {
   number: number,
   string: string,
-  date: Temporal.PlainDateTime
+  date: DateValue
 }
 
 export function numberLikeDatatype(datatype: Datatype | null): boolean {
@@ -50,7 +51,7 @@ export abstract class Box<T extends Datatype> {
 
   abstract isString(): this is {value: string};
 
-  abstract isDate(): this is {value: Temporal.PlainDateTime};
+  abstract isDate(): this is {value: DateValue};
 
   abstract isEqual(other: Box<T>): boolean;
 
@@ -83,7 +84,7 @@ export class NumberBox extends Box<'number'> {
     return false;
   }
 
-  public isDate(): this is {value: Temporal.PlainDateTime} {
+  public isDate(): this is {value: DateValue} {
     return false;
   }
 
@@ -122,7 +123,7 @@ export class StringBox extends Box<'string'> {
     return true;
   }
 
-  public isDate(): this is {value: Temporal.PlainDateTime} {
+  public isDate(): this is {value: DateValue} {
     return false;
   }
 
@@ -143,44 +144,18 @@ export class StringBox extends Box<'string'> {
   }
 }
 
-// @simonvarey: This is a temp fix until ParaLoader outputs RFC9557 datetime strings
-const QUARTER_START_MONTHS = ['01', '04', '07', '10']
-
-// @simonvarey: This is a temp fix until ParaLoader outputs RFC9557 datetime strings
-function parseDateToRFC9557(input: string): string | null {
-  let yearNumber = parseFloat(input);
-  let quarterNumber = 0;
-  if (input[0] === 'Q') {
-    quarterNumber = parseInt(input[1]) - 1;
-    if (input[3] === "'") {
-      yearNumber = parseInt(input.substring(4)) + 2000;
-    } else {
-      yearNumber = parseInt(input.substring(3));
-    }
-  }
-  if (Number.isNaN(yearNumber) || Number.isNaN(quarterNumber)) {
-    return null;
-  }
-  return `${yearNumber}${QUARTER_START_MONTHS[quarterNumber]}01`
-}
-
 /**
  * Box holding a date.
  * @public
  */
 export class DateBox extends Box<'date'> {
 
-  convertRaw(raw: string): Temporal.PlainDateTime {
-    const rfc9557 = parseDateToRFC9557(raw);
-    if (rfc9557 === null) {
+  convertRaw(raw: string): DateValue {
+    const standardFormat = parseDateToStandardFormat(raw);
+    if (standardFormat === null) {
       throw new ParaModelError(`Raw date string "${raw}" could not be parsed.`);
     }
-    try {
-      const date = Temporal.PlainDateTime.from(rfc9557);
-      return date;
-    } catch (err) {
-      throw new ParaModelError(`RFC9557 date string "${rfc9557}" could not be parsed. Parsing error: ${err}`);
-    }
+    return convertStandardFormatToDateValue(standardFormat);
   }
   
   public isNumber(): this is {value: number} {
@@ -191,12 +166,12 @@ export class DateBox extends Box<'date'> {
     return false;
   }
 
-  public isDate(): this is {value: Temporal.PlainDateTime} {
+  public isDate(): this is {value: DateValue} {
     return true;
   }
 
   public isEqual(other: Box<'date'>): boolean {
-    return Temporal.PlainDateTime.compare(this.value, other.value) === 0;
+    return compareDateValues(this.value, other.value);
   }
 
   public isNumberLike(): boolean {
@@ -207,7 +182,7 @@ export class DateBox extends Box<'date'> {
   //   the epoch (1/1/1970). We convert PlaneDateTimes to an arbitrary time zone here (UTC, i.e. 
   //   Greenwich mean time) as we are only concerned with the relative differences between PlaneDateTimes
   public asNumber(): number {
-    return this.value.toZonedDateTime('UTC').epochMilliseconds
+    return this.value.start.toZonedDateTime('UTC').epochMilliseconds;
   }
 
   public datatype(): 'date' {
