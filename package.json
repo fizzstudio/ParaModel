@@ -47,7 +47,7 @@
   "types": "./dist/paramodel.d.ts",
   "devDependencies": {
     "@fizz/chart-data": "^2.3.1",
-    "@fizz/test-utils": "^0.4.3",
+    "@fizz/test-utils": "^0.4.4",
     "@microsoft/api-documenter": "^7.26.4",
     "@microsoft/api-extractor": "^7.49.0",
     "@storybook/addon-coverage": "^1.0.5",

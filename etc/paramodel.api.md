@@ -93,7 +93,7 @@ export abstract class Box<T extends Datatype> {
     abstract datatype(): T;
     // (undocumented)
     abstract isDate(): this is {
-        value: Temporal.PlainDateTime;
+        value: DateValue;
     };
     // (undocumented)
     abstract isEqual(other: Box<T>): boolean;
@@ -149,12 +149,12 @@ export class DateBox extends Box<'date'> {
     // (undocumented)
     asNumber(): number;
     // (undocumented)
-    convertRaw(raw: string): Temporal.PlainDateTime;
+    convertRaw(raw: string): DateValue;
     // (undocumented)
     datatype(): 'date';
     // (undocumented)
     isDate(): this is {
-        value: Temporal.PlainDateTime;
+        value: DateValue;
     };
     // (undocumented)
     isEqual(other: Box<'date'>): boolean;
@@ -316,7 +316,7 @@ export class NumberBox extends Box<'number'> {
     datatype(): 'number';
     // (undocumented)
     isDate(): this is {
-        value: Temporal.PlainDateTime;
+        value: DateValue;
     };
     // (undocumented)
     isEqual(other: Box<'number'>): boolean;
@@ -517,7 +517,7 @@ export class StringBox extends Box<'string'> {
     datatype(): 'string';
     // (undocumented)
     isDate(): this is {
-        value: Temporal.PlainDateTime;
+        value: DateValue;
     };
     // (undocumented)
     isEqual(other: Box<'string'>): boolean;
@@ -547,6 +547,10 @@ export interface TrackingGroup {
 
 // @public (undocumented)
 export function utcTimestampToPlainDateTime(utcTimestamp: number): Temporal.PlainDateTime;
+
+// Warnings were encountered during analysis:
+//
+// lib/dataframe/box.ts:54:31 - (ae-forgotten-export) The symbol "DateValue" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
