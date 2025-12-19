@@ -16,26 +16,43 @@ export type RecurringPeriod = {
 export type DateValue = DatePeriod | RecurringPeriod;
 
 // @simonvarey: This is a temp fix until ParaLoader outputs standard datetime strings
-const QUARTER_START_MONTHS = ['01', '04', '07', '10']
+const QUARTER_START_MONTHS = ['01', '04', '07', '10'];
+
+// @simonvarey: This is a temp fix until ParaLoader outputs standard datetime strings
+type DurationName = 'year' | 'quarter' | 'day';
+const DURATIONS: Record<DurationName, string> = {
+  year: '1Y',
+  quarter: '3M',
+  day: '1D'
+}
 
 // @simonvarey: This is a temp fix until ParaLoader outputs standard datetime strings
 export function parseDateToStandardFormat(input: string): string | null {
   let yearNumber = parseFloat(input);
-  let quarterNumber = 0;
-  const isQuarter = input[0] === 'Q';
-  if (isQuarter) {
-    quarterNumber = parseInt(input[1]) - 1;
+  let monthstr = '01';
+  let dayStr = '01';
+  const duration: DurationName = input[0] === 'Q' ? 'quarter' : (
+    input[0] === 'D' ? 'day' : 'year'
+  );
+  if (duration === 'quarter') {
+    const quarterNumber = parseInt(input[1]) - 1;
     if (input[3] === "'") {
       yearNumber = parseInt(input.substring(4)) + 2000;
     } else {
       yearNumber = parseInt(input.substring(3));
     }
+    if (Number.isNaN(yearNumber) || Number.isNaN(quarterNumber)) {
+      return null;
+    }
+    monthstr = QUARTER_START_MONTHS[quarterNumber];
   }
-  if (Number.isNaN(yearNumber) || Number.isNaN(quarterNumber)) {
-    return null;
+  if (duration === 'day') {
+    yearNumber = parseInt(input.slice(1, 5));
+    monthstr = input.slice(5, 7);
+    dayStr = input.slice(7, 9);
   }
-  const duration = `P${isQuarter ? '3M' : '1Y'}`;
-  return `${yearNumber}${QUARTER_START_MONTHS[quarterNumber]}01${duration}`
+  const iso8601 = `P${DURATIONS[duration]}`;
+  return `${yearNumber}${monthstr}${dayStr}${iso8601}`
 }
 
 // TODO: Add support for Recurring Periods
