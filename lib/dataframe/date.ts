@@ -44,7 +44,7 @@ export function convertStandardFormatToDateValue(rfc9557iso8601: string): DateVa
   return {
     type: 'date',
     start: Temporal.PlainDateTime.from(rfc9557),
-    duration: Temporal.Duration.from(iso8601)
+    duration: Temporal.Duration.from('P' + iso8601)
   };
 }
 

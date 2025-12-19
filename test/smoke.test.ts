@@ -5,8 +5,10 @@ import CHART_CATALOG from '../node_modules/@fizz/chart-data/data/chart_catalog.j
 import { loadChartDataManifest } from '@fizz/test-utils';
 import { modelFromInlineData } from '../lib';
 
-test.each(CHART_CATALOG as CatalogListing[])('Smoke test: $title', async ({ path }) => {
-  const manifest = await loadChartDataManifest(path, true, 'ParaModel smoke test');
-  const model = modelFromInlineData(manifest);
-  expect(model).toBeTruthy();
+test.each(CHART_CATALOG as CatalogListing[])('Smoke test: $title', async ({ path, external }) => {
+  if (!external) {
+    const manifest = await loadChartDataManifest(path, true, 'ParaModel smoke test');
+    const model = modelFromInlineData(manifest);
+    expect(model).toBeTruthy();
+  }
 })
