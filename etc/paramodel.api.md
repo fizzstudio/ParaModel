@@ -174,6 +174,12 @@ export class DateBox extends Box<'date'> {
     };
 }
 
+// Warning: (ae-forgotten-export) The symbol "DatePeriod" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "RecurringPeriod" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export type DateValue = DatePeriod | RecurringPeriod;
+
 // @public (undocumented)
 export function enumerate<T>(iterable: Iterable<T>): [T, number][];
 
@@ -555,10 +561,6 @@ export interface TrackingGroup {
 
 // @public (undocumented)
 export function utcTimestampToPlainDateTime(utcTimestamp: number): Temporal.PlainDateTime;
-
-// Warnings were encountered during analysis:
-//
-// lib/dataframe/box.ts:52:31 - (ae-forgotten-export) The symbol "DateValue" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
