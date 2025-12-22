@@ -1,6 +1,6 @@
 {
   "name": "@fizz/paramodel",
-  "version": "0.6.16-alpha.0",
+  "version": "0.6.16",
   "description": "Data Models for ParaCharts",
   "contributors": [
     "Simon Varey",
