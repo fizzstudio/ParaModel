@@ -86,6 +86,8 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
 export abstract class Box<T extends Datatype> {
     constructor(raw: string);
     // (undocumented)
+    abstract asDate(): DateValue | null;
+    // (undocumented)
     abstract asNumber(): number | null;
     // (undocumented)
     abstract convertRaw(raw: string): ScalarMap[T];
@@ -146,6 +148,8 @@ export class Datapoint {
 
 // @public
 export class DateBox extends Box<'date'> {
+    // (undocumented)
+    asDate(): DateValue;
     // (undocumented)
     asNumber(): number;
     // (undocumented)
@@ -308,6 +312,8 @@ export function modelFromInlineData(manifest: Manifest): Model;
 
 // @public
 export class NumberBox extends Box<'number'> {
+    // (undocumented)
+    asDate(): null;
     // (undocumented)
     asNumber(): number;
     // (undocumented)
@@ -510,6 +516,8 @@ export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
 // @public
 export class StringBox extends Box<'string'> {
     // (undocumented)
+    asDate(): null;
+    // (undocumented)
     asNumber(): null;
     // (undocumented)
     convertRaw(raw: string): string;
@@ -550,7 +558,7 @@ export function utcTimestampToPlainDateTime(utcTimestamp: number): Temporal.Plai
 
 // Warnings were encountered during analysis:
 //
-// lib/dataframe/box.ts:54:31 - (ae-forgotten-export) The symbol "DateValue" needs to be exported by the entry point index.d.ts
+// lib/dataframe/box.ts:52:31 - (ae-forgotten-export) The symbol "DateValue" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

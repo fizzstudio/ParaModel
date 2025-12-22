@@ -14,8 +14,6 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { Temporal } from "temporal-polyfill";
-
 import { Datatype } from "@fizz/paramanifest";
 
 import { ParaModelError } from "../utils";
@@ -59,6 +57,8 @@ export abstract class Box<T extends Datatype> {
 
   abstract asNumber(): number | null;
 
+  abstract asDate(): DateValue | null;
+
   abstract datatype(): T;
 }
 
@@ -100,6 +100,10 @@ export class NumberBox extends Box<'number'> {
     return this.value;
   }
 
+  public asDate(): null {
+    return null;
+  }
+
   public datatype(): 'number' {
     return 'number';
   }
@@ -136,6 +140,10 @@ export class StringBox extends Box<'string'> {
   }
 
   public asNumber(): null {
+    return null;
+  }
+
+  public asDate(): null {
     return null;
   }
 
@@ -183,6 +191,10 @@ export class DateBox extends Box<'date'> {
   //   Greenwich mean time) as we are only concerned with the relative differences between PlaneDateTimes
   public asNumber(): number {
     return this.value.start.toZonedDateTime('UTC').epochMilliseconds;
+  }
+
+  public asDate(): DateValue {
+    return this.value;
   }
 
   public datatype(): 'date' {
