@@ -82,20 +82,17 @@ export interface Intersection {
    */
   record: {
     /**
-     * (@simonvarey: This is now the value, not the label)
-     * The (x-)label where the intersection occurs, if it occurs exactly on an (x-)label, and otherwise null
+     * The index on the independent axis where the intersection occurs, if it occurs exactly on an independent axis point, and otherwise null
      */
-    labelValue: number | null;
+    index: number | null;
     /**
-     * (@simonvarey: This is now the value, not the label)
-     * The closest (x-)label before the intersection, if it occurs between two (x-)labels, and otherwise null
+     * The closest independent axis index before the intersection, if it occurs between two independent axis points, and otherwise null
      */
-    beforeValue: number | null;
+    beforeIndex: number | null;
     /**
-     * (@simonvarey: This is now the value, not the label)
-     * The closest (x-)label after the intersection, if it occurs between two (x-)labels, and otherwise null
+     * The closest independent axis index after the intersection, if it occurs between two independent axis points, and otherwise null
      */
-    afterValue: number | null;
+    afterIndex: number | null;
   };
   /**
    * The y-value of the intersection
