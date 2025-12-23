@@ -118,6 +118,9 @@ export abstract class Box<T extends Datatype> {
 }
 
 // @public (undocumented)
+export function convertStandardFormatToDateValue(rfc9557iso8601: string): DateValue;
+
+// @public (undocumented)
 export class Datapoint {
     constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number);
     // (undocumented)
