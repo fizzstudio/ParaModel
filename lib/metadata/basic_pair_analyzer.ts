@@ -631,7 +631,7 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
               inAngle = angle;
               outAngle = {
                 top: this.getTop(nextIntersectionDetails.segs, series, 'end'),
-                angle: (<IntersectionProperties>nextIntersectionDetails.intersection).angle, //TODO: explain cast
+                angle: (nextIntersectionDetails.intersection as IntersectionProperties).angle,
                 slope: {
                   [seriesA.key]: nextIntersectionDetails.slopes.a, 
                   [seriesB.key]: nextIntersectionDetails.slopes.b
@@ -653,11 +653,13 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
             transversality = this.getTransversal(intersectionDetails.segs, series, 'middle')
           }
 
+          const crosspoint = (intersectionDetails.intersection as IntersectionProperties).crosspoint;
           this.intersections.push({
             // the record labels for the intersection
             record,
             // the value of the intersection point, in y-axis units
-            value: (<IntersectionProperties>intersectionDetails.intersection).crosspoint.y, // TODO: explain cast
+            dependentValue: crosspoint.y,
+            independentValue: crosspoint.x,
             // the list of series labels for all the series that participated in the intersection
             series,
             incomingAngle: this.generateAngleMetadata(inAngle, series) as Angle,

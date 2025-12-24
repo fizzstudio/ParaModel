@@ -209,8 +209,10 @@ export function groupAdjacent<P>(points: P[], isStepBetween: (back: P, forward: 
 
 // @public
 export interface Intersection {
+    dependentValue: number;
     // Warning: (ae-forgotten-export) The symbol "Angle" needs to be exported by the entry point index.d.ts
     incomingAngle: null | Angle;
+    independentValue: number;
     outgoingAngle: null | Angle;
     record: {
         index: number | null;
@@ -225,7 +227,6 @@ export interface Intersection {
     //
     // (undocumented)
     transversality: Transverse;
-    value: number;
 }
 
 // @public (undocumented)

@@ -95,9 +95,13 @@ export interface Intersection {
     afterIndex: number | null;
   };
   /**
-   * The y-value of the intersection
+   * The dependent value of the intersection
    */
-  value: number;
+  dependentValue: number;
+  /**
+   * The independent value of the intersection
+   */
+  independentValue: number;
   series: SeriesPair;
   /**
    * The angle between the intersecting lines as they come into the intersection, or null if the intersection is at the start of the graph.
