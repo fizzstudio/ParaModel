@@ -19,7 +19,7 @@ import { Interval, Line } from "@fizz/chart-classifier-utils";
 import { Breakdancer } from '@fizz/breakdancer';
 import { classifySlope } from "@fizz/chart-message-candidates";
 
-import { SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from "./pair_analyzer_interface";
+import { IndexedPointInterval, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from "./pair_analyzer_interface";
 import { BasicLineIntersectionDetection, BasicSeriesPairMetadataAnalyzer, IntersectionProperties } from "./basic_pair_analyzer";
 import { TrackingGroupBuilder, TrackingZoneBuilder } from "./tracking";
 import { SpatialClusters } from './clusters';
@@ -31,7 +31,7 @@ import { SpatialClusters } from './clusters';
  */
 export interface RelativeTrajectory {
   /** X-value interval */
-  interval: Interval;
+  interval: IndexedPointInterval;
   /** Mutual relationship */
   type: 'tracking' | 'converging' | 'diverging';
   /** Value between 0 and 1 indicating the strength of the relationship */
@@ -97,9 +97,11 @@ export class AiLineIntersectionDetection extends BasicLineIntersectionDetection 
           }
         }
       }
+      const startIndex = seqs[i].start;
+      const endIndex = seqs[i].end - 1;
       const interval = {
-        start: this.differentialLine.points[seqs[i].start].x,
-        end: this.differentialLine.points[seqs[i].end - 1].x
+        start: { ...this.differentialLine.points[startIndex], index: startIndex},
+        end: { ...this.differentialLine.points[endIndex], index: endIndex}
       };
       if (si.classes[0] === 0) {
         relativeTrajectories.push({
@@ -153,7 +155,7 @@ export class AiSeriesPairMetadataAnalyzer extends BasicSeriesPairMetadataAnalyze
     return {
       keys: Array.from(tg.keys),
       outliers: tg.outliers(),
-      valueInterval: [tg.interval.start, tg.interval.end],
+      valueInterval: tg.interval,
       averageLine: tg.averageLine().points.map((point) => [point.x, point.y])
     }
   }

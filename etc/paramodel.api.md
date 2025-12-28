@@ -559,8 +559,10 @@ export interface TrackingGroup {
     averageLine: SeriesDatapoints;
     keys: string[];
     outliers: string[];
+    // Warning: (ae-forgotten-export) The symbol "IndexedPointInterval" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
-    valueInterval: [number, number];
+    valueInterval: IndexedPointInterval;
 }
 
 // @public (undocumented)

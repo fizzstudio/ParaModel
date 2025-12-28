@@ -16,6 +16,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 // Types 
 
+export type IndexedPoint = {
+  x: number;
+  y: number;
+  //** The index on the independent axis of the point, or the closest index before the point if it is not on an axis */
+  index: number;
+};
+
+export type IndexedPointInterval = {
+  start: IndexedPoint;
+  end: IndexedPoint;
+};
+
+
 /**
  * The two lines which intersect
  */
@@ -220,7 +233,7 @@ export interface TrackingGroup {
    * The keys of the series which are not in this group, if any.
    */
   outliers: string[];
-  valueInterval: [number, number];
+  valueInterval: IndexedPointInterval;
   averageLine: SeriesDatapoints;
 }
 
