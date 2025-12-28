@@ -374,7 +374,6 @@ export class PlaneModel extends Model {
   }
 
   // @override
-  @Memoize()
   public atKeyAndIndex(key: string, index: number): PlaneDatapoint | null {
     return super.atKeyAndIndex(key, index) as PlaneDatapoint | null;
   }
