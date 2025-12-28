@@ -55,7 +55,7 @@ import { FacetSignature } from "../dataframe/dataframe";
 import { Box, BoxSet } from "../dataframe/box";
 import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, 
   SeriesScaledValues } from "../metadata/metadata";
-import { Datapoint } from '../model/datapoint';
+import { Datapoint, PlaneDatapoint } from '../model/datapoint';
 import { PlaneSeries, planeSeriesFromSeriesManifest, Series, seriesFromSeriesManifest } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
@@ -371,6 +371,12 @@ export class PlaneModel extends Model {
   @Memoize()
   public atKey(key: string): PlaneSeries | null {
     return super.atKey(key) as PlaneSeries | null;
+  }
+
+  // @override
+  @Memoize()
+  public atKeyAndIndex(key: string, index: number): PlaneDatapoint | null {
+    return super.atKeyAndIndex(key, index) as PlaneDatapoint | null;
   }
 
   @Memoize()

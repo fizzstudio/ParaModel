@@ -374,6 +374,8 @@ export class PlaneModel extends Model {
     // (undocumented)
     atKey(key: string): PlaneSeries | null;
     // (undocumented)
+    atKeyAndIndex(key: string, index: number): PlaneDatapoint | null;
+    // (undocumented)
     readonly clusterOutliers: string[];
     // (undocumented)
     readonly clusters: string[][];
