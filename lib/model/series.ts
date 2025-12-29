@@ -19,7 +19,7 @@ import { Datatype, SeriesManifest, strToId } from "@fizz/paramanifest";
 
 import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDatapoint } from "../dataframe/dataframe";
 import { Box, BoxSet, numberLikeDatatype } from "../dataframe/box";
-import { calculateFacetStats, FacetStats, SeriesScaledValues, SeriesStatsScaledValues } from "../metadata/metadata";
+import { calculateFacetStats, FacetStats, SeriesStatsScaledValues } from "../metadata/metadata";
 import { Memoize } from "typescript-memoize";
 import { Line } from "@fizz/chart-classifier-utils";
 import { Datapoint, PlaneDatapoint } from '../model/datapoint';
@@ -103,14 +103,19 @@ export class Series {
     return new Line(points, this.key);
   }
 
-  @Memoize()
-  public facetAverage(key: string): number | null {
+  public facetAverageOverInterval(key: string, startIndex: number, endIndex: number): number | null {
     const facetDatatype = this._facetDatatypeMappedByKey[key];
     // Checks for both non-existent and non-numerical facets
     if (!numberLikeDatatype(facetDatatype)) {
       return null;
     }
-    return ss.mean(this.datapoints.map((point) => point.facetValueAsNumber(key)!));
+    const datapoints = this.datapoints.slice(startIndex, endIndex);
+    return ss.mean(datapoints.map((point) => point.facetValueAsNumber(key)!));
+  }
+
+  @Memoize()
+  public facetAverage(key: string): number | null {
+    return this.facetAverageOverInterval(key, 0, this.length);
   }
 
   @Memoize()

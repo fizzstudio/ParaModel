@@ -482,6 +482,8 @@ export class Series {
     protected readonly depKey?: string | undefined;
     // (undocumented)
     facetAverage(key: string): number | null;
+    // (undocumented)
+    facetAverageOverInterval(key: string, startIndex: number, endIndex: number): number | null;
     // Warning: (ae-forgotten-export) The symbol "DataFrameColumn" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
