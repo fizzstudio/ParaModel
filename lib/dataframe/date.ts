@@ -15,6 +15,8 @@ export type RecurringPeriod = {
 
 export type DateValue = DatePeriod | RecurringPeriod;
 
+const EPOCH = Temporal.PlainDateTime.from('19700101');
+
 // @simonvarey: This is a temp fix until ParaLoader outputs standard datetime strings
 const QUARTER_START_MONTHS = ['01', '04', '07', '10'];
 
@@ -70,16 +72,16 @@ export function compareDateValues(lhs: DateValue, rhs: DateValue): boolean {
     if (Temporal.PlainDateTime.compare(lhs.start, rhs.start) !== 0) {
       return false;
     }
-    return Temporal.Duration.compare(lhs.duration, rhs.duration) === 0;
+    return Temporal.Duration.compare(lhs.duration, rhs.duration, { relativeTo: EPOCH }) === 0;
   }
   if (lhs.type === 'recurring' && rhs.type === 'recurring') {
     if (Temporal.PlainDateTime.compare(lhs.start, rhs.start) !== 0) {
       return false;
     }
-    if (Temporal.Duration.compare(lhs.part, rhs.part) !== 0) {
+    if (Temporal.Duration.compare(lhs.part, rhs.part, { relativeTo: EPOCH }) !== 0) {
       return false;
     }
-    return Temporal.Duration.compare(lhs.whole, rhs.whole) === 0;
+    return Temporal.Duration.compare(lhs.whole, rhs.whole, { relativeTo: EPOCH }) === 0;
   }
   return false;
 }
