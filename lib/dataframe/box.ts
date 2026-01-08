@@ -17,7 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import { Datatype } from "@fizz/paramanifest";
 
 import { ParaModelError } from "../utils";
-import { compareDateValues, convertStandardFormatToDateValue, DateValue, parseDateToStandardFormat } from "./date";
+import { compareDateValues, convertStandardFormatToDateValue, DateValue, formatDateValue, parseDateToStandardFormat } from "./date";
 
 // TODO: This type lacks a completeness type check. This could be implemented by testing in Vitest
 // that `keyof ScalarMap extends Datatype` and vice versa and `ScalarMap[Datatype] extends Scalar` 
@@ -58,6 +58,8 @@ export abstract class Box<T extends Datatype> {
   abstract asNumber(): number | null;
 
   abstract asDate(): DateValue | null;
+
+  abstract format(): string;
 
   abstract datatype(): T;
 }
@@ -104,6 +106,10 @@ export class NumberBox extends Box<'number'> {
     return null;
   }
 
+  public format(): string {
+    return this.value.toString();
+  }
+
   public datatype(): 'number' {
     return 'number';
   }
@@ -145,6 +151,10 @@ export class StringBox extends Box<'string'> {
 
   public asDate(): null {
     return null;
+  }
+
+  public format(): string {
+    return this.value;
   }
 
   public datatype(): 'string' {
@@ -195,6 +205,10 @@ export class DateBox extends Box<'date'> {
 
   public asDate(): DateValue {
     return this.value;
+  }
+
+  public format(): string {
+    return formatDateValue(this.value);
   }
 
   public datatype(): 'date' {

@@ -94,6 +94,8 @@ export abstract class Box<T extends Datatype> {
     // (undocumented)
     abstract datatype(): T;
     // (undocumented)
+    abstract format(): string;
+    // (undocumented)
     abstract isDate(): this is {
         value: DateValue;
     };
@@ -159,6 +161,8 @@ export class DateBox extends Box<'date'> {
     convertRaw(raw: string): DateValue;
     // (undocumented)
     datatype(): 'date';
+    // (undocumented)
+    format(): string;
     // (undocumented)
     isDate(): this is {
         value: DateValue;
@@ -330,6 +334,8 @@ export class NumberBox extends Box<'number'> {
     convertRaw(raw: string): number;
     // (undocumented)
     datatype(): 'number';
+    // (undocumented)
+    format(): string;
     // (undocumented)
     isDate(): this is {
         value: DateValue;
@@ -537,6 +543,8 @@ export class StringBox extends Box<'string'> {
     convertRaw(raw: string): string;
     // (undocumented)
     datatype(): 'string';
+    // (undocumented)
+    format(): string;
     // (undocumented)
     isDate(): this is {
         value: DateValue;
