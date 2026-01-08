@@ -94,7 +94,7 @@ export abstract class Box<T extends Datatype> {
     // (undocumented)
     abstract datatype(): T;
     // (undocumented)
-    abstract format(): string;
+    abstract format(abbrev?: boolean): string;
     // (undocumented)
     abstract isDate(): this is {
         value: DateValue;
@@ -162,7 +162,7 @@ export class DateBox extends Box<'date'> {
     // (undocumented)
     datatype(): 'date';
     // (undocumented)
-    format(): string;
+    format(abbrev?: boolean): string;
     // (undocumented)
     isDate(): this is {
         value: DateValue;
