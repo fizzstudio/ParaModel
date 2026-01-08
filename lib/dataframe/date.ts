@@ -116,13 +116,16 @@ export function compareDateValues(lhs: DateValue, rhs: DateValue): boolean {
 
 const INTL_DAY = new Intl.DateTimeFormat('en-US', {year: 'numeric', month: 'numeric', day: 'numeric' });
 
-export function formatDateValue(dateVal: DateValue): string {
+export function formatDateValue(dateVal: DateValue, abbrev?: boolean): string {
   if (dateVal.type === 'date') {
     if (dateVal.duration.toString() === 'P1Y') {
       return `${dateVal.start.year}`;
     }
     if (dateVal.duration.toString() === 'P3M') {
       const quarterNumber = (dateVal.start.month - 1)/3;
+      if (abbrev) {
+        return `Q${quarterNumber+1} ${dateVal.start.year}`;
+      }
       const quarterOrdinal = ['first', 'second', 'third', 'fourth'][quarterNumber];
       return `the ${quarterOrdinal} quarter of ${dateVal.start.year}`;
     }

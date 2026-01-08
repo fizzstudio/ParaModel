@@ -59,7 +59,7 @@ export abstract class Box<T extends Datatype> {
 
   abstract asDate(): DateValue | null;
 
-  abstract format(): string;
+  abstract format(abbrev?: boolean): string;
 
   abstract datatype(): T;
 }
@@ -207,8 +207,8 @@ export class DateBox extends Box<'date'> {
     return this.value;
   }
 
-  public format(): string {
-    return formatDateValue(this.value);
+  public format(abbrev?: boolean): string {
+    return formatDateValue(this.value, abbrev);
   }
 
   public datatype(): 'date' {
