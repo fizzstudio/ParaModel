@@ -86,14 +86,18 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
 export abstract class Box<T extends Datatype> {
     constructor(raw: string);
     // (undocumented)
+    abstract asDate(): DateValue | null;
+    // (undocumented)
     abstract asNumber(): number | null;
     // (undocumented)
     abstract convertRaw(raw: string): ScalarMap[T];
     // (undocumented)
     abstract datatype(): T;
     // (undocumented)
+    abstract format(abbrev?: boolean): string;
+    // (undocumented)
     abstract isDate(): this is {
-        value: Temporal.PlainDateTime;
+        value: DateValue;
     };
     // (undocumented)
     abstract isEqual(other: Box<T>): boolean;
@@ -114,6 +118,9 @@ export abstract class Box<T extends Datatype> {
     // (undocumented)
     readonly value: ScalarMap[T];
 }
+
+// @public (undocumented)
+export function convertStandardFormatToDateValue(rfc9557iso8601: string): DateValue;
 
 // @public (undocumented)
 export class Datapoint {
@@ -147,14 +154,18 @@ export class Datapoint {
 // @public
 export class DateBox extends Box<'date'> {
     // (undocumented)
+    asDate(): DateValue;
+    // (undocumented)
     asNumber(): number;
     // (undocumented)
-    convertRaw(raw: string): Temporal.PlainDateTime;
+    convertRaw(raw: string): DateValue;
     // (undocumented)
     datatype(): 'date';
     // (undocumented)
+    format(abbrev?: boolean): string;
+    // (undocumented)
     isDate(): this is {
-        value: Temporal.PlainDateTime;
+        value: DateValue;
     };
     // (undocumented)
     isEqual(other: Box<'date'>): boolean;
@@ -169,6 +180,12 @@ export class DateBox extends Box<'date'> {
         value: string;
     };
 }
+
+// Warning: (ae-forgotten-export) The symbol "DatePeriod" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "RecurringPeriod" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export type DateValue = DatePeriod | RecurringPeriod;
 
 // @public (undocumented)
 export function enumerate<T>(iterable: Iterable<T>): [T, number][];
@@ -196,13 +213,15 @@ export function groupAdjacent<P>(points: P[], isStepBetween: (back: P, forward: 
 
 // @public
 export interface Intersection {
+    dependentValue: number;
     // Warning: (ae-forgotten-export) The symbol "Angle" needs to be exported by the entry point index.d.ts
     incomingAngle: null | Angle;
+    independentValue: number;
     outgoingAngle: null | Angle;
     record: {
-        labelValue: number | null;
-        beforeValue: number | null;
-        afterValue: number | null;
+        index: number | null;
+        beforeIndex: number | null;
+        afterIndex: number | null;
     };
     // Warning: (ae-forgotten-export) The symbol "SeriesPair" needs to be exported by the entry point index.d.ts
     //
@@ -212,7 +231,6 @@ export interface Intersection {
     //
     // (undocumented)
     transversality: Transverse;
-    value: number;
 }
 
 // @public (undocumented)
@@ -309,14 +327,18 @@ export function modelFromInlineData(manifest: Manifest): Model;
 // @public
 export class NumberBox extends Box<'number'> {
     // (undocumented)
+    asDate(): null;
+    // (undocumented)
     asNumber(): number;
     // (undocumented)
     convertRaw(raw: string): number;
     // (undocumented)
     datatype(): 'number';
     // (undocumented)
+    format(): string;
+    // (undocumented)
     isDate(): this is {
-        value: Temporal.PlainDateTime;
+        value: DateValue;
     };
     // (undocumented)
     isEqual(other: Box<'number'>): boolean;
@@ -357,6 +379,8 @@ export class PlaneModel extends Model {
     [i: number]: PlaneSeries;
     // (undocumented)
     atKey(key: string): PlaneSeries | null;
+    // (undocumented)
+    atKeyAndIndex(key: string, index: number): PlaneDatapoint | null;
     // (undocumented)
     readonly clusterOutliers: string[];
     // (undocumented)
@@ -464,6 +488,8 @@ export class Series {
     protected readonly depKey?: string | undefined;
     // (undocumented)
     facetAverage(key: string): number | null;
+    // (undocumented)
+    facetAverageOverInterval(key: string, startIndex: number, endIndex: number): number | null;
     // Warning: (ae-forgotten-export) The symbol "DataFrameColumn" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -510,14 +536,18 @@ export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
 // @public
 export class StringBox extends Box<'string'> {
     // (undocumented)
+    asDate(): null;
+    // (undocumented)
     asNumber(): null;
     // (undocumented)
     convertRaw(raw: string): string;
     // (undocumented)
     datatype(): 'string';
     // (undocumented)
+    format(): string;
+    // (undocumented)
     isDate(): this is {
-        value: Temporal.PlainDateTime;
+        value: DateValue;
     };
     // (undocumented)
     isEqual(other: Box<'string'>): boolean;
@@ -541,8 +571,10 @@ export interface TrackingGroup {
     averageLine: SeriesDatapoints;
     keys: string[];
     outliers: string[];
+    // Warning: (ae-forgotten-export) The symbol "IndexedPointInterval" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
-    valueInterval: [number, number];
+    valueInterval: IndexedPointInterval;
 }
 
 // @public (undocumented)

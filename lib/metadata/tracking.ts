@@ -16,6 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Line, type Interval, mapn } from '@fizz/chart-classifier-utils';
 import { AiLineIntersectionDetection } from './ai_pair_analyzer';
+import { IndexedPoint, IndexedPointInterval } from './pair_analyzer_interface';
 
 /**
  * An x-value interval on a chart and an associated pair of lines that
@@ -23,7 +24,7 @@ import { AiLineIntersectionDetection } from './ai_pair_analyzer';
  */
 interface TrackingPair {
   keyPair: [string, string];
-  interval: Interval;
+  interval: IndexedPointInterval;
 }
 
 function setEq<T>(s1: Set<T>, s2: Set<T>): boolean {
@@ -51,10 +52,14 @@ function getPairs<T>(items: T[]): [T, T][] {
   return pairs;
 }
 
-function mergeIntervals(inter1: Interval, inter2: Interval): Interval {
+function mergeIntervals(inter1: IndexedPointInterval, inter2: IndexedPointInterval): IndexedPointInterval {
+  const minStartX = Math.min(inter1.start.x, inter2.start.x);
+  const startPoint = inter1.start.x === minStartX ? inter1.start : inter2.start;
+  const maxEndX = Math.max(inter1.end.x, inter2.end.x);
+  const endPoint = inter1.end.x === maxEndX ? inter1.end : inter2.end;
   return {
-    start: Math.min(inter1.start, inter2.start),
-    end: Math.max(inter1.end, inter2.end)
+    start: startPoint,
+    end: endPoint
   }
 }
 
@@ -65,12 +70,12 @@ function intervalEq(inter1: Interval, inter2: Interval) {
 /**
  * NB: Also detects immediate adjacency
  */
-function isIntervalsOverlap(inter1: Interval, inter2: Interval) {
+function isIntervalsOverlap(inter1: IndexedPointInterval, inter2: IndexedPointInterval) {
   return (
-    inter1.start >= inter2.start &&
-    inter1.start <= inter2.end) || (
-    inter2.start >= inter1.start &&
-    inter2.start <= inter2.end)
+    inter1.start.x >= inter2.start.x &&
+    inter1.start.x <= inter2.end.x) || (
+    inter2.start.x >= inter1.start.x &&
+    inter2.start.x <= inter2.end.x)
 }
 
 /**
@@ -107,8 +112,11 @@ export class TrackingGroupBuilder {
    * Do not use; call TrackingGroup.getGroups() to create tracking groups.
    * @internal
    */
-  constructor(public keys: Set<string>, public interval: Interval, public seriesByKey: Map<string, Line>) {
-  }
+  constructor(
+    public keys: Set<string>, 
+    public interval: IndexedPointInterval, 
+    public seriesByKey: Map<string, Line>
+  ) { }
 
   /**
    * Compute tracking groups for the set of series of a chart.
@@ -140,7 +148,7 @@ export class TrackingGroupBuilder {
       const tps: TrackingPair[] = rts
         .filter(rt => 
           rt.type === 'tracking' && 
-          rt.interval.end - rt.interval.start >= allSeries[0].xRange()*minSize &&
+          rt.interval.end.x - rt.interval.start.x >= allSeries[0].xRange()*minSize &&
           rt.degree >= closeness)
         .map(rt => ({ keyPair, interval: rt.interval }));
       trackingPairs = trackingPairs.concat(tps);
@@ -153,8 +161,8 @@ export class TrackingGroupBuilder {
 
   private static createGroupsFromPairs(trackingPairs: TrackingPair[], seriesByKey: Map<string, Line>): TrackingGroupBuilder[] {
     // Collect intervals into a unique set
-    const intervals: Interval[] = [];
-    function interId(inter: Interval) {
+    const intervals: IndexedPointInterval[] = [];
+    function interId(inter: IndexedPointInterval) {
       return intervals.findIndex(i => i.start === inter.start && i.end === inter.end);
     }
     for (const tp of trackingPairs) {
@@ -226,8 +234,8 @@ export class TrackingGroupBuilder {
     let didSupplete = false;
     // Sort widest to narrowest
     groups.sort((a, b) => {
-      const aSize = a.interval.end - a.interval.start;
-      const bSize = b.interval.end - b.interval.start;
+      const aSize = a.interval.end.x - a.interval.start.x;
+      const bSize = b.interval.end.x - b.interval.start.x;
       return Math.sign(bSize - aSize);
     });
     for (let i = 0; i < groups.length; i++) {
@@ -238,7 +246,7 @@ export class TrackingGroupBuilder {
           // Make sure gi is either identical to or encloses gj
           continue;
         }
-        if (gi.interval.end - gi.interval.start === gj.interval.end - gj.interval.start) {
+        if (gi.interval.end.x - gi.interval.start.x === gj.interval.end.x - gj.interval.start.x) {
           const res1 = gi.supplete(gj);
           const res2 = gj.supplete(gi);
           didSupplete ||= res1 || res2;
@@ -326,8 +334,12 @@ export class TrackingGroupBuilder {
    * @returns The average line.
    */
   averageLine(): Line {
+    const interval: Interval = {
+      start: this.interval.start.x,
+      end: this.interval.end.x,
+    }
     const sections = Array.from(this.keys).map(key => 
-      this.seriesByKey.get(key)!.extractSection(this.interval)!);
+      this.seriesByKey.get(key)!.extractSection(interval)!);
     const nseries = sections.length;
     return new Line(mapn(sections[0].length, i => ({
       x: sections[0].points[i].x, 
@@ -364,11 +376,20 @@ export class TrackingZoneBuilder {
     const breaks: Set<number> = new Set();
     // get x-value breaks from tracking groups
     trackingGroups.forEach(z => {
-      breaks.add(z.interval.start);
-      breaks.add(z.interval.end);
+      breaks.add(z.interval.start.x);
+      breaks.add(z.interval.end.x);
     });
     // Remove bookend breaks
     const sortedBreaks = Array.from(breaks).sort().slice(1, -1);
+
+    // Helper function to extract indexed points from their 'x' values
+    // NOTE: Assumes model is univalent and has shared x-values
+    function getIndexedPoint(x: number): IndexedPoint {
+      const arbitraryGroup = trackingGroups[0];
+      const arbitraryLine = arbitraryGroup.seriesByKey.get(arbitraryGroup.keys.keys().next().value!)!;
+      const index = arbitraryLine.points.findIndex((point) => point.x === x);
+      return { x, y: arbitraryLine.points[index].y, index };
+    }
 
     // Compute non-overlapping intervals.
     // NB: This may contain intervals where no tracking is taking place
@@ -378,10 +399,14 @@ export class TrackingZoneBuilder {
     for (const interval of intervals) {
       let didCreateZone = false;
       for (const g of trackingGroups) {
-        if (g.interval.start <= interval.start && g.interval.end >= interval.end) {
+        if (g.interval.start.x <= interval.start && g.interval.end.x >= interval.end) {
           const zone = trackingZones.find(z => intervalEq(interval, z.interval));
+          const indexedInterval: IndexedPointInterval = {
+            start: getIndexedPoint(interval.start),
+            end: getIndexedPoint(interval.end)
+          }
           // Create a new tracking group object that can be suppleted if necessary
-          const newG: TrackingGroupBuilder = new TrackingGroupBuilder(new Set(g.keys), interval, g.seriesByKey);
+          const newG: TrackingGroupBuilder = new TrackingGroupBuilder(new Set(g.keys), indexedInterval, g.seriesByKey);
           if (!zone) {
             trackingZones.push(new TrackingZoneBuilder([newG], interval));
             didCreateZone = true;
