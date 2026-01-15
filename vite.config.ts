@@ -8,5 +8,12 @@ export default defineConfig({
       formats: ['es']
     }
   },
-  plugins: []
+  plugins: [],
+  test: {
+    browser: {
+      enabled: true,
+      name: 'chrome',
+      //headless: true, // set to false to watch in a real browser window
+    }
+  }
 })

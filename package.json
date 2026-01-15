@@ -1,6 +1,6 @@
 {
   "name": "@fizz/paramodel",
-  "version": "0.6.15",
+  "version": "0.6.18",
   "description": "Data Models for ParaCharts",
   "contributors": [
     "Simon Varey",
@@ -26,7 +26,6 @@
     "dev": "storybook dev --no-open",
     "build": "rimraf dist && tsc && vite build && api-extractor run --local --verbose",
     "test": "vitest",
-    "pretest": "npm run build",
     "coverage": "vitest run --coverage",
     "doc": "api-documenter markdown --input-folder ./temp --output-folder ./docs",
     "pubalpha": "npm version prerelease --preid alpha && npm publish --tag alpha",
@@ -46,8 +45,8 @@
   },
   "types": "./dist/paramodel.d.ts",
   "devDependencies": {
-    "@fizz/chart-data": "^2.3.1",
-    "@fizz/test-utils": "^0.4.3",
+    "@fizz/chart-data": "^2.3.8-alpha.1",
+    "@fizz/test-utils": "^0.4.4",
     "@microsoft/api-documenter": "^7.26.4",
     "@microsoft/api-extractor": "^7.49.0",
     "@storybook/addon-coverage": "^1.0.5",

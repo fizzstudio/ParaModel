@@ -16,7 +16,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Line, mapn, Point, PointInterval, slopeToAngle } from "@fizz/chart-classifier-utils";
 import { Overlap, SeriesPairMetadataAnalyzer, Intersection, Parallel, Pair, TrackingGroup, 
-  TrackingZone, Angle, Transverse} from "./pair_analyzer_interface";
+  TrackingZone, Angle, Transverse, 
+  IndexedPointInterval,
+  IndexedPoint} from "./pair_analyzer_interface";
 
 // Errors
 
@@ -72,7 +74,7 @@ export enum SegRelationship {
  */
 export interface IntersectionProperties {
   /** Point of intersection */
-  crosspoint: Point;
+  crosspoint: IndexedPoint;
   /** Angle of intersection */
   angle: number;
   /** Whether intersection occurs on a record */
@@ -87,7 +89,7 @@ export interface SegPairProperties {
   /** Index of segments in their series */
   i: number;
   /** The endpoints of each segment */
-  segs: [PointInterval, PointInterval];
+  segs: [IndexedPointInterval, IndexedPointInterval];
   /** Their relationship */
   relationship: SegRelationship;
   /** Segment slopes ???? */
@@ -127,8 +129,11 @@ type TransverseKind = 'cross' | 'touch' | 'edge';
  * @param {number} i The index of the segment in the series.
  * @returns {PointInterval} The segment at the index in the series (in terms of its start & end points).
  */
-function segAt(series: Line, i: number): PointInterval {
-  return {start: series.points[i], end: series.points[i + 1]};
+function segAt(series: Line, i: number): IndexedPointInterval {
+  return { 
+    start: { ...series.points[i], index: i }, 
+    end: { ...series.points[i + 1], index: i+1 }
+  };
 }
 
 // Main
@@ -228,7 +233,12 @@ export class BasicLineIntersectionDetection {
    * http://stackoverflow.com/a/565282/786339
    */
   // This is only public for testing
-  checkIntersection(seg1: PointInterval, seg2: PointInterval, yScale: number, i: number): SegPairProperties {
+  checkIntersection(
+    seg1: IndexedPointInterval, 
+    seg2: IndexedPointInterval, 
+    yScale: number, 
+    i: number
+  ): SegPairProperties {
     const slope1 = this.findSlope(seg1, yScale);
     const slope2 = this.findSlope(seg2, yScale);
 
@@ -302,7 +312,11 @@ export class BasicLineIntersectionDetection {
    * 
    * The rest of this function references the above formula fairly closely. 
    */
-  private calculateLineIntersectionPoints(seg1: PointInterval, seg2: PointInterval, segPairProps: SegPairProperties) {
+  private calculateLineIntersectionPoints(
+    seg1: IndexedPointInterval, 
+    seg2: IndexedPointInterval, 
+    segPairProps: SegPairProperties
+  ) {
   
     // A line segment A: (a1, a2) is equal to a1 + r where r is just the difference between 
     // our original poitns (a1 and a2)
@@ -353,11 +367,9 @@ export class BasicLineIntersectionDetection {
         // Calculate the intersection point and compare. They should be equal. 
         const intersection_point = this.addPoints(scaled_difference, seg1.start);
         
-        // console.log(`tr x = ${tr.x} us x = ${us.x} tr y = ${tr.y} us y = ${us.y} `);
-
         segPairProps.relationship = SegRelationship.Intersection;
         segPairProps.intersection = {
-          crosspoint: intersection_point,
+          crosspoint: { ...intersection_point, index: seg1.start.index },
           //NOTE: the left and right angles here will be the same
           angle: this.findAngle(segPairProps.slopes.a, segPairProps.slopes.b),
           atRecord: false
@@ -585,9 +597,9 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
             // Subsubcase: Independent intersection at record
             record = {
               // the exact record the intersection took place at
-              labelValue: isect.crosspoint.x,
-              beforeValue: null,
-              afterValue: null
+              index: isect.crosspoint.index,
+              beforeIndex: null,
+              afterIndex: null
             };
             // Subsubsubcase: Intersection is at first record
             if (isect.crosspoint.x === seriesA.points[0].x) {
@@ -609,7 +621,7 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
               inAngle = angle;
               outAngle = {
                 top: this.getTop(nextIntersectionDetails.segs, series, 'end'),
-                angle: (<IntersectionProperties>nextIntersectionDetails.intersection).angle, //TODO: explain cast
+                angle: (nextIntersectionDetails.intersection as IntersectionProperties).angle,
                 slope: {
                   [seriesA.key]: nextIntersectionDetails.slopes.a, 
                   [seriesB.key]: nextIntersectionDetails.slopes.b
@@ -620,10 +632,10 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
           // Subcase: Intersection is between records
           } else {
             record = {
-              labelValue: null,
-              // the intersection occurred between two record indexes, therefore the prior and post record labels are populated
-              beforeValue: intersectionDetails.segs[0].start.x,
-              afterValue: intersectionDetails.segs[0].end.x
+              index: null,
+              // the intersection occurred between two record indexes, therefore the prior and post record indexes are populated
+              beforeIndex: intersectionDetails.segs[0].start.index,
+              afterIndex: intersectionDetails.segs[0].end.index
             };
             inAngle = angle;
             outAngle = angle;
@@ -631,11 +643,13 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
             transversality = this.getTransversal(intersectionDetails.segs, series, 'middle')
           }
 
+          const crosspoint = (intersectionDetails.intersection as IntersectionProperties).crosspoint;
           this.intersections.push({
             // the record labels for the intersection
             record,
             // the value of the intersection point, in y-axis units
-            value: (<IntersectionProperties>intersectionDetails.intersection).crosspoint.y, // TODO: explain cast
+            dependentValue: crosspoint.y,
+            independentValue: crosspoint.x,
             // the list of series labels for all the series that participated in the intersection
             series,
             incomingAngle: this.generateAngleMetadata(inAngle, series) as Angle,
