@@ -50,7 +50,7 @@ import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, D
   Facet, Manifest, Theme } from "@fizz/paramanifest";
 import type { SeriesAnalysis, SeriesAnalyzer } from "@fizz/series-analyzer";
 
-import { arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
+import { addArrays, arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
 import { Box, BoxSet } from "../dataframe/box";
 import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, 
@@ -274,6 +274,7 @@ export class PlaneModel extends Model {
   protected _seriesAnalysisMap?: Record<string, SeriesAnalysis>;
   protected _seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
   protected _seriesLineMap: Record<string, Line> = {};
+  protected _summedSeriesAnalysis: Record<string, SeriesAnalysis> = {};
   protected _seriesAnalysisDone = false;
 
   /*public readonly xs: ScalarMap[X][];
@@ -350,20 +351,37 @@ export class PlaneModel extends Model {
     );*/
   }
 
-  private async generateSeriesAnalyses(): Promise<void> {
+  private async generateSeriesAnalyses(analyzeSum: boolean = true): Promise<void> {
     if (this._seriesAnalysisDone) {
       return;
     }
     const seriesAnalyzer = new this.seriesAnalyzerConstructor!();
     this._seriesAnalysisMap = {};
+    const dependentAxis = this.getAxisInterval(this.getAxisOrientation('dependent'))!;
     for (const seriesKey in this._seriesLineMap) {
       this._seriesAnalysisMap[seriesKey] = await seriesAnalyzer.analyzeSeries(
-        this._seriesLineMap[seriesKey], { 
-          useWorker: this._useWorker,
-          yAxis: this.getAxisInterval(this.getAxisOrientation('dependent'))!
-        }
-      );
+        this._seriesLineMap[seriesKey], {
+        useWorker: this._useWorker,
+        yAxis: dependentAxis
+      });
     }
+    if (Object.keys(this._seriesLineMap).length > 1) {
+      const xVals = Object.values(this._seriesLineMap)[0].points.map(p => p.x);
+      const summedVals = Object.values(this._seriesLineMap).reduce(
+        (acc, line) => addArrays(acc, line.points.map(p => p.y)),
+        Array(xVals.length).fill(0)).map((p, i) => { return { x: xVals[i], y: p } });
+      const line = new Line(summedVals, "sum");
+      const scaledAxis = {
+        start: dependentAxis.start,
+        end: Math.max(...summedVals.map(p => p.y))
+      };
+      this._summedSeriesAnalysis["sum"] = await seriesAnalyzer.analyzeSeries(
+        line, {
+        useWorker: this._useWorker,
+        yAxis: scaledAxis
+      }
+      );
+    } 
     this._seriesAnalysisDone = true;
   }
 
@@ -425,6 +443,18 @@ export class PlaneModel extends Model {
     }
     await this.generateSeriesAnalyses();
     return this._seriesAnalysisMap![key];
+  }
+
+  @Memoize()
+  public async getSummedAnalysis(): Promise<SeriesAnalysis | null> {
+    if (
+      this.type === 'scatter'
+      || !this.seriesAnalyzerConstructor
+    ) {
+      return null;
+    }
+    await this.generateSeriesAnalyses();
+    return this._summedSeriesAnalysis["sum"]
   }
 
   public isPlaneModel(): this is PlaneModel {

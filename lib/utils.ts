@@ -53,6 +53,17 @@ export function arrayEqualsBy<L, R>(by: (lhs: L, rhs: R) => boolean, lhs: L[], r
   return true;
 }
 
+export function addArrays(arr1: any, arr2: any) {
+  if (arr1.length !== arr2.length) {
+    return arr1;
+  }
+  const arr = [];
+  for (let i = 0; i < arr1.length; i++) {
+    arr.push(arr1[i] + arr2[i]);
+  }
+  return arr;
+}
+
 // Date Handling
 
 export function utcTimestampToPlainDateTime(utcTimestamp: number): Temporal.PlainDateTime {

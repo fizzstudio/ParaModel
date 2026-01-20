@@ -398,6 +398,8 @@ export class PlaneModel extends Model {
     // (undocumented)
     getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null>;
     // (undocumented)
+    getSummedAnalysis(): Promise<SeriesAnalysis | null>;
+    // (undocumented)
     readonly grouped: boolean;
     // (undocumented)
     horizontalAxisKey?: string;
@@ -427,6 +429,8 @@ export class PlaneModel extends Model {
     //
     // (undocumented)
     readonly seriesStatsScaledValues?: AllSeriesStatsScaledValues;
+    // (undocumented)
+    protected _summedSeriesAnalysis: Record<string, SeriesAnalysis>;
     // (undocumented)
     readonly trackingGroups: TrackingGroup[];
     // (undocumented)
