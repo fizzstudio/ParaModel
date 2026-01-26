@@ -60,7 +60,7 @@ function computeSegments(series: Line, stats: SeriesStats): SegmentInfo[] {
   }));
 }
 
-function volatility(series: Line, i: number, j: number, stats: SeriesStats): number {
+function variance(series: Line, i: number, j: number, stats: SeriesStats): number {
   if (i >= j){
     return 0;
   }
@@ -129,8 +129,8 @@ function volatility(series: Line, i: number, j: number, stats: SeriesStats): num
   const weights: Array<number> = [1 / 4, 1, 2, 3 / 4]
 
   //Average of the metrics, normalized by range of total dataset
-  const volatility = data.length < 3 ? 0 : (rSquared * weights[0] + averageSecondDifference * weights[1] + dCProportion * weights[2] + normalizedPoints * weights[3]) * data.yRange() / (4 * stats.range);
-  return volatility
+  const variance = data.length < 3 ? 0 : (rSquared * weights[0] + averageSecondDifference * weights[1] + dCProportion * weights[2] + normalizedPoints * weights[3]) * data.yRange() / (4 * stats.range);
+  return variance
 }
 
 function computeRuns(series: Line, stats: SeriesStats, segs: SegmentInfo[]): RunInfo[] {
@@ -141,7 +141,7 @@ function computeRuns(series: Line, stats: SeriesStats, segs: SegmentInfo[]): Run
     if (curDir !== last.direction) {
       last.end = i + 1;
       last.magnitude = magnitude(series, last.start!, last.end!, stats);
-      last.volatility = volatility(series, last.start!, last.end!, stats);
+      last.variance = variance(series, last.start!, last.end!, stats);
       last.area = segs.slice(last.start!, last.end! - 1).reduce((sum, s) => sum + s.area, 0);
       last = {start: i, direction: curDir};
       runs.push(last);
@@ -149,7 +149,7 @@ function computeRuns(series: Line, stats: SeriesStats, segs: SegmentInfo[]): Run
   }
   last.end = segs.length + 1;
   last.magnitude = magnitude(series, last.start!, last.end!, stats);
-  last.volatility = volatility(series, last.start!, last.end!, stats);
+  last.variance = variance(series, last.start!, last.end!, stats);
   last.area = segs.slice(last.start!, last.end! - 1).reduce((sum, s) => sum + s.area, 0);
   return runs as RunInfo[];
 }
@@ -180,8 +180,8 @@ export class BasicSingleSeriesAnalyzer implements SingleSeriesMetadataAnalyzer {
 
   /** Measure of variability in data */
   @Memoize()
-  getVolatility(): number {
-    return volatility(this.series, 0, this.series.length, this.getStats());
+  getVariance(): number {
+    return variance(this.series, 0, this.series.length, this.getStats());
   }
 
   /** Area under the series */

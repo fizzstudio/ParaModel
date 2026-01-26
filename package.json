@@ -75,11 +75,9 @@
     "@fizz/chart-message-candidates": "^0.28.1",
     "@fizz/number-scaling-rounding": "^0.5.2",
     "@fizz/paramanifest": "^0.9.0",
+    "@fizz/series-analyzer": "^0.13.9",
     "simple-statistics": "^7.8.8",
     "temporal-polyfill": "^0.3.0",
     "typescript-memoize": "^1.1.1"
-  },
-  "optionalDependencies": {
-    "@fizz/series-analyzer": "^0.13.8"
   }
 }
