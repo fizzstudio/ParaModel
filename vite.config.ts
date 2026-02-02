@@ -1,4 +1,11 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config';
+
+function externalize(id: string, _parentId: string | undefined, _isResolved: boolean) {
+  if (id.match(/paramanifest/)) {
+    return true;
+  }
+  return false;
+}
 
 export default defineConfig({
   build: {
@@ -6,6 +13,9 @@ export default defineConfig({
     lib: {
       entry: './lib/index.ts',
       formats: ['es']
+    },
+    rollupOptions: {
+      external: externalize
     }
   },
   plugins: [],
