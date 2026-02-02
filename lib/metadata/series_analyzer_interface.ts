@@ -114,7 +114,7 @@ export interface RunInfo {
   /** Value in range [0, 1]; percentage of series y-value range */
   magnitude: number;
   /** Measure of variability in data */
-  volatility: number;
+  variance: number;
   /** Area under the run */
   area: number;
 }
@@ -148,7 +148,7 @@ export interface SequenceInfo {
   /** Value in range [0, 1]; percentage of series y-value range */
   magnitude: number;
   /** Measure of variability in data */
-  volatility: number;
+  variance: number;
   /** Area under the sequence */
   area: number;
   /** Sequence message */
@@ -165,7 +165,7 @@ export interface SingleSeriesMetadataAnalyzer {
   /** Basic time series statistics */
   getStats(): SeriesStats;
   /** Measure of variability in data */
-  getVolatility(): number;
+  getVariance(): number;
   /** Area under the series */
   getArea(): number;
   /** Message of entire time series */

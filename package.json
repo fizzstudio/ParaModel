@@ -1,6 +1,6 @@
 {
   "name": "@fizz/paramodel",
-  "version": "0.6.20-alpha.0",
+  "version": "0.6.20",
   "description": "Data Models for ParaCharts",
   "contributors": [
     "Simon Varey",
@@ -80,6 +80,6 @@
     "typescript-memoize": "^1.1.1"
   },
   "optionalDependencies": {
-    "@fizz/series-analyzer": "^0.13.8"
+    "@fizz/series-analyzer": "^0.13.9"
   }
 }
