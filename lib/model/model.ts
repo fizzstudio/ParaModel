@@ -112,7 +112,7 @@ export class Model {
     this._dataset = manifest.datasets[0];
     this.title = this._dataset.title;
     this.description = this._dataset.description; // May be undefined
-    this.type = this._dataset.type;
+    this.type = this._dataset.representation.subtype;
     this.family = CHART_FAMILY_MAP[this.type];
     this._theme = this._dataset.chartTheme; // May be undefined 
 
