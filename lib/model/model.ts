@@ -47,7 +47,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from 'typescript-memoize';
 import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, 
-  Facet, Manifest, Theme } from "@fizz/paramanifest";
+  Facet, hasInlineData, Manifest, Settings, Topic } from "@fizz/paramanifest";
 import type { SeriesAnalysis, SeriesAnalyzer } from "@fizz/series-analyzer";
 
 import { addArrays, arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
@@ -61,7 +61,7 @@ import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone }
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import { Interval, Line } from '@fizz/chart-classifier-utils';
-import { synthesizeChartTheme, synthesizeSeriesTheme } from '../theme_synthesis';
+import { synthesizeChartTopic, synthesizeSeriesTopic } from '../topic_synthesis';
 
 // TODO: Remove these
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
@@ -90,7 +90,8 @@ export class Model {
   public readonly allPoints: Datapoint[] = [];
 
   protected _dataset: Dataset;
-  protected _theme?: Theme;
+  protected _topic?: Topic;
+  protected _settings?: Settings;
 
   protected _facetMap: Record<string, Facet> = {};
   protected _facetDatatypeMap: Record<string, Datatype> = {};
@@ -99,7 +100,7 @@ export class Model {
   protected _axisFacetKeys: string[] = [];
 
   protected _seriesMap: Record<string, Series> = {};
-  protected _seriesThemeMap: Record<string, Theme | undefined> = {};
+  protected _seriesTopicMap: Record<string, Topic | undefined> = {};
   protected _seriesLabelMap: Record<string, string> = {};
 
   constructor(public readonly series: Series[], manifest: Manifest) {
@@ -109,12 +110,13 @@ export class Model {
 
     // Whole Chart
     this.multi = this.series.length > 1;
-    this._dataset = manifest.datasets[0];
+    this._settings = manifest.extensions?.paracharts?.settings; // May be undefined
+    this._dataset = manifest.jim.datasets[0];
     this.title = this._dataset.title;
     this.description = this._dataset.description; // May be undefined
     this.type = this._dataset.representation.subtype;
     this.family = CHART_FAMILY_MAP[this.type];
-    this._theme = this._dataset.chartTheme; // May be undefined 
+    this._topic = this._dataset.topic; // May be undefined 
 
     // Facets
     this.facetSignatures = this.series[0].facetSignatures;
@@ -159,7 +161,7 @@ export class Model {
       Object.keys(this._uniqueValuesForFacet).forEach((facetKey) => {
         this._uniqueValuesForFacet[facetKey].merge(aSeries.allFacetValues(facetKey)!);
       });
-      this._seriesThemeMap[aSeries.key] = aSeries.manifest.theme; // May be undefined
+      this._seriesTopicMap[aSeries.key] = aSeries.manifest.topic; // May be undefined
     }
   }
 
@@ -202,21 +204,21 @@ export class Model {
   }
 
   @Memoize()
-  public hasExplictChartTheme(): boolean {
-    return this._theme !== undefined;
+  public hasExplictChartTopic(): boolean {
+    return this._topic !== undefined;
   }
 
   @Memoize()
-  public getChartTheme(): Theme {
-    return this._theme ?? synthesizeChartTheme(this);
+  public getChartTopic(): Topic {
+    return this._topic ?? synthesizeChartTopic(this);
   }
 
   @Memoize()
-  public getSeriesTheme(key: string): Theme | null {
+  public getSeriesTopic(key: string): Topic | null {
     if (this.atKey(key) === null) {
       return null;
     }
-    return this._seriesThemeMap[key] ?? synthesizeSeriesTheme(key, this);
+    return this._seriesTopicMap[key] ?? synthesizeSeriesTopic(key, this);
   }
 
   public isPlaneModel(): this is PlaneModel {
@@ -289,8 +291,6 @@ export class PlaneModel extends Model {
   ) {
     super(series, manifest);
 
-    this.grouped = this._dataset.seriesRelations === 'grouped'; // Defaults to 'stacked'
-
     this.facetKeys.forEach((key) => {
       const facetManifest = this._dataset.facets[key];
       if (facetManifest.displayType.type === 'axis') {
@@ -308,6 +308,11 @@ export class PlaneModel extends Model {
       this.horizontalAxisKey = this.independentAxisKey;
       this.verticalAxisKey = this.dependentAxisKey;
     }
+
+    this.grouped = this._dataset.representation.structure?.filter((structure) => 
+      structure.role === 'group'
+    ).at(0)?.facetKeys.includes(this.dependentAxisKey) ?? false;
+
     if (this.family === 'line' || this.family === 'bar' || this.family === 'histogram') {
       for (const series of (this.series as PlaneSeries[])) {
         this._seriesLineMap[series.key] = series.getActualLine();
@@ -421,8 +426,8 @@ export class PlaneModel extends Model {
       return null;
     }
     let { start, end } = naturalInterval;
-    const settingsMin = this._dataset.settings?.axis?.[facetKey as 'x' | 'y']?.minValue ?? 'unset';
-    const settingsMax = this._dataset.settings?.axis?.[facetKey as 'x' | 'y']?.maxValue ?? 'unset';
+    const settingsMin = this._settings?.axis?.[facetKey as 'x' | 'y']?.minValue ?? 'unset';
+    const settingsMax = this._settings?.axis?.[facetKey as 'x' | 'y']?.maxValue ?? 'unset';
     if (settingsMin !== 'unset') {
       start = settingsMin;
     }
@@ -488,10 +493,10 @@ function axesFromDataset(dataset: Dataset): { independentAxisKey?: string, depen
 }
 
 export function modelFromInlineData(manifest: Manifest): Model {
-  const dataset = manifest.datasets[0];
-  if (dataset.data.source !== 'inline') {
-    throw new Error('only manifests with inline data can use this method.');
+  if (!hasInlineData(manifest)) {
+    throw new Error('only manifests with inline data can use this function.');
   }
+  const dataset = manifest.jim.datasets[0];
   const facets = facetsFromDataset(dataset);
   const series = dataset.series.map((seriesManifest) => 
     seriesFromSeriesManifest(seriesManifest, facets)
@@ -500,9 +505,9 @@ export function modelFromInlineData(manifest: Manifest): Model {
 }
 
 export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): Model {
-  const facets = facetsFromDataset(manifest.datasets[0]);
+  const facets = facetsFromDataset(manifest.jim.datasets[0]);
   const series = Object.keys(data).map((key) => {
-    const seriesManifest = manifest.datasets[0].series.filter((s) => s.key === key)[0];
+    const seriesManifest = manifest.jim.datasets[0].series.filter((s) => s.key === key)[0];
     return new Series(seriesManifest, data[key], facets);
   });
   return new Model(series, manifest);
@@ -515,10 +520,10 @@ export function planeModelFromInlineData(
   pairAnalyzerConstructor?: PairAnalyzerConstructor,
   useWorker?: boolean
 ): PlaneModel {
-  const dataset = manifest.datasets[0];
-  if (dataset.data.source !== 'inline') {
+  if (!hasInlineData(manifest)) {
     throw new Error('only manifests with inline data can use this function.');
   }
+  const dataset = manifest.jim.datasets[0];
   const { independentAxisKey, dependentAxisKey } = axesFromDataset(dataset);
   if (!independentAxisKey || !dependentAxisKey) {
     throw new Error('only manifests with 2D axes can use this function.');
@@ -537,7 +542,7 @@ export function planeModelFromExternalData(
   pairAnalyzerConstructor?: PairAnalyzerConstructor,
   useWorker?: boolean
 ): PlaneModel {
-  const dataset = manifest.datasets[0];
+  const dataset = manifest.jim.datasets[0];
   const { independentAxisKey, dependentAxisKey } = axesFromDataset(dataset);
   if (!independentAxisKey || !dependentAxisKey) {
     throw new Error('only manifests with 2D axes can use this function.');

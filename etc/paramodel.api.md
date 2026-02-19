@@ -19,8 +19,9 @@ import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import type { SeriesAnalysis } from '@fizz/series-analyzer';
 import type { SeriesAnalyzer } from '@fizz/series-analyzer';
 import { SeriesManifest } from '@fizz/paramanifest';
+import { Settings } from '@fizz/paramanifest';
 import { Temporal } from 'temporal-polyfill';
-import { Theme } from '@fizz/paramanifest';
+import { Topic } from '@fizz/paramanifest';
 
 // Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts
 //
@@ -269,7 +270,7 @@ export class Model {
     // (undocumented)
     readonly family: ChartTypeFamily;
     // (undocumented)
-    getChartTheme(): Theme;
+    getChartTopic(): Topic;
     // (undocumented)
     getFacet(key: string): Facet | null;
     // (undocumented)
@@ -279,9 +280,9 @@ export class Model {
     // (undocumented)
     getFacetStats(key: string): FacetStats | null;
     // (undocumented)
-    getSeriesTheme(key: string): Theme | null;
+    getSeriesTopic(key: string): Topic | null;
     // (undocumented)
-    hasExplictChartTheme(): boolean;
+    hasExplictChartTopic(): boolean;
     // (undocumented)
     readonly independentFacetKeys: string[];
     // (undocumented)
@@ -305,11 +306,13 @@ export class Model {
     // (undocumented)
     protected _seriesMap: Record<string, Series>;
     // (undocumented)
-    protected _seriesThemeMap: Record<string, Theme | undefined>;
+    protected _seriesTopicMap: Record<string, Topic | undefined>;
     // (undocumented)
-    protected _theme?: Theme;
+    protected _settings?: Settings;
     // (undocumented)
     readonly title?: string;
+    // (undocumented)
+    protected _topic?: Topic;
     // (undocumented)
     readonly type: ChartType;
     // Warning: (ae-forgotten-export) The symbol "BoxSet" needs to be exported by the entry point index.d.ts
