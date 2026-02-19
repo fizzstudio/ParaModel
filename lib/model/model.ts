@@ -61,7 +61,7 @@ import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone }
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import { Interval, Line } from '@fizz/chart-classifier-utils';
-import { synthesizeChartTheme, synthesizeSeriesTheme } from '../theme_synthesis';
+import { synthesizeChartTopic, synthesizeSeriesTopic } from '../topic_synthesis';
 
 // TODO: Remove these
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
@@ -210,7 +210,7 @@ export class Model {
 
   @Memoize()
   public getChartTopic(): Topic {
-    return this._topic ?? synthesizeChartTheme(this);
+    return this._topic ?? synthesizeChartTopic(this);
   }
 
   @Memoize()
@@ -218,7 +218,7 @@ export class Model {
     if (this.atKey(key) === null) {
       return null;
     }
-    return this._seriesTopicMap[key] ?? synthesizeSeriesTheme(key, this);
+    return this._seriesTopicMap[key] ?? synthesizeSeriesTopic(key, this);
   }
 
   public isPlaneModel(): this is PlaneModel {
