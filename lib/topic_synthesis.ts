@@ -1,15 +1,9 @@
 import { BaseKind, Topic } from "@fizz/paramanifest";
+import { uncapitalize } from "@fizz/templum";
 import { Model } from "./model/model";
 
-function decapitalize(titleStr: string): string {
-  if (titleStr === '') {
-    return '';
-  }
-  return titleStr[0].toLowerCase() + titleStr.slice(1);
-}
-
 function synthesizeTopicFromLabel(label: string, baseKind: BaseKind): Topic {
-  let baseQuantity = decapitalize(label);
+  let baseQuantity = uncapitalize(label);
   if (baseKind === 'proportion' && baseQuantity.startsWith('proportion of ')) {
     baseQuantity = baseQuantity.slice('proportion of '.length);
   }

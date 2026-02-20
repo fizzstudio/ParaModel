@@ -27,7 +27,7 @@ export class ModelPicker extends ManifestPicker {
   private model?: Model;
 
   protected async onManifestLoad(): Promise<void> {
-    if (isPastryType(this.manifest!.datasets[0].type)) {
+    if (isPastryType(this.manifest!.jim.datasets[0].representation.subtype)) {
       this.model = modelFromInlineData(this.manifest!);
     } else {
       this.model = planeModelFromInlineData(this.manifest!, SeriesAnalyzer, AiSeriesPairMetadataAnalyzer);

@@ -23,7 +23,7 @@
   "homepage": "https://github.com/fizzstudio/paramodel#readme",
   "type": "module",
   "scripts": {
-    "dev": "storybook dev --no-open",
+    "dev": "storybook dev --no-open -p 5175",
     "build": "rimraf dist && tsc && vite build && api-extractor run --local --verbose",
     "test": "vitest",
     "coverage": "vitest run --coverage",
@@ -46,7 +46,7 @@
   "types": "./dist/paramodel.d.ts",
   "devDependencies": {
     "@fizz/chart-data": "^2.5.0",
-    "@fizz/test-utils": "^0.4.4",
+    "@fizz/test-utils": "^0.4.6",
     "@microsoft/api-documenter": "^7.26.4",
     "@microsoft/api-extractor": "^7.49.0",
     "@storybook/addon-coverage": "^1.0.5",
@@ -74,7 +74,8 @@
     "@fizz/chart-classifier-utils": "^0.16.1",
     "@fizz/chart-message-candidates": "^0.28.1",
     "@fizz/number-scaling-rounding": "^0.5.2",
-    "@fizz/paramanifest": "^0.11.1",
+    "@fizz/paramanifest": "^0.11.2",
+    "@fizz/templum": "^0.4.6",
     "simple-statistics": "^7.8.8",
     "temporal-polyfill": "^0.3.0",
     "typescript-memoize": "^1.1.1"
