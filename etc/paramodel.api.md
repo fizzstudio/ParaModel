@@ -7,6 +7,7 @@
 import { AllSeriesData } from '@fizz/paramanifest';
 import { ChartType } from '@fizz/paramanifest';
 import { ChartTypeFamily } from '@fizz/paramanifest';
+import { clusterObject } from '@fizz/clustering';
 import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
 import { DisplayType } from '@fizz/paramanifest';
@@ -385,11 +386,15 @@ export class PlaneModel extends Model {
     // (undocumented)
     atKeyAndIndex(key: string, index: number): PlaneDatapoint | null;
     // (undocumented)
+    protected _clusterAnalysis: clusterObject[] | null;
+    // (undocumented)
     readonly clusterOutliers: string[];
     // (undocumented)
     readonly clusters: string[][];
     // (undocumented)
     dependentAxisKey?: string;
+    // (undocumented)
+    getAllPointsCorrellation(): number;
     // (undocumented)
     getAxisFacet(orientation: AxisOrientation): Facet | null;
     // (undocumented)
@@ -398,6 +403,8 @@ export class PlaneModel extends Model {
     getAxisOrientation(depIndep: 'dependent' | 'independent'): AxisOrientation;
     // (undocumented)
     getChordAt(facetKey: string, value: Box<Datatype>): Datapoint[] | null;
+    // (undocumented)
+    getClusteringAnalysis(): Promise<clusterObject[] | null>;
     // (undocumented)
     getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null>;
     // (undocumented)
