@@ -237,6 +237,8 @@ export interface Intersection {
 
 // @public (undocumented)
 export class Model {
+    // (undocumented)
+    [Symbol.iterator](): ArrayIterator<Series>;
     constructor(series: Series[], manifest: Manifest);
     // (undocumented)
     [i: number]: Series;
@@ -378,6 +380,8 @@ export class PlaneDatapoint extends Datapoint {
 
 // @public (undocumented)
 export class PlaneModel extends Model {
+    // (undocumented)
+    [Symbol.iterator]: () => ArrayIterator<PlaneSeries>;
     constructor(series: PlaneSeries[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined, pairAnalyzerConstructor?: PairAnalyzerConstructor, _useWorker?: boolean);
     // (undocumented)
     [i: number]: PlaneSeries;
@@ -464,6 +468,8 @@ export class PlaneSeries extends Series {
     // (undocumented)
     [i: number]: PlaneDatapoint;
     // (undocumented)
+    addIntersections(allIntersections: Intersection[]): void;
+    // (undocumented)
     protected constructDatapoint(data: DataFrameRow, seriesKey: string, datapointIndex: number): Datapoint;
     // (undocumented)
     datapoints: PlaneDatapoint[];
@@ -475,6 +481,8 @@ export class PlaneSeries extends Series {
     getIndepAverage(): number;
     // (undocumented)
     indepKey: string;
+    // (undocumented)
+    intersections: Intersection[];
 }
 
 // @public (undocumented)
