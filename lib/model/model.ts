@@ -253,11 +253,16 @@ export class Model {
     }
     return this.atKey(key)!;
   }
-}
 
+  [Symbol.iterator](): ArrayIterator<Series> {
+    return this.series.values()
+  }
+}
+const i = [][Symbol.iterator]
 export class PlaneModel extends Model {
   declare series: PlaneSeries[];
   [i: number]: PlaneSeries;
+  declare [Symbol.iterator]: () => ArrayIterator<PlaneSeries>;
 
   public readonly grouped: boolean;
 
@@ -329,6 +334,7 @@ export class PlaneModel extends Model {
           yAxisInterval.end
         );
         this.intersections = this._seriesPairAnalyzer.getIntersections();
+        this._addSeriesIntersections();
         this.clusters = this._seriesPairAnalyzer.getClusters();
         this.clusterOutliers = this._seriesPairAnalyzer.getClusterOutliers();
         this.trackingGroups = this._seriesPairAnalyzer.getTrackingGroups();
@@ -523,6 +529,12 @@ export class PlaneModel extends Model {
     }
     return this.series.map((series) => series.datapointAt(facetKey, value))
       .filter((datapoint) => datapoint !== null);
+  }
+
+  private _addSeriesIntersections(): void {
+    for (const series of this) {
+      series.addIntersections(this.intersections);
+    }
   }
 }
 

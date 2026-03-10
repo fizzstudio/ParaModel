@@ -24,6 +24,7 @@ import { Memoize } from "typescript-memoize";
 import { Line } from "@fizz/chart-classifier-utils";
 import { Datapoint, PlaneDatapoint } from '../model/datapoint';
 import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { Intersection } from '../metadata/pair_analyzer_interface';
 
 export class Series {
   [i: number]: Datapoint;
@@ -162,7 +163,9 @@ export class PlaneSeries extends Series {
   declare datapoints: PlaneDatapoint[];
   declare indepKey: string;
   declare depKey: string;
-  
+
+  public intersections: Intersection[] = [];
+   
   /*protected xMap: Map<ScalarMap[X], number[]>;
   private yMap: Map<number, ScalarMap[X][]>;*/
 
@@ -195,6 +198,15 @@ export class PlaneSeries extends Series {
   @Memoize()
   public getIndepAverage(): number {
     return this.facetAverage(this.indepKey)!;
+  }
+
+  public addIntersections(allIntersections: Intersection[]): void {
+    for (const intersect of allIntersections) {
+      if (intersect.series.includes(this.key)) {
+        this.intersections.push(intersect);
+      }
+    }
+    this.intersections.sort((a, b) => a.independentValue - b.independentValue);
   }
 
   // TODO: Add This
