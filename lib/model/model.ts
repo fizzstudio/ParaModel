@@ -386,13 +386,11 @@ export class PlaneModel extends Model {
   }
 
   getAllPointsCorrellation() {
-    let xArray = []
-    let yArray = []
-    let totalArray = []
+    const xArray = [];
+    const yArray = [];
     for (let point of this.allPoints) {
       xArray.push(point.facetValue("x"))!
       yArray.push(point.facetValue('y'))!
-      totalArray.push([point.facetValue("x"), point.facetValue('y')])
     }
     return sampleCorrelation(xArray as number[], yArray as number[])
   }
