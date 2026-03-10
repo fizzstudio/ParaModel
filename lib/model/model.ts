@@ -62,6 +62,8 @@ import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer
 import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import { Interval, Line } from '@fizz/chart-classifier-utils';
 import { synthesizeChartTopic, synthesizeSeriesTopic } from '../topic_synthesis';
+import { clusterObject, coord, generateClusterAnalysis } from '@fizz/clustering';
+import { sampleCorrelation } from 'simple-statistics';
 
 // TODO: Remove these
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
@@ -277,6 +279,7 @@ export class PlaneModel extends Model {
   protected _seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
   protected _seriesLineMap: Record<string, Line> = {};
   protected _summedSeriesAnalysis: Record<string, SeriesAnalysis> = {};
+  protected _clusterAnalysis: clusterObject[] | null = null;
   protected _seriesAnalysisDone = false;
 
   /*public readonly xs: ScalarMap[X][];
@@ -354,6 +357,44 @@ export class PlaneModel extends Model {
       (lhs: Box<'number'>, rhs: Box<'number'>) => lhs.raw === rhs.raw,
       ...this.series.map((series) => series.boxedYs)
     );*/
+  }
+
+  private generateClusterAnalysis() {
+    if (this._clusterAnalysis !== null) {
+      return
+    }
+    const data: Array<coord> = [];
+    const seriesList = this.series;
+    for (const series of seriesList) {
+      for (let i = 0; i < series.length; i++) {
+        data.push({ x: Number(series.rawData[i].x), y: Number(series.rawData[i].y) });
+      }
+    }
+    const labels: string[] = [];
+    if (seriesList.length > 1) {
+      for (const series of seriesList) {
+        for (let i = 0; i < series.length; i++) {
+          labels.push(series[i].seriesKey);
+        }
+      }
+    }
+    if (this.numSeries > 1) {
+      return generateClusterAnalysis(data, true, labels);
+    } else {
+      return generateClusterAnalysis(data, false);
+    }
+  }
+
+  getAllPointsCorrellation() {
+    let xArray = []
+    let yArray = []
+    let totalArray = []
+    for (let point of this.allPoints) {
+      xArray.push(point.facetValue("x"))!
+      yArray.push(point.facetValue('y'))!
+      totalArray.push([point.facetValue("x"), point.facetValue('y')])
+    }
+    return sampleCorrelation(xArray as number[], yArray as number[])
   }
 
   private async generateSeriesAnalyses(analyzeSum: boolean = true): Promise<void> {
@@ -460,6 +501,17 @@ export class PlaneModel extends Model {
     }
     await this.generateSeriesAnalyses();
     return this._summedSeriesAnalysis["sum"]
+  }
+
+  @Memoize()
+  public async getClusteringAnalysis(): Promise<clusterObject[] | null> {
+    if (
+      this.type !== 'scatter'
+    ) {
+      return null;
+    }
+    let clusterAnalysis = this.generateClusterAnalysis()!
+    return clusterAnalysis
   }
 
   public isPlaneModel(): this is PlaneModel {
