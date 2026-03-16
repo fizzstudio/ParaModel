@@ -14,12 +14,14 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { customElement } from "lit/decorators.js";
-import { ManifestPicker, ManifestPickerProps } from "@fizz/test-utils";
-import { isPastryType } from "@fizz/paramanifest";
 import { html, TemplateResult } from "lit";
-import { AiSeriesPairMetadataAnalyzer, Model, modelFromInlineData, PlaneModel, planeModelFromInlineData } from "../../lib/index";
+import { customElement } from "lit/decorators.js";
+
+import { ManifestPicker, ManifestPickerProps } from "@fizz/test-utils";
+import { manifestIsPlaneType } from "@fizz/paramanifest";
 import { SeriesAnalyzer } from "@fizz/series-analyzer";
+
+import { AiSeriesPairMetadataAnalyzer, Model, PlaneModel, modelFromInlineManifest } from "../../lib/index";
 
 @customElement('model-picker')
 export class ModelPicker extends ManifestPicker {
@@ -27,11 +29,8 @@ export class ModelPicker extends ManifestPicker {
   private model?: Model;
 
   protected async onManifestLoad(): Promise<void> {
-    if (isPastryType(this.manifest!.jim.datasets[0].representation.subtype)) {
-      this.model = modelFromInlineData(this.manifest!);
-    } else {
-      this.model = planeModelFromInlineData(this.manifest!, SeriesAnalyzer, AiSeriesPairMetadataAnalyzer);
-      // Just to trigger series analyses
+    this.model = modelFromInlineManifest(this.manifest!, SeriesAnalyzer, AiSeriesPairMetadataAnalyzer);
+    if (manifestIsPlaneType(this.manifest!)) {
       const _ = await (this.model as PlaneModel).getSeriesAnalysis(this.model.seriesKeys[0]);
     }
   }

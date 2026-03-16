@@ -15,8 +15,10 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import * as ss from 'simple-statistics';
-import { PlaneSeries } from '../model/series';
+
 import { OrderOfMagnitude, scaleAndRound, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+
+import { PlaneSeries } from '../model/series';
 import { Intersection } from './pair_analyzer_interface';
 import { Datapoint } from '../model/datapoint';
 

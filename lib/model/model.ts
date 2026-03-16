@@ -46,8 +46,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
   }*/
 
 import { Memoize } from 'typescript-memoize';
+
 import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, 
-  Facet, hasInlineData, isPlaneType, Manifest, Settings, Topic } from "@fizz/paramanifest";
+  Facet, hasInlineData, Manifest, manifestIsPlaneType, Settings, Topic } from "@fizz/paramanifest";
 import type { SeriesAnalysis, SeriesAnalyzer } from "@fizz/series-analyzer";
 
 import { addArrays, arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
@@ -626,10 +627,8 @@ export function modelFromInlineManifest(
   if (!hasInlineData(manifest)) {
     throw new Error('only manifests with inline data can use this function.');
   }
-  const dataset = manifest.jim.datasets[0];
-  if (isPlaneType(dataset.representation.subtype)) {
+  if (manifestIsPlaneType(manifest)) {
     return planeModelFromInlineData(manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
   }
-
   return modelFromInlineData(manifest);
 }

@@ -75,7 +75,7 @@
     "@fizz/chart-message-candidates": "^0.28.1",
     "@fizz/clustering": "^0.16.0",
     "@fizz/number-scaling-rounding": "^0.5.2",
-    "@fizz/paramanifest": "^0.11.2",
+    "@fizz/paramanifest": "^0.11.4",
     "@fizz/templum": "^0.4.6",
     "simple-statistics": "^7.8.8",
     "temporal-polyfill": "^0.3.0",

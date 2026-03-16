@@ -17,7 +17,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import { Datatype } from "@fizz/paramanifest";
 
 import { ParaModelError } from "../utils";
-import { compareDateValues, convertStandardFormatToDateValue, DateValue, formatDateValue, parseDateToStandardFormat } from "./date";
+import { compareDateValues, convertStandardFormatToDateValue, DateValue, formatDateValue, 
+  parseDateToStandardFormat } from "./date";
 
 // TODO: This type lacks a completeness type check. This could be implemented by testing in Vitest
 // that `keyof ScalarMap extends Datatype` and vice versa and `ScalarMap[Datatype] extends Scalar` 

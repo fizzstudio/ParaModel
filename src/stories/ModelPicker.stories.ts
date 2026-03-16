@@ -17,11 +17,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import type { Meta, StoryObj } from '@storybook/web-components';
 
 import { type CatalogListing } from '@fizz/chart-data';
+import { ManifestPickerProps } from '@fizz/test-utils';
+
+import { ModelPickerMaker } from './ModelPicker';
 
 import CATALOG from '../../node_modules/@fizz/chart-data/data/chart_catalog.json'; 
-
-import { ManifestPickerProps } from '@fizz/test-utils';
-import { ModelPickerMaker } from './ModelPicker';
 
 const FILENAMES = (CATALOG as CatalogListing[]).map((listing) => listing.path);
 
