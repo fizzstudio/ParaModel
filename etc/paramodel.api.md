@@ -330,6 +330,9 @@ export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): 
 // @public (undocumented)
 export function modelFromInlineData(manifest: Manifest): Model;
 
+// @public (undocumented)
+export function modelFromInlineManifest(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean): Model;
+
 // @public
 export class NumberBox extends Box<'number'> {
     // (undocumented)

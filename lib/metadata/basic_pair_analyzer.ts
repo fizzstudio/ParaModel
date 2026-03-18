@@ -16,9 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Line, mapn, Point, PointInterval, slopeToAngle } from "@fizz/chart-classifier-utils";
 import { Overlap, SeriesPairMetadataAnalyzer, Intersection, Parallel, Pair, TrackingGroup, 
-  TrackingZone, Angle, Transverse, 
-  IndexedPointInterval,
-  IndexedPoint} from "./pair_analyzer_interface";
+  TrackingZone, Angle, Transverse, IndexedPointInterval, IndexedPoint} from "./pair_analyzer_interface";
 
 // Errors
 

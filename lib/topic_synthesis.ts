@@ -1,5 +1,6 @@
 import { BaseKind, Topic } from "@fizz/paramanifest";
 import { uncapitalize } from "@fizz/templum";
+
 import { Model } from "./model/model";
 
 function synthesizeTopicFromLabel(label: string, baseKind: BaseKind): Topic {
