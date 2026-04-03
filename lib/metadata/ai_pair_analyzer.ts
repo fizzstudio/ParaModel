@@ -17,7 +17,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import * as ss from 'simple-statistics';
 import { Interval, Line } from "@fizz/chart-classifier-utils";
 import { Breakdancer } from '@fizz/breakdancer';
-import { classifySlope } from "@fizz/chart-message-candidates";
 
 import { IndexedPointInterval, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from "./pair_analyzer_interface";
 import { BasicLineIntersectionDetection, BasicSeriesPairMetadataAnalyzer, IntersectionProperties } from "./basic_pair_analyzer";
@@ -82,7 +81,7 @@ export class AiLineIntersectionDetection extends BasicLineIntersectionDetection 
     // slope classification performed in the same coordinate system.
     const proj = this.differentialLine.project(undefined, yAxis);
     const slopeInfo = seqs.map(
-      ({start, end}) => classifySlope(proj.slice(start, end)));
+      ({start, end}) => bd.classifySlope(proj.slice(start, end)));
     for (let i = 0; i < seqs.length; i++) {
       const si = slopeInfo[i];
       if (si.classes.length === 2) {

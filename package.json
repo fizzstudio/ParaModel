@@ -70,9 +70,8 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@fizz/breakdancer": "^0.24.0",
+    "@fizz/breakdancer": "^0.26.0",
     "@fizz/chart-classifier-utils": "^0.16.1",
-    "@fizz/chart-message-candidates": "^0.28.1",
     "@fizz/clustering": "^0.16.0",
     "@fizz/number-scaling-rounding": "^0.5.2",
     "@fizz/paramanifest": "^0.11.4",
@@ -82,6 +81,6 @@
     "typescript-memoize": "^1.1.1"
   },
   "optionalDependencies": {
-    "@fizz/series-analyzer": "^0.14.0"
+    "@fizz/series-analyzer": "^0.15.0"
   }
 }
