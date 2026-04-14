@@ -1,5 +1,5 @@
 import { Line, Point } from "@fizz/chart-classifier-utils";
-import * as ss from 'simple-statistics';
+import * as ss from '@fizz/simple-statistics';
 
 import { Category, RunInfo, SegmentInfo, SequenceInfo, SeriesStats, SingleSeriesMetadataAnalyzer } from "./series_analyzer_interface";
 import { Memoize } from "typescript-memoize";
