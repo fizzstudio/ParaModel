@@ -17,7 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import { Line } from '@fizz/chart-classifier-utils';
 import { findSplitIndex } from '@fizz/breakdancer';
 
-import * as stat from 'simple-statistics';
+import * as stat from '@fizz/simple-statistics';
 
 const MIN_POINTS = 2;
 const NOISE = -1;
