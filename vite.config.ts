@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitest/config';
 
 function externalize(id: string, _parentId: string | undefined, _isResolved: boolean) {
-  if (id.match(/paramanifest/)) {
+  if (id.match(/paramanifest/) || id === '@fizz/js-stats') {
     return true;
   }
   return false;

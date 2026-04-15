@@ -49,7 +49,7 @@ import { Memoize } from 'typescript-memoize';
 
 import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, 
   Facet, hasInlineData, Manifest, manifestIsPlaneType, Settings, Topic } from "@fizz/paramanifest";
-import type { SeriesAnalysis, SeriesAnalyzer } from "@fizz/series-analyzer";
+import type { SeriesAnalysis, SeriesAnalysisOpts, SeriesAnalyzer } from "@fizz/series-analyzer";
 
 import { addArrays, arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
@@ -64,7 +64,7 @@ import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-roun
 import { Interval, Line } from '@fizz/chart-classifier-utils';
 import { synthesizeChartTopic, synthesizeSeriesTopic } from '../topic_synthesis';
 import { clusterObject, coord, generateClusterAnalysis } from '@fizz/clustering';
-import { sampleCorrelation } from 'simple-statistics';
+import { sampleCorrelation } from '@fizz/simple-statistics';
 
 // TODO: Remove these
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
@@ -402,7 +402,7 @@ export class PlaneModel extends Model {
     return sampleCorrelation(xArray as number[], yArray as number[])
   }
 
-  private async generateSeriesAnalyses(analyzeSum: boolean = true): Promise<void> {
+  private async generateSeriesAnalyses(analyzeSum: boolean = true, options?: SeriesAnalysisOpts): Promise<void> {
     if (this._seriesAnalysisDone) {
       return;
     }
@@ -413,7 +413,8 @@ export class PlaneModel extends Model {
       this._seriesAnalysisMap[seriesKey] = await seriesAnalyzer.analyzeSeries(
         this._seriesLineMap[seriesKey], {
         useWorker: this._useWorker,
-        yAxis: dependentAxis
+        yAxis: dependentAxis,
+        ...options
       });
     }
     if (Object.keys(this._seriesLineMap).length > 1) {
@@ -484,7 +485,7 @@ export class PlaneModel extends Model {
   }
 
   @Memoize()
-  public async getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null> {
+  public async getSeriesAnalysis(key: string, options?: SeriesAnalysisOpts): Promise<SeriesAnalysis | null> {
     if (
       this.type === 'scatter' 
       || !this.seriesAnalyzerConstructor
@@ -492,7 +493,7 @@ export class PlaneModel extends Model {
     ) {
       return null;
     }
-    await this.generateSeriesAnalyses();
+    await this.generateSeriesAnalyses(undefined, options);
     return this._seriesAnalysisMap![key];
   }
 

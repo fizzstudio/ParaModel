@@ -1,6 +1,6 @@
 {
   "name": "@fizz/paramodel",
-  "version": "0.8.1-alpha.0",
+  "version": "0.8.1",
   "description": "Data Models for ParaCharts",
   "contributors": [
     "Simon Varey",
@@ -70,17 +70,16 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@fizz/breakdancer": "^0.26.0",
-    "@fizz/chart-classifier-utils": "^0.16.1",
+    "@fizz/breakdancer": "^0.27.2",
+    "@fizz/chart-classifier-utils": "^0.17.0",
     "@fizz/clustering": "^0.16.0",
     "@fizz/number-scaling-rounding": "^0.5.2",
     "@fizz/paramanifest": "^0.11.4",
     "@fizz/templum": "^0.4.6",
-    "simple-statistics": "^7.8.8",
     "temporal-polyfill": "^0.3.0",
     "typescript-memoize": "^1.1.1"
   },
   "optionalDependencies": {
-    "@fizz/series-analyzer": "^0.15.0"
+    "@fizz/series-analyzer": "^0.15.1"
   }
 }

@@ -18,6 +18,7 @@ import { Manifest } from '@fizz/paramanifest';
 import { Point } from '@fizz/chart-classifier-utils';
 import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import type { SeriesAnalysis } from '@fizz/series-analyzer';
+import type { SeriesAnalysisOpts } from '@fizz/series-analyzer';
 import type { SeriesAnalyzer } from '@fizz/series-analyzer';
 import { SeriesManifest } from '@fizz/paramanifest';
 import { Settings } from '@fizz/paramanifest';
@@ -413,7 +414,7 @@ export class PlaneModel extends Model {
     // (undocumented)
     getClusteringAnalysis(): Promise<clusterObject[] | null>;
     // (undocumented)
-    getSeriesAnalysis(key: string): Promise<SeriesAnalysis | null>;
+    getSeriesAnalysis(key: string, options?: SeriesAnalysisOpts): Promise<SeriesAnalysis | null>;
     // (undocumented)
     getSummedAnalysis(): Promise<SeriesAnalysis | null>;
     // (undocumented)
