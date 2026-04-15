@@ -41,10 +41,16 @@ export type DateValue = DatePeriod | RecurringPeriod;
 const QUARTER_START_MONTHS = ['01', '04', '07', '10'];
 
 // @simonvarey: This is a temp fix until ParaLoader outputs standard datetime strings
-type DurationName = 'year' | 'quarter' | 'day';
+type DurationName = 'year' | 'quarter' | 'month' | 'day';
+const DURATION_CODES: Record<string, DurationName> = {
+  Q: 'quarter', // Q4 '11
+  M: 'month', // M202510
+  D: 'day' // D20191231
+}
 const DURATIONS: Record<DurationName, string> = {
   year: '1Y',
   quarter: '3M',
+  month: '1M',
   day: '1D'
 }
 
@@ -53,9 +59,7 @@ export function parseDateToStandardFormat(input: string): string | null {
   let yearNumber = parseFloat(input);
   let monthstr = '01';
   let dayStr = '01';
-  const duration: DurationName = input[0] === 'Q' ? 'quarter' : (
-    input[0] === 'D' ? 'day' : 'year'
-  );
+  const duration: DurationName = DURATION_CODES[input[0]] ?? 'year';
   if (duration === 'quarter') {
     const quarterNumber = parseInt(input[1]) - 1;
     if (input[3] === "'") {
@@ -67,6 +71,10 @@ export function parseDateToStandardFormat(input: string): string | null {
       return null;
     }
     monthstr = QUARTER_START_MONTHS[quarterNumber];
+  }
+  if (duration === 'month') {
+    yearNumber = parseInt(input.slice(1, 5));
+    monthstr = input.slice(5, 7);
   }
   if (duration === 'day') {
     yearNumber = parseInt(input.slice(1, 5));
@@ -115,6 +123,7 @@ export function compareDateValues(lhs: DateValue, rhs: DateValue): boolean {
 // Printing
 
 const INTL_DAY = new Intl.DateTimeFormat('en-US', {year: 'numeric', month: 'numeric', day: 'numeric' });
+const INTL_MONTH = new Intl.DateTimeFormat('en-US', {year: 'numeric', month: 'long' });
 
 export function formatDateValue(dateVal: DateValue, abbrev?: boolean): string {
   if (dateVal.type === 'date') {
@@ -128,6 +137,9 @@ export function formatDateValue(dateVal: DateValue, abbrev?: boolean): string {
       }
       const quarterOrdinal = ['first', 'second', 'third', 'fourth'][quarterNumber];
       return `the ${quarterOrdinal} quarter of ${dateVal.start.year}`;
+    }
+    if (dateVal.duration.toString() === 'P1M') {
+      return INTL_MONTH.format(dateVal.start);
     }
     return INTL_DAY.format(dateVal.start);
   }
