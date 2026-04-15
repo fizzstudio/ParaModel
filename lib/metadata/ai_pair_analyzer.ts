@@ -76,7 +76,7 @@ export class AiLineIntersectionDetection extends BasicLineIntersectionDetection 
   getRelativeTrajectories(yAxis: Interval) {
     const relativeTrajectories: RelativeTrajectory[] = [];
     const bd = new Breakdancer();
-    const seqs = bd.getSequences(this.differentialLine, yAxis);
+    const seqs = bd.getSequences(this.differentialLine, {yAxis: yAxis}).bestSeqs;
     // Project so that all possible series pairs for a chart get
     // slope classification performed in the same coordinate system.
     const proj = this.differentialLine.project(undefined, yAxis);
