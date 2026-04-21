@@ -76,10 +76,11 @@ export class AiLineIntersectionDetection extends BasicLineIntersectionDetection 
   getRelativeTrajectories(yAxis: Interval) {
     const relativeTrajectories: RelativeTrajectory[] = [];
     const bd = new Breakdancer();
-    const seqs = bd.getSequences(this.differentialLine, {yAxis: yAxis}).bestSeqs;
+    const diffWithoutIntersects = new Line(this.differentialLine.points.filter(p1 => this.series1.points.map(p2 => p2.x).includes(p1.x)));
+    const seqs = bd.getSequences(diffWithoutIntersects, {yAxis: yAxis, maxSegments: this.series1.points.length}).bestSeqs;
     // Project so that all possible series pairs for a chart get
     // slope classification performed in the same coordinate system.
-    const proj = this.differentialLine.project(undefined, yAxis);
+    const proj = diffWithoutIntersects.project(undefined, yAxis);
     const slopeInfo = seqs.map(
       ({start, end}) => bd.classifySlope(proj.slice(start, end)));
     for (let i = 0; i < seqs.length; i++) {
@@ -99,15 +100,15 @@ export class AiLineIntersectionDetection extends BasicLineIntersectionDetection 
       const startIndex = seqs[i].start;
       const endIndex = seqs[i].end - 1;
       const interval = {
-        start: { ...this.differentialLine.points[startIndex], index: startIndex},
-        end: { ...this.differentialLine.points[endIndex], index: endIndex}
+        start: { ...diffWithoutIntersects.points[startIndex], index: startIndex},
+        end: { ...diffWithoutIntersects.points[endIndex], index: endIndex}
       };
       if (si.classes[0] === 0) {
         relativeTrajectories.push({
           interval,
           type: 'tracking',
           degree: 1 - ss.sampleStandardDeviation(
-            this.differentialLine
+            diffWithoutIntersects
               .slice(seqs[i].start, seqs[i].end)
               .points.map(p => p.y))/yAxis.end
         });
