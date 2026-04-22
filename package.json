@@ -80,6 +80,6 @@
     "typescript-memoize": "^1.1.1"
   },
   "optionalDependencies": {
-    "@fizz/series-analyzer": "^0.15.2"
+    "@fizz/series-analyzer": "^0.15.3"
   }
 }
