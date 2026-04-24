@@ -14,6 +14,8 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
+import { Line } from "@fizz/chart-classifier-utils";
+
 // Types 
 
 export type IndexedPoint = {
@@ -235,6 +237,8 @@ export interface TrackingGroup {
   outliers: string[];
   valueInterval: IndexedPointInterval;
   averageLine: SeriesDatapoints;
+  differentialLines: Map<string, Line>;
+  type: "tracking" | "converging" | "diverging"
 }
 
 /**
@@ -258,6 +262,8 @@ export interface SeriesPairMetadataAnalyzer {
   getParallels(): Parallel[];
   getPairs(): Pair[];
   getTrackingGroups(): TrackingGroup[];
+  getConvergingGroups(): TrackingGroup[];
+  getDivergingGroups(): TrackingGroup[];
   getTrackingZones(): TrackingZone[];
   getClusters(): string[][];
   getClusterOutliers(): string[];

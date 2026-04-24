@@ -279,6 +279,8 @@ export class PlaneModel extends Model {
   public readonly clusters: string[][] = [];
   public readonly clusterOutliers: string[] = [];
   public readonly trackingGroups: TrackingGroup[] = [];
+  public readonly convergingGroups: TrackingGroup[] = [];
+  public readonly divergingGroups: TrackingGroup[] = [];
   public readonly trackingZones: TrackingZone[] = [];
  
   protected _seriesAnalysisMap?: Record<string, SeriesAnalysis>;
@@ -339,6 +341,8 @@ export class PlaneModel extends Model {
         this.clusters = this._seriesPairAnalyzer.getClusters();
         this.clusterOutliers = this._seriesPairAnalyzer.getClusterOutliers();
         this.trackingGroups = this._seriesPairAnalyzer.getTrackingGroups();
+        this.convergingGroups = this._seriesPairAnalyzer.getConvergingGroups();
+        this.divergingGroups = this._seriesPairAnalyzer.getDivergingGroups();
         this.trackingZones = this._seriesPairAnalyzer.getTrackingZones();
       }
       // NOTE: `generateValues` must come after `pairAnalyzer` as `generateValues` uses the intersections defined by `pairAnalyzer`
