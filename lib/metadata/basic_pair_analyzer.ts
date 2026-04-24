@@ -514,6 +514,8 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
   parallels: Parallel[];
   pairs: Pair[];
   trackingGroups: TrackingGroup[];
+  convergingGroups: TrackingGroup[];
+  divergingGroups: TrackingGroup[];
   trackingZones: TrackingZone[];
   clusters: string[][];
   clusterOutliers: string[];
@@ -533,6 +535,8 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
     this.parallels = [];
     this.pairs = [];
     this.trackingGroups = [];
+    this.convergingGroups = [];
+    this.divergingGroups = [];
     this.trackingZones = [];
     this.clusters = [];
     this.clusterOutliers = [];
@@ -780,6 +784,14 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
 
   getTrackingGroups(): TrackingGroup[] {
     return this.trackingGroups;
+  }
+
+  getConvergingGroups(): TrackingGroup[] {
+    return this.convergingGroups;
+  }
+
+  getDivergingGroups(): TrackingGroup[] {
+    return this.divergingGroups;
   }
 
   getTrackingZones(): TrackingZone[] {

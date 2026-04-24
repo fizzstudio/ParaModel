@@ -140,8 +140,10 @@ export class AiSeriesPairMetadataAnalyzer extends BasicSeriesPairMetadataAnalyze
 
   constructor(seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number) {
     super(seriesArray, screenCoordSysSize, yMin, yMax);
-    const trackingGroups = TrackingGroupBuilder.getGroups(seriesArray, undefined, 0.90);
-    this.trackingGroups = trackingGroups.map((tg) => this.generateTrackingGroupMetadata(tg));
+    const { trackingGroups, convergingGroups, divergingGroups } = TrackingGroupBuilder.getGroups(seriesArray, undefined, 0.90);
+    this.trackingGroups = trackingGroups.map((tg) => this.generateTrackingGroupMetadata(tg, "tracking"));
+    this.convergingGroups = convergingGroups.map((tg) => this.generateTrackingGroupMetadata(tg, "converging"));
+    this.divergingGroups = divergingGroups.map((tg) => this.generateTrackingGroupMetadata(tg, "diverging"));
     if (trackingGroups.length) {
       this.trackingZones = TrackingZoneBuilder.getZones(trackingGroups)
         .map((tz) => this.generateTrackingZoneMetadata(tz));
@@ -151,18 +153,20 @@ export class AiSeriesPairMetadataAnalyzer extends BasicSeriesPairMetadataAnalyze
     this.clusterOutliers = clusters.noise.map((line) => line.key!);
   }
 
-  private generateTrackingGroupMetadata(tg: TrackingGroupBuilder): TrackingGroup {
+  private generateTrackingGroupMetadata(tg: TrackingGroupBuilder, type: "tracking" | "converging" | "diverging"): TrackingGroup {
     return {
       keys: Array.from(tg.keys),
       outliers: tg.outliers(),
       valueInterval: tg.interval,
-      averageLine: tg.averageLine().points.map((point) => [point.x, point.y])
+      averageLine: tg.averageLine().points.map((point) => [point.x, point.y]),
+      differentialLines: tg.computeDifferentialLine(tg.keys),
+      type: type
     }
   }
 
   private generateTrackingZoneMetadata(tz: TrackingZoneBuilder): TrackingZone {
     return {
-      groups: tz.trackingGroups.map((tg) => this.generateTrackingGroupMetadata(tg)),
+      groups: tz.trackingGroups.map((tg) => this.generateTrackingGroupMetadata(tg, "tracking")),
       valueInterval: [tz.interval.start, tz.interval.end]
     }
   }

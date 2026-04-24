@@ -28,6 +28,24 @@ interface TrackingPair {
   interval: IndexedPointInterval;
 }
 
+/**
+ * An x-value interval on a chart and an associated pair of lines that
+ * converge during the interval. 
+ */
+interface ConvergingPair {
+  keyPair: [string, string];
+  interval: IndexedPointInterval;
+}
+
+/**
+ * An x-value interval on a chart and an associated pair of lines that
+ * diverge during the interval. 
+ */
+interface DivergingPair {
+  keyPair: [string, string];
+  interval: IndexedPointInterval;
+}
+
 function setEq<T>(s1: Set<T>, s2: Set<T>): boolean {
   if (s1.size !== s2.size) {
     return false;
@@ -128,12 +146,17 @@ export class TrackingGroupBuilder {
    * closeness required for lines to pair/group.
    * @returns The tracking groups.
    */
-  static getGroups(allSeries: Line[], minSize = 0.25, closeness = 0.9): TrackingGroupBuilder[] {
+  static getGroups(allSeries: Line[], minSize = 0.25, closeness = 0.9): {
+    trackingGroups: TrackingGroupBuilder[],
+    convergingGroups: TrackingGroupBuilder[],
+    divergingGroups: TrackingGroupBuilder[]} {
     const keyMap: Map<string, Line> = new Map();
     allSeries.forEach(line => keyMap.set(line.key!, line));
 
     const keyPairs: [string, string][] = getPairs(allSeries).map(([line1, line2]) => [line1.key!, line2.key!]);
     let trackingPairs: TrackingPair[] = [];
+    let convergingPairs: ConvergingPair[] = [];
+    let divergingPairs: ConvergingPair[] = [];
     const minY = Math.min(...allSeries.map(ln => ln.yBounds().start));
     const maxY = Math.max(...allSeries.map(ln => ln.yBounds().end));
     const yRange = maxY - minY;
@@ -147,17 +170,37 @@ export class TrackingGroupBuilder {
       const rts = lid.getRelativeTrajectories(diffYAxis);
       // Only keep tracking intervals no smaller than minSize percent of the chart
       const tps: TrackingPair[] = rts
-        .filter(rt => 
-          rt.type === 'tracking' && 
-          rt.interval.end.x - rt.interval.start.x >= allSeries[0].xRange()*minSize &&
+        .filter(rt =>
+          rt.type === 'tracking' &&
+          rt.interval.end.x - rt.interval.start.x >= allSeries[0].xRange() * minSize &&
           rt.degree >= closeness)
         .map(rt => ({ keyPair, interval: rt.interval }));
       trackingPairs = trackingPairs.concat(tps);
+      const cps: ConvergingPair[] = rts
+        .filter(rt =>
+          rt.type === 'converging' &&
+          rt.interval.end.x - rt.interval.start.x >= allSeries[0].xRange() * minSize
+          /* && rt.degree >= closeness*/)
+        .map(rt => ({ keyPair, interval: rt.interval }));
+      convergingPairs = convergingPairs.concat(cps);
+      const dps: DivergingPair[] = rts
+        .filter(rt =>
+          rt.type === 'diverging' &&
+          rt.interval.end.x - rt.interval.start.x >= allSeries[0].xRange() * minSize
+          /* && rt.degree >= closeness*/)
+        .map(rt => ({ keyPair, interval: rt.interval }));
+      divergingPairs = divergingPairs.concat(dps);
     }
-    let groups = TrackingGroupBuilder.createGroupsFromPairs(trackingPairs, keyMap);
-    groups = TrackingGroupBuilder.normalizeGroups(groups);
-    groups.reverse();
-    return groups;
+    let trackingGroups = TrackingGroupBuilder.createGroupsFromPairs(trackingPairs, keyMap);
+    trackingGroups = TrackingGroupBuilder.normalizeGroups(trackingGroups);
+    trackingGroups.reverse();
+    let convergingGroups = TrackingGroupBuilder.createGroupsFromPairs(convergingPairs, keyMap);
+    convergingGroups = TrackingGroupBuilder.normalizeGroups(convergingGroups);
+    convergingGroups.reverse();
+    let divergingGroups = TrackingGroupBuilder.createGroupsFromPairs(divergingPairs, keyMap);
+    divergingGroups = TrackingGroupBuilder.normalizeGroups(divergingGroups);
+    divergingGroups.reverse();
+    return { trackingGroups, convergingGroups, divergingGroups };
   }
 
   private static createGroupsFromPairs(trackingPairs: TrackingPair[], seriesByKey: Map<string, Line>): TrackingGroupBuilder[] {
@@ -347,6 +390,20 @@ export class TrackingGroupBuilder {
       y: mapn(nseries, j => sections[j].points[i].y).reduce((a, b) => a + b)/nseries
     })));
   }
+
+  public computeDifferentialLine(keys: Set<string>): Map<string, Line> {
+    let pairs = getPairs(Array.from(keys))
+    const diffMap = new Map<string, Line>();
+    for (let pair of pairs) {
+      let series1 = this.seriesByKey.get(pair[0])!
+      let series2 = this.seriesByKey.get(pair[1])!
+      let diff = new Line(series1.points.map(
+        (p, i) => ({ x: p.x, y: Math.abs(p.y - series2.points[i].y) })));
+      diffMap.set(pair[0].concat(pair[1]), diff)
+    }
+    return diffMap;
+  }
+
 
 }
 

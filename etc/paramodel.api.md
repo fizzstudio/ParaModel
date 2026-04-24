@@ -46,9 +46,17 @@ export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyz
     // (undocumented)
     clusters: string[][];
     // (undocumented)
+    convergingGroups: TrackingGroup[];
+    // (undocumented)
+    divergingGroups: TrackingGroup[];
+    // (undocumented)
     getClusterOutliers(): string[];
     // (undocumented)
     getClusters(): string[][];
+    // (undocumented)
+    getConvergingGroups(): TrackingGroup[];
+    // (undocumented)
+    getDivergingGroups(): TrackingGroup[];
     // (undocumented)
     getIntersections(): Intersection[];
     // (undocumented)
@@ -400,7 +408,11 @@ export class PlaneModel extends Model {
     // (undocumented)
     readonly clusters: string[][];
     // (undocumented)
+    readonly convergingGroups: TrackingGroup[];
+    // (undocumented)
     dependentAxisKey?: string;
+    // (undocumented)
+    readonly divergingGroups: TrackingGroup[];
     // (undocumented)
     getAllPointsCorrellation(): number;
     // (undocumented)
@@ -595,8 +607,12 @@ export interface TrackingGroup {
     //
     // (undocumented)
     averageLine: SeriesDatapoints;
+    // (undocumented)
+    differentialLines: Map<string, Line>;
     keys: string[];
     outliers: string[];
+    // (undocumented)
+    type: "tracking" | "converging" | "diverging";
     // Warning: (ae-forgotten-export) The symbol "IndexedPointInterval" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
