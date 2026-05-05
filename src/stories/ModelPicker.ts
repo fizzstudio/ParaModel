@@ -18,7 +18,7 @@ import { html, TemplateResult } from "lit";
 import { customElement } from "lit/decorators.js";
 
 import { ManifestPicker, ManifestPickerProps } from "@fizz/test-utils";
-import { manifestIsPlaneType } from "@fizz/paramanifest";
+import { isPlaneType, manifestIsPlaneType } from "@fizz/paramanifest";
 import { SeriesAnalyzer } from "@fizz/series-analyzer";
 
 import { AiSeriesPairMetadataAnalyzer, Model, PlaneModel, modelFromInlineManifest } from "../../lib/index";
@@ -35,9 +35,23 @@ export class ModelPicker extends ManifestPicker {
     }
   }
 
+  stringify(obj: object): string {
+    return JSON.stringify(obj, null, 2);
+  }
+
   protected async renderManifest(): Promise<TemplateResult> {
     if (!this.model) {
       return html`<p>No model loaded</p>`;
+    }
+
+    if (manifestIsPlaneType(this.manifest!)) {
+      return html`
+        <p>Model loaded</p>
+        <pre>${this.stringify(this.model)}</pre>
+        <pre>Converging: ${this.stringify((this.model as PlaneModel).convergingGroups)}</pre>
+        <pre>Diverging: ${this.stringify((this.model as PlaneModel).divergingGroups)}</pre>
+        <pre>Tracking: ${this.stringify((this.model as PlaneModel).trackingGroups)}</pre>
+      `;
     }
 
     return html`
