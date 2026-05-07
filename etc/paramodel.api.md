@@ -414,7 +414,7 @@ export class PlaneModel extends Model {
     // (undocumented)
     readonly divergingGroups: TrackingGroup[];
     // (undocumented)
-    getAllPointsCorrellation(): number;
+    getAllPointsCorrelation(): number;
     // (undocumented)
     getAxisFacet(orientation: AxisOrientation): Facet | null;
     // (undocumented)

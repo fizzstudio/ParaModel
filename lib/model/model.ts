@@ -396,7 +396,7 @@ export class PlaneModel extends Model {
     }
   }
 
-  getAllPointsCorrellation() {
+  getAllPointsCorrelation() {
     const xArray = [];
     const yArray = [];
     for (let point of this.allPoints) {
