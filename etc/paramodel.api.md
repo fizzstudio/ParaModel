@@ -422,7 +422,7 @@ export class PlaneModel extends Model {
     // (undocumented)
     getAxisOrientation(depIndep: 'dependent' | 'independent'): AxisOrientation;
     // (undocumented)
-    getChordAt(facetKey: string, value: Box<Datatype>): Datapoint[] | null;
+    getChordAt(facetKey: string, value: Box<Datatype>): PlaneDatapoint[] | null;
     // (undocumented)
     getClusteringAnalysis(): Promise<clusterObject[] | null>;
     // (undocumented)
@@ -487,6 +487,8 @@ export class PlaneSeries extends Series {
     addIntersections(allIntersections: Intersection[]): void;
     // (undocumented)
     protected constructDatapoint(data: DataFrameRow, seriesKey: string, datapointIndex: number): Datapoint;
+    // (undocumented)
+    datapointAt(facetKey: string, value: Box<Datatype>): PlaneDatapoint | null;
     // (undocumented)
     datapoints: PlaneDatapoint[];
     // (undocumented)

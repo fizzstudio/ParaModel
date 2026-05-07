@@ -528,7 +528,7 @@ export class PlaneModel extends Model {
     return true;
   }
 
-  public getChordAt(facetKey: string, value: Box<Datatype>): Datapoint[] | null {
+  public getChordAt(facetKey: string, value: Box<Datatype>): PlaneDatapoint[] | null {
     const datatype = this._facetDatatypeMap[facetKey];
     if (datatype === undefined || value.datatype() !== datatype) {
       return null;

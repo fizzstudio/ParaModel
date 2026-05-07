@@ -210,6 +210,11 @@ export class PlaneSeries extends Series {
     this.intersections.sort((a, b) => a.independentValue - b.independentValue);
   }
 
+  // @override
+  public datapointAt(facetKey: string, value: Box<Datatype>): PlaneDatapoint | null {
+    return super.datapointAt(facetKey, value) as PlaneDatapoint | null;
+  }
+
   // TODO: Add This
   /*@Memoize()
   public getAnalyzer(): SingleSeriesMetadataAnalyzer {
