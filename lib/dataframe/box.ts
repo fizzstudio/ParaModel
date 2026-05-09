@@ -18,6 +18,8 @@ import { Datatype } from "@fizz/paramanifest";
 
 import { ParaModelError } from "../utils";
 import { compareDateValues, convertStandardFormatToDateValue, DateValue, formatDateValue, 
+  getMonthAbbrev, 
+  getMonthOrdinal, 
   parseDateToStandardFormat } from "./date";
 
 // TODO: This type lacks a completeness type check. This could be implemented by testing in Vitest
@@ -214,6 +216,14 @@ export class DateBox extends Box<'date'> {
 
   public datatype(): 'date' {
     return 'date';
+  }
+
+  public monthAbbrev(): string | undefined {
+    return getMonthAbbrev(this.value);
+  }
+
+  public monthOrdinal(): string | undefined {
+    return getMonthOrdinal(this.value);
   }
 }
 
