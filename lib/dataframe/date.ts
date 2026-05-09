@@ -145,3 +145,20 @@ export function formatDateValue(dateVal: DateValue, abbrev?: boolean): string {
   }
   return 'RECURRING DATES NOT IMPLEMENTED YET';
 }
+
+export function getMonthAbbrev(dateVal: DateValue): string | undefined {
+  if (dateVal.type !== 'date' || dateVal.duration.toString() !== 'P3M') {
+    return undefined;
+  }
+  const quarterNumber = (dateVal.start.month - 1) / 3;
+  return `Q${quarterNumber + 1}`;
+}
+
+export function getMonthOrdinal(dateVal: DateValue): string | undefined {
+  if (dateVal.type !== 'date' || dateVal.duration.toString() !== 'P3M') {
+    return undefined;
+  }
+  const quarterNumber = (dateVal.start.month - 1) / 3;
+  const quarterOrdinal = ['first', 'second', 'third', 'fourth'][quarterNumber];
+  return quarterOrdinal;
+}
