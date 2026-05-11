@@ -198,6 +198,10 @@ export class DateBox extends Box<'date'> {
     isString(): this is {
         value: string;
     };
+    // (undocumented)
+    monthAbbrev(): string | undefined;
+    // (undocumented)
+    monthOrdinal(): string | undefined;
 }
 
 // Warning: (ae-forgotten-export) The symbol "DatePeriod" needs to be exported by the entry point index.d.ts
