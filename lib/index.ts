@@ -12,3 +12,4 @@ export type { FacetSignature } from './dataframe/dataframe';
 export type { Intersection, TrackingGroup } from './metadata/pair_analyzer_interface';
 export { BasicSeriesPairMetadataAnalyzer } from './metadata/basic_pair_analyzer';
 export { AiSeriesPairMetadataAnalyzer } from './metadata/ai_pair_analyzer';
+export type { DatapointsAtValue } from './metadata/metadata';

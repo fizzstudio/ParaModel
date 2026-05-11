@@ -162,6 +162,14 @@ export class Datapoint {
     seriesKey: string;
 }
 
+// @public (undocumented)
+export interface DatapointsAtValue {
+    // (undocumented)
+    datapoints: Datapoint[];
+    // (undocumented)
+    value: number;
+}
+
 // @public
 export class DateBox extends Box<'date'> {
     // (undocumented)
