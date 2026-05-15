@@ -75,11 +75,9 @@
     "@fizz/clustering": "^0.16.0",
     "@fizz/number-scaling-rounding": "^0.5.2",
     "@fizz/paramanifest": "^0.11.4",
+    "@fizz/series-analyzer": "^0.15.4",
     "@fizz/templum": "^0.4.6",
     "temporal-polyfill": "^0.3.0",
     "typescript-memoize": "^1.1.1"
-  },
-  "optionalDependencies": {
-    "@fizz/series-analyzer": "^0.15.4"
   }
 }

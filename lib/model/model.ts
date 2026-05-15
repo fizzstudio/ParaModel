@@ -49,7 +49,7 @@ import { Memoize } from 'typescript-memoize';
 
 import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, 
   Facet, hasInlineData, Manifest, manifestIsPlaneType, Settings, Topic } from "@fizz/paramanifest";
-import type { SeriesAnalysis, SeriesAnalysisOpts, SeriesAnalyzer } from "@fizz/series-analyzer";
+import { SeriesAnalyzer, type SeriesAnalysis, type SeriesAnalysisOpts } from "@fizz/series-analyzer";
 
 import { addArrays, arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
@@ -59,16 +59,12 @@ import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateVa
 import { Datapoint, PlaneDatapoint } from '../model/datapoint';
 import { PlaneSeries, planeSeriesFromSeriesManifest, Series, seriesFromSeriesManifest } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
-import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
+import { SeriesPairAnalyzer } from '../metadata/pair_analyzer';
 import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import { Interval, Line } from '@fizz/chart-classifier-utils';
 import { synthesizeChartTopic, synthesizeSeriesTopic } from '../topic_synthesis';
 import { clusterObject, coord, generateClusterAnalysis } from '@fizz/clustering';
 import { sampleCorrelation } from '@fizz/simple-statistics';
-
-// TODO: Remove these
-export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
-export type PairAnalyzerConstructor = new (seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number) => SeriesPairMetadataAnalyzer;
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
@@ -296,8 +292,6 @@ export class PlaneModel extends Model {
   constructor(
     series: PlaneSeries[], 
     manifest: Manifest,
-    private readonly seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-    private readonly pairAnalyzerConstructor: PairAnalyzerConstructor = BasicSeriesPairMetadataAnalyzer,
     protected _useWorker = true
   ) {
     super(series, manifest);
@@ -330,7 +324,7 @@ export class PlaneModel extends Model {
       }
       if (this.multi) {
         const yAxisInterval = this.getAxisInterval(this.getAxisOrientation('dependent'))!;
-        this._seriesPairAnalyzer = new this.pairAnalyzerConstructor(
+        this._seriesPairAnalyzer = new SeriesPairAnalyzer(
           Object.values(this._seriesLineMap), 
           [1,1], //FIXME: get actual screen size
           yAxisInterval.start,
@@ -410,7 +404,7 @@ export class PlaneModel extends Model {
     if (this._seriesAnalysisDone) {
       return;
     }
-    const seriesAnalyzer = new this.seriesAnalyzerConstructor!();
+    const seriesAnalyzer = new SeriesAnalyzer();
     this._seriesAnalysisMap = {};
     const dependentAxis = this.getAxisInterval(this.getAxisOrientation('dependent'))!;
     for (const seriesKey in this._seriesLineMap) {
@@ -492,7 +486,6 @@ export class PlaneModel extends Model {
   public async getSeriesAnalysis(key: string, options?: SeriesAnalysisOpts): Promise<SeriesAnalysis | null> {
     if (
       this.type === 'scatter' 
-      || !this.seriesAnalyzerConstructor
       || !this.seriesKeys.includes(key)
     ) {
       return null;
@@ -505,7 +498,6 @@ export class PlaneModel extends Model {
   public async getSummedAnalysis(): Promise<SeriesAnalysis | null> {
     if (
       this.type === 'scatter'
-      || !this.seriesAnalyzerConstructor
     ) {
       return null;
     }
@@ -584,8 +576,6 @@ export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): 
 
 export function planeModelFromInlineData(
   manifest: Manifest,
-  seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-  pairAnalyzerConstructor?: PairAnalyzerConstructor,
   useWorker?: boolean
 ): PlaneModel {
   if (!hasInlineData(manifest)) {
@@ -600,14 +590,12 @@ export function planeModelFromInlineData(
   const series = dataset.series.map((seriesManifest) => 
     planeSeriesFromSeriesManifest(seriesManifest, facets, independentAxisKey, dependentAxisKey)
   );
-  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
+  return new PlaneModel(series, manifest, useWorker);
 }
 
 export function planeModelFromExternalData(
   data: AllSeriesData, 
   manifest: Manifest,
-  seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-  pairAnalyzerConstructor?: PairAnalyzerConstructor,
   useWorker?: boolean
 ): PlaneModel {
   const dataset = manifest.jim.datasets[0];
@@ -620,20 +608,18 @@ export function planeModelFromExternalData(
     const seriesManifest = dataset.series.filter((s) => s.key === key)[0];
     return new PlaneSeries(seriesManifest, data[key], facets, independentAxisKey, dependentAxisKey);
   });
-  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
+  return new PlaneModel(series, manifest, useWorker);
 }
 
 export function modelFromInlineManifest(
   manifest: Manifest,
-  seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-  pairAnalyzerConstructor?: PairAnalyzerConstructor,
   useWorker?: boolean
 ): Model {
   if (!hasInlineData(manifest)) {
     throw new Error('only manifests with inline data can use this function.');
   }
   if (manifestIsPlaneType(manifest)) {
-    return planeModelFromInlineData(manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
+    return planeModelFromInlineData(manifest, useWorker);
   }
   return modelFromInlineData(manifest);
 }

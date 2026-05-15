@@ -19,9 +19,8 @@ import { customElement } from "lit/decorators.js";
 
 import { ManifestPicker, ManifestPickerProps } from "@fizz/test-utils";
 import { isPlaneType, manifestIsPlaneType } from "@fizz/paramanifest";
-import { SeriesAnalyzer } from "@fizz/series-analyzer";
 
-import { AiSeriesPairMetadataAnalyzer, Model, PlaneModel, modelFromInlineManifest } from "../../lib/index";
+import { Model, PlaneModel, modelFromInlineManifest } from "../../lib/index";
 
 @customElement('model-picker')
 export class ModelPicker extends ManifestPicker {
@@ -29,7 +28,7 @@ export class ModelPicker extends ManifestPicker {
   private model?: Model;
 
   protected async onManifestLoad(): Promise<void> {
-    this.model = modelFromInlineManifest(this.manifest!, SeriesAnalyzer, AiSeriesPairMetadataAnalyzer);
+    this.model = modelFromInlineManifest(this.manifest!);
     if (manifestIsPlaneType(this.manifest!)) {
       const _ = await (this.model as PlaneModel).getSeriesAnalysis(this.model.seriesKeys[0]);
     }

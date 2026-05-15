@@ -1,4 +1,4 @@
-/* ParaModel: AI-enhanced Series Tracking Analysis
+/* ParaModel: Series Tracking Analysis
 Copyright (C) 2025 Fizz Studios
 
 This program is free software: you can redistribute it and/or modify
@@ -15,9 +15,112 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Line, type Interval, mapn } from '@fizz/chart-classifier-utils';
+import { Breakdancer } from '@fizz/breakdancer';
+import * as ss from '@fizz/simple-statistics';
 
-import { AiLineIntersectionDetection } from './ai_pair_analyzer';
+import { IntersectionProperties, LineIntersectionDetection } from './line_intersection_detection';
 import { IndexedPoint, IndexedPointInterval } from './pair_analyzer_interface';
+
+/**
+ * Represents the relationship between two series as they traverse
+ * a given x-interval.
+ */
+export interface RelativeTrajectory {
+  /** X-value interval */
+  interval: IndexedPointInterval;
+  /** Mutual relationship */
+  type: 'tracking' | 'converging' | 'diverging';
+  /** Value between 0 and 1 indicating the strength of the relationship */
+  degree: number;
+}
+
+export class RelativeTrajectoryDetection extends LineIntersectionDetection {
+  /**
+   * Absolute differences between corresponding series point values
+   * NB: Contains additional 0-y-value points for any off-record crossings.
+   */
+  public differentialLine: Line;
+
+  constructor(series1: Line, series2: Line, yScale: number) {
+    super(series1, series2, yScale);
+    this.differentialLine = this.computeDifferentialLine();
+  }
+
+  private computeDifferentialLine() {
+    let diff = new Line(this.series1.points.map(
+      (p, i) => ({x: p.x, y: Math.abs(p.y - this.series2.points[i].y)})));
+    const isectPairs = this.intersectingSegPairs
+      .filter(p => p.intersection !== 'Overlap');
+    const btwnRecIsects = isectPairs
+      .filter(p => !(p.intersection as IntersectionProperties).atRecord)
+      .map(p => (p.intersection as IntersectionProperties).crosspoint);
+    for (const bri of btwnRecIsects) {
+      const i = diff.points.findLastIndex(p => bri.x > p.x);
+      const pts = Array.from(diff.points);
+      pts.splice(i + 1, 0, {x: bri.x, y: 0});
+      diff = new Line(pts);
+    }
+    return diff;
+  }
+
+  getRelativeTrajectories(yAxis: Interval) {
+    const relativeTrajectories: RelativeTrajectory[] = [];
+    const bd = new Breakdancer();
+    const diffWithoutIntersects = new Line(this.differentialLine.points.filter(p1 => this.series1.points.map(p2 => p2.x).includes(p1.x)));
+    const seqs = bd.getSequences(diffWithoutIntersects, {yAxis: yAxis, maxSegments: this.series1.points.length}).bestSeqs;
+    const proj = diffWithoutIntersects.project(undefined, yAxis);
+    const slopeInfo = seqs.map(
+      ({start, end}) => bd.classifySlope(proj.slice(start, end)));
+    for (let i = 0; i < seqs.length; i++) {
+      const si = slopeInfo[i];
+      if (si.classes.length === 2) {
+        if (Math.abs(si.moe!) < Math.abs(si.slope)) {
+          const zeroIdx = si.classes.indexOf(0);
+          if (Math.abs(si.angle) < 5) {
+            si.classes.splice(1 - zeroIdx, 1);
+          } else {
+            si.classes.splice(zeroIdx, 1);
+          }
+        }
+      }
+      const startIndex = seqs[i].start;
+      const endIndex = seqs[i].end - 1;
+      const interval = {
+        start: { ...diffWithoutIntersects.points[startIndex], index: startIndex},
+        end: { ...diffWithoutIntersects.points[endIndex], index: endIndex}
+      };
+      if (si.classes[0] === 0) {
+        relativeTrajectories.push({
+          interval,
+          type: 'tracking',
+          degree: 1 - ss.sampleStandardDeviation(
+            diffWithoutIntersects
+              .slice(seqs[i].start, seqs[i].end)
+              .points.map(p => p.y))/yAxis.end
+        });
+      } else {
+        relativeTrajectories.push({
+          interval,
+          type: si.classes[0] === 1 ? 'diverging' : 'converging',
+          degree: Math.abs(si.angle/90)
+        });
+      }
+    }
+
+    const mergedRts: RelativeTrajectory[] = [];
+    if (relativeTrajectories.length) {
+      mergedRts.push(relativeTrajectories[0]);
+      for (let i = 1; i < relativeTrajectories.length; i++) {
+        if (relativeTrajectories[i].type === relativeTrajectories[i - 1].type) {
+          mergedRts.at(-1)!.interval.end = relativeTrajectories[i].interval.end;
+        } else {
+          mergedRts.push(relativeTrajectories[i]);
+        }
+      }
+    }
+    return mergedRts;
+  }
+}
 
 /**
  * An x-value interval on a chart and an associated pair of lines that
@@ -165,7 +268,7 @@ export class TrackingGroupBuilder {
       end: yRange
     };
     for (const keyPair of keyPairs) {
-      const lid = new AiLineIntersectionDetection(
+      const lid = new RelativeTrajectoryDetection(
         keyMap.get(keyPair[0])!, keyMap.get(keyPair[1])!, 1 / 2);
       const rts = lid.getRelativeTrajectories(diffYAxis);
       // Only keep tracking intervals no smaller than minSize percent of the chart

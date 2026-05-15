@@ -1,4 +1,4 @@
-/* ParaModel: AI-enhanced Series Clustering Analysis
+/* ParaModel: Series Clustering Analysis
 Copyright (C) 2025 Fizz Studios
 
 This program is free software: you can redistribute it and/or modify
