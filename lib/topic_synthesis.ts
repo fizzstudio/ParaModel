@@ -10,7 +10,9 @@ function synthesizeTopicFromLabel(label: string, baseKind: BaseKind): Topic {
   //   I am currently not sure how to fix this, so I have temporarily removed uncapitalization as the
   //   safest option.
   let baseQuantity = label; //uncapitalize(label);
-  if (baseKind === 'proportion' && baseQuantity.startsWith('proportion of ')) {
+  if (baseKind === 'proportion' && 
+    (baseQuantity.startsWith('proportion of ') || baseQuantity.startsWith('Proportion of '))
+  ) {
     baseQuantity = baseQuantity.slice('proportion of '.length);
   }
   return { baseQuantity, baseKind };
