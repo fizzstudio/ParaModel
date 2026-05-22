@@ -14,7 +14,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { mapn } from '@fizz/chart-classifier-utils';
+import { mapn } from '../chart-classifier-utils';
 import { Datatype } from '@fizz/paramanifest';
 
 import { Box, BOX_CONSTRUCTORS } from './box';

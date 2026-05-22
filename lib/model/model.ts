@@ -49,7 +49,7 @@ import { Memoize } from 'typescript-memoize';
 
 import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, 
   Facet, hasInlineData, Manifest, manifestIsPlaneType, Settings, Topic } from "@fizz/paramanifest";
-import type { SeriesAnalysis, SeriesAnalysisOpts, SeriesAnalyzer } from "@fizz/series-analyzer";
+import type { SeriesAnalysis, SeriesAnalysisOpts, SeriesAnalyzer } from '../series-analyzer/lib/main';
 
 import { addArrays, arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
@@ -61,10 +61,10 @@ import { PlaneSeries, planeSeriesFromSeriesManifest, Series, seriesFromSeriesMan
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
 import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
-import { Interval, Line } from '@fizz/chart-classifier-utils';
+import { Interval, Line } from '../chart-classifier-utils';
 import { synthesizeChartTopic, synthesizeSeriesTopic } from '../topic_synthesis';
-import { clusterObject, coord, generateClusterAnalysis } from '@fizz/clustering';
-import { sampleCorrelation } from '@fizz/simple-statistics';
+import { clusterObject, coord, generateClusterAnalysis } from '../scatterplot-clustering-dist/dist/clustering'
+import { sampleCorrelation } from '../simple-statistics-min';
 
 // TODO: Remove these
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;

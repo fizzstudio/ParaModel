@@ -1,5 +1,5 @@
-import { Line, Point } from "@fizz/chart-classifier-utils";
-import * as ss from '@fizz/simple-statistics';
+import { Line, Point } from "../chart-classifier-utils";
+import { max, min, mean, median, mode, linearRegressionLine, linearRegression, rSquared } from "../simple-statistics-min";
 
 import { Category, RunInfo, SegmentInfo, SequenceInfo, SeriesStats, SingleSeriesMetadataAnalyzer } from "./series_analyzer_interface";
 import { Memoize } from "typescript-memoize";
@@ -10,26 +10,26 @@ function getLabelsAtValue(points: Point[], value: number): string[] {
 
 function range(data: Line) {
   const ys = data.points.map(p => p.y);
-  return ss.max(ys) - ss.min(ys);
+  return max(ys) - min(ys);
 }
 
 function computeStats(data: Line): SeriesStats {
   const ys = data.points.map(p => p.y);
-  const min = ss.min(ys);
-  const max = ss.max(ys);
+  const minYs = min(ys);
+  const maxYs = max(ys);
   return {
     min: {
-      value: min,
-      labels: getLabelsAtValue(data.points, min)
+      value: minYs,
+      labels: getLabelsAtValue(data.points, minYs)
     },
     max: {
-      value: max,
-      labels: getLabelsAtValue(data.points, max)
+      value: maxYs,
+      labels: getLabelsAtValue(data.points, maxYs)
     },
     range: range(data),
-    mean: ss.mean(ys),
-    median: ss.median(ys),
-    mode: ss.mode(ys),
+    mean: mean(ys),
+    median: median(ys),
+    mode: mode(ys),
   };
 }
 
@@ -71,7 +71,7 @@ function variance(series: Line, i: number, j: number, stats: SeriesStats): numbe
   for (let i = 0; i < data.points.length; i++) {
       dataArray.push([data.points[i]["x"], data.points[i]["y"]])
   }
-  const rSquared = 1 - ss.rSquared(dataArray, ss.linearRegressionLine(ss.linearRegression(dataArray)));
+  const rSquaredVal = 1 - rSquared(dataArray, linearRegressionLine(linearRegression(dataArray)));
   
   //2: Get average second order discrete difference, normalize x and y values so that each x is spaced by 1 and y is scaled to 0-1.
   //If the input x values aren't evenly spaced, they won't be spaced by exactly 1 after normalization, but I don't think that should matter too much
@@ -129,7 +129,7 @@ function variance(series: Line, i: number, j: number, stats: SeriesStats): numbe
   const weights: Array<number> = [1 / 4, 1, 2, 3 / 4]
 
   //Average of the metrics, normalized by range of total dataset
-  const variance = data.length < 3 ? 0 : (rSquared * weights[0] + averageSecondDifference * weights[1] + dCProportion * weights[2] + normalizedPoints * weights[3]) * data.yRange() / (4 * stats.range);
+  const variance = data.length < 3 ? 0 : (rSquaredVal * weights[0] + averageSecondDifference * weights[1] + dCProportion * weights[2] + normalizedPoints * weights[3]) * data.yRange() / (4 * stats.range);
   return variance
 }
 

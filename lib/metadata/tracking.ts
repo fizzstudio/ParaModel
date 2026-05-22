@@ -14,7 +14,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { Line, type Interval, mapn } from '@fizz/chart-classifier-utils';
+import { Line, type Interval, mapn } from '../chart-classifier-utils';
 
 import { AiLineIntersectionDetection } from './ai_pair_analyzer';
 import { IndexedPoint, IndexedPointInterval } from './pair_analyzer_interface';

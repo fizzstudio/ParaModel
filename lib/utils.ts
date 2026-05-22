@@ -16,7 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Temporal } from "temporal-polyfill";
 
-import { zip } from "@fizz/chart-classifier-utils";
+import { zip } from "./chart-classifier-utils";
 
 // Types
 

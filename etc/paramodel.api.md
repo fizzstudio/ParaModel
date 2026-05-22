@@ -7,19 +7,13 @@
 import { AllSeriesData } from '@fizz/paramanifest';
 import { ChartType } from '@fizz/paramanifest';
 import { ChartTypeFamily } from '@fizz/paramanifest';
-import { clusterObject } from '@fizz/clustering';
+import { clusterObject } from '../scatterplot-clustering-dist/dist/clustering';
 import { Dataset } from '@fizz/paramanifest';
 import { Datatype } from '@fizz/paramanifest';
 import { DisplayType } from '@fizz/paramanifest';
 import { Facet } from '@fizz/paramanifest';
-import { Interval } from '@fizz/chart-classifier-utils';
-import { Line } from '@fizz/chart-classifier-utils';
 import { Manifest } from '@fizz/paramanifest';
-import { Point } from '@fizz/chart-classifier-utils';
 import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
-import type { SeriesAnalysis } from '@fizz/series-analyzer';
-import type { SeriesAnalysisOpts } from '@fizz/series-analyzer';
-import type { SeriesAnalyzer } from '@fizz/series-analyzer';
 import { SeriesManifest } from '@fizz/paramanifest';
 import { Settings } from '@fizz/paramanifest';
 import { Temporal } from 'temporal-polyfill';
@@ -29,6 +23,7 @@ import { Topic } from '@fizz/paramanifest';
 //
 // @public (undocumented)
 export class AiSeriesPairMetadataAnalyzer extends BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyzer {
+    // Warning: (ae-forgotten-export) The symbol "Line" needs to be exported by the entry point index.d.ts
     constructor(seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number);
 }
 
@@ -136,6 +131,8 @@ export function convertStandardFormatToDateValue(rfc9557iso8601: string): DateVa
 // @public (undocumented)
 export class Datapoint {
     constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number);
+    // Warning: (ae-forgotten-export) The symbol "Point" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
     convertFacetValuesToXYForLine(xKey: string, yKey: string): Point | null;
     // Warning: (ae-forgotten-export) The symbol "DataFrameRow" needs to be exported by the entry point index.d.ts
@@ -297,6 +294,8 @@ export class Model {
     getChartTopic(): Topic;
     // (undocumented)
     getFacet(key: string): Facet | null;
+    // Warning: (ae-forgotten-export) The symbol "Interval" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
     getFacetInterval(key: string): Interval | null;
     // Warning: (ae-forgotten-export) The symbol "FacetStats" needs to be exported by the entry point index.d.ts
@@ -437,6 +436,8 @@ export class PlaneModel extends Model {
     getChordAt(facetKey: string, value: Box<Datatype>): PlaneDatapoint[] | null;
     // (undocumented)
     getClusteringAnalysis(): Promise<clusterObject[] | null>;
+    // Warning: (ae-forgotten-export) The symbol "SeriesAnalysisOpts" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
     getSeriesAnalysis(key: string, options?: SeriesAnalysisOpts): Promise<SeriesAnalysis | null>;
     // (undocumented)
@@ -457,6 +458,8 @@ export class PlaneModel extends Model {
     series: PlaneSeries[];
     // (undocumented)
     protected _seriesAnalysisDone: boolean;
+    // Warning: (ae-forgotten-export) The symbol "SeriesAnalysis" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
     protected _seriesAnalysisMap?: Record<string, SeriesAnalysis>;
     // (undocumented)
@@ -582,6 +585,8 @@ export class Series {
     protected readonly _uniqueValuesForFacetMappedByKey: Record<string, BoxSet<Datatype>>;
 }
 
+// Warning: (ae-forgotten-export) The symbol "SeriesAnalyzer" needs to be exported by the entry point index.d.ts
+//
 // @public (undocumented)
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
 
