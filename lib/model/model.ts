@@ -516,7 +516,7 @@ export class PlaneModel extends Model {
   @Memoize()
   public async getClusteringAnalysis(): Promise<clusterObject[] | null> {
     if (
-      this.type !== 'scatter'
+      !['scatter', 'heatmap'].includes(this.type)
     ) {
       return null;
     }
