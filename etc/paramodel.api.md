@@ -492,7 +492,7 @@ export function planeModelFromInlineData(manifest: Manifest, seriesAnalyzerConst
 // @public (undocumented)
 export class PlaneSeries extends Series {
     // Warning: (ae-forgotten-export) The symbol "RawDatapoint" needs to be exported by the entry point index.d.ts
-    constructor(manifest: SeriesManifest, rawData: RawDatapoint[], facetSignatures: FacetSignature[], indepKey: string, depKey: string);
+    constructor(manifest: SeriesManifest, rawData: RawDatapoint[], facetSignatures: FacetSignature[], indepKey: string, depKey: string, type: string);
     // (undocumented)
     [i: number]: PlaneDatapoint;
     // (undocumented)
@@ -513,13 +513,15 @@ export class PlaneSeries extends Series {
     indepKey: string;
     // (undocumented)
     intersections: Intersection[];
+    // (undocumented)
+    type: string;
 }
 
 // @public (undocumented)
 export class Series {
     // (undocumented)
     [Symbol.iterator](): Iterator<Datapoint>;
-    constructor(manifest: SeriesManifest, rawData: RawDatapoint[], facetSignatures: FacetSignature[], indepKey?: string | undefined, depKey?: string | undefined);
+    constructor(manifest: SeriesManifest, rawData: RawDatapoint[], facetSignatures: FacetSignature[], indepKey?: string | undefined, depKey?: string | undefined, type?: string | undefined);
     // (undocumented)
     [i: number]: Datapoint;
     // (undocumented)
@@ -578,6 +580,8 @@ export class Series {
     //
     // (undocumented)
     statsScaledValues: SeriesStatsScaledValues | null;
+    // (undocumented)
+    protected type?: string | undefined;
     // (undocumented)
     protected readonly _uniqueValuesForFacetMappedByKey: Record<string, BoxSet<Datatype>>;
 }
