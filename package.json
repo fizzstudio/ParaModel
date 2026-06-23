@@ -72,7 +72,7 @@
   "dependencies": {
     "@fizz/breakdancer": "^0.27.6",
     "@fizz/chart-classifier-utils": "^0.17.0",
-    "@fizz/clustering": "^0.16.0",
+    "@fizz/clustering": "^0.18.0",
     "@fizz/number-scaling-rounding": "^0.5.2",
     "@fizz/paramanifest": "^0.11.4",
     "@fizz/templum": "^0.4.6",

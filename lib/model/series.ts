@@ -48,10 +48,11 @@ export class Series {
 
   constructor(
     public readonly manifest: SeriesManifest,
-    public readonly rawData: RawDatapoint[], 
+    public readonly rawData: RawDatapoint[],
     public readonly facetSignatures: FacetSignature[],
     protected readonly indepKey?: string,
-    protected readonly depKey?: string
+    protected readonly depKey?: string,
+    protected type?: string
   ) {
     this.originalKey = this.manifest.key;
     this.key = strToId(this.originalKey);
@@ -66,12 +67,13 @@ export class Series {
     this._dataframe = new DataFrame(facetSignatures);
     this.length = this.rawData.length;
     this.rawData.forEach((datapoint) => this._dataframe.addDatapoint(datapoint));
+    const unique = this.type == 'scatter' ? false : true;
     this._dataframe.rows.forEach((row, index) => {
       const datapoint = this.constructDatapoint(row, this.key, index);
       this[index] = datapoint;
       this.datapoints.push(datapoint);
       Object.keys(row).forEach(
-        (facetKey) => this._uniqueValuesForFacetMappedByKey[facetKey].add(row[facetKey])
+        (facetKey) => this._uniqueValuesForFacetMappedByKey[facetKey].add(row[facetKey], unique)
       );
     });
   }
@@ -159,26 +161,28 @@ export class Series {
 }
 
 export class PlaneSeries extends Series {
-  /*declare*/ [i: number]: PlaneDatapoint;
+  /*declare*/[i: number]: PlaneDatapoint;
 
   declare datapoints: PlaneDatapoint[];
   declare indepKey: string;
   declare depKey: string;
+  declare type: string;
 
   public intersections: Intersection[] = [];
-   
+
   /*protected xMap: Map<ScalarMap[X], number[]>;
   private yMap: Map<number, ScalarMap[X][]>;*/
 
   constructor(
     manifest: SeriesManifest,
-    rawData: RawDatapoint[], 
+    rawData: RawDatapoint[],
     facetSignatures: FacetSignature[],
     indepKey: string,
-    depKey: string
+    depKey: string,
+    type: string
   ) {
-    super(manifest, rawData, facetSignatures, indepKey, depKey);
-
+    super(manifest, rawData, facetSignatures, indepKey, depKey, type);
+    this.type = type;
     console.assert(this.facetKeys.includes(indepKey), `[ParaModel/Internal]: PlaneSeries constructed with unknown indepKey ${indepKey}`);
     console.assert(this.facetKeys.includes(depKey), `[ParaModel/Internal]: PlaneSeries constructed with unknown depKey ${depKey}`);
     console.assert(numberLikeDatatype(this.getFacetDatatype(depKey)), `[ParaModel/Internal]: PlaneSeries depKey ${depKey} has non-number-like ${this.getFacetDatatype(depKey)} datatype`);
@@ -186,7 +190,7 @@ export class PlaneSeries extends Series {
     /*this.xMap = mapDatapointsXtoY(this.datapoints);
     this.yMap = mapDatapointsYtoX(this.datapoints);*/
   }
-  
+
   protected constructDatapoint(data: DataFrameRow, seriesKey: string, datapointIndex: number): Datapoint {
     return new PlaneDatapoint(data, seriesKey, datapointIndex, this.indepKey, this.depKey);
   }
@@ -240,16 +244,17 @@ export function seriesFromSeriesManifest(
 }
 
 export function planeSeriesFromSeriesManifest(
-  seriesManifest: SeriesManifest, facetSignatures: FacetSignature[], indepKey: string, depKey: string
+  seriesManifest: SeriesManifest, facetSignatures: FacetSignature[], indepKey: string, depKey: string, type: string
 ): PlaneSeries {
   if (!seriesManifest.records) {
     throw new Error('only series manifests with inline data can use this method.');
   }
   return new PlaneSeries(
-    seriesManifest, 
-    seriesManifest.records!, 
+    seriesManifest,
+    seriesManifest.records!,
     facetSignatures,
     indepKey,
-    depKey
+    depKey,
+    type
   );
 }
