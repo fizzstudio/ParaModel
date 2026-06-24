@@ -260,7 +260,7 @@ export interface Intersection {
 export class Model {
     // (undocumented)
     [Symbol.iterator](): ArrayIterator<Series>;
-    constructor(series: Series[], manifest: Manifest);
+    constructor(series: Series[], manifest: Manifest, datasetIndex?: number);
     // (undocumented)
     [i: number]: Series;
     // (undocumented)
@@ -346,13 +346,13 @@ export class Model {
 }
 
 // @public (undocumented)
-export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): Model;
+export function modelFromExternalData(data: AllSeriesData, manifest: Manifest, datasetIndex?: number): Model;
 
 // @public (undocumented)
-export function modelFromInlineData(manifest: Manifest): Model;
+export function modelFromInlineData(manifest: Manifest, datasetIndex?: number): Model;
 
 // @public (undocumented)
-export function modelFromInlineManifest(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean): Model;
+export function modelFromInlineManifest(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean, datasetIndex?: number): Model;
 
 // @public
 export class NumberBox extends Box<'number'> {
@@ -406,7 +406,7 @@ export class PlaneDatapoint extends Datapoint {
 export class PlaneModel extends Model {
     // (undocumented)
     [Symbol.iterator]: () => ArrayIterator<PlaneSeries>;
-    constructor(series: PlaneSeries[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined, pairAnalyzerConstructor?: PairAnalyzerConstructor, _useWorker?: boolean);
+    constructor(series: PlaneSeries[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined, pairAnalyzerConstructor?: PairAnalyzerConstructor, _useWorker?: boolean, datasetIndex?: number);
     // (undocumented)
     [i: number]: PlaneSeries;
     // (undocumented)
@@ -484,10 +484,10 @@ export class PlaneModel extends Model {
 }
 
 // @public (undocumented)
-export function planeModelFromExternalData(data: AllSeriesData, manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean): PlaneModel;
+export function planeModelFromExternalData(data: AllSeriesData, manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean, datasetIndex?: number): PlaneModel;
 
 // @public (undocumented)
-export function planeModelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean): PlaneModel;
+export function planeModelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean, datasetIndex?: number): PlaneModel;
 
 // @public (undocumented)
 export class PlaneSeries extends Series {

@@ -24,16 +24,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
     (key) => this.dataset.facets[key].variableType === 'dependent'
   );
   if (
-    independentAxes.length === 1 && 
+    independentAxes.length === 1 &&
     dependentAxes.length === 1 &&
     (this._horizontalAxisFacetKey === null || this._horizontalAxisFacetKey === independentAxes[0]) &&
-    (this._verticalAxisFacetKey === null || this._verticalAxisFacetKey === dependentAxes[0]) 
+    (this._verticalAxisFacetKey === null || this._verticalAxisFacetKey === dependentAxes[0])
   ) {
     // NOTE: One (but not both) of these might be rewriting the axis facet key to the same thing
     this._horizontalAxisFacetKey = independentAxes[0];
     this._verticalAxisFacetKey = dependentAxes[0];
   } else if (
-    this._facetKeys.includes('x') 
+    this._facetKeys.includes('x')
     && this._facetKeys.includes('y')
     && this._displayTypeForFacet['x']?.type === 'axis'
     && this._displayTypeForFacet['y']?.type === 'axis'
@@ -110,7 +110,7 @@ export class Model {
   protected _seriesTopicMap: Record<string, Topic | undefined> = {};
   protected _seriesLabelMap: Record<string, string> = {};
 
-  constructor(public readonly series: Series[], manifest: Manifest) {
+  constructor(public readonly series: Series[], manifest: Manifest, datasetIndex = 0) {
     if (this.series.length === 0) {
       throw new Error('models must have at least one series');
     }
@@ -118,12 +118,12 @@ export class Model {
     // Whole Chart
     this.multi = this.series.length > 1;
     this._settings = manifest.extensions?.paracharts?.settings; // May be undefined
-    this._dataset = manifest.jim.datasets[0];
+    this._dataset = manifest.jim.datasets[datasetIndex];
     this.title = this._dataset.title;
     this.description = this._dataset.description; // May be undefined
     this.type = this._dataset.representation.subtype;
     this.family = CHART_FAMILY_MAP[this.type];
-    this._topic = this._dataset.topic; // May be undefined 
+    this._topic = this._dataset.topic; // May be undefined
 
     // Facets
     this.facetSignatures = this.series[0].facetSignatures;
@@ -303,9 +303,10 @@ export class PlaneModel extends Model {
     manifest: Manifest,
     private readonly seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
     private readonly pairAnalyzerConstructor: PairAnalyzerConstructor = BasicSeriesPairMetadataAnalyzer,
-    protected _useWorker = true
+    protected _useWorker = true,
+    datasetIndex = 0
   ) {
-    super(series, manifest);
+    super(series, manifest, datasetIndex);
 
     this.facetKeys.forEach((key) => {
       const facetManifest = this._dataset.facets[key];
@@ -565,25 +566,25 @@ function axesFromDataset(dataset: Dataset): { independentAxisKey?: string, depen
   return { independentAxisKey, dependentAxisKey };
 }
 
-export function modelFromInlineData(manifest: Manifest): Model {
+export function modelFromInlineData(manifest: Manifest, datasetIndex = 0): Model {
   if (!hasInlineData(manifest)) {
     throw new Error('only manifests with inline data can use this function.');
   }
-  const dataset = manifest.jim.datasets[0];
+  const dataset = manifest.jim.datasets[datasetIndex];
   const facets = facetsFromDataset(dataset);
   const series = dataset.series.map((seriesManifest) =>
     seriesFromSeriesManifest(seriesManifest, facets)
   );
-  return new Model(series, manifest);
+  return new Model(series, manifest, datasetIndex);
 }
 
-export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): Model {
-  const facets = facetsFromDataset(manifest.jim.datasets[0]);
+export function modelFromExternalData(data: AllSeriesData, manifest: Manifest, datasetIndex = 0): Model {
+  const facets = facetsFromDataset(manifest.jim.datasets[datasetIndex]);
   const series = Object.keys(data).map((key) => {
-    const seriesManifest = manifest.jim.datasets[0].series.filter((s) => s.key === key)[0];
+    const seriesManifest = manifest.jim.datasets[datasetIndex].series.filter((s) => s.key === key)[0];
     return new Series(seriesManifest, data[key], facets);
   });
-  return new Model(series, manifest);
+  return new Model(series, manifest, datasetIndex);
 
 }
 
@@ -591,12 +592,13 @@ export function planeModelFromInlineData(
   manifest: Manifest,
   seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
   pairAnalyzerConstructor?: PairAnalyzerConstructor,
-  useWorker?: boolean
+  useWorker?: boolean,
+  datasetIndex = 0
 ): PlaneModel {
   if (!hasInlineData(manifest)) {
     throw new Error('only manifests with inline data can use this function.');
   }
-  const dataset = manifest.jim.datasets[0];
+  const dataset = manifest.jim.datasets[datasetIndex];
   const { independentAxisKey, dependentAxisKey } = axesFromDataset(dataset);
   if (!independentAxisKey || !dependentAxisKey) {
     throw new Error('only manifests with 2D axes can use this function.');
@@ -605,7 +607,7 @@ export function planeModelFromInlineData(
   const series = dataset.series.map((seriesManifest) =>
     planeSeriesFromSeriesManifest(seriesManifest, facets, independentAxisKey, dependentAxisKey, dataset.representation.subtype)
   );
-  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
+  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker, datasetIndex);
 }
 
 export function planeModelFromExternalData(
@@ -613,9 +615,10 @@ export function planeModelFromExternalData(
   manifest: Manifest,
   seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
   pairAnalyzerConstructor?: PairAnalyzerConstructor,
-  useWorker?: boolean
+  useWorker?: boolean,
+  datasetIndex = 0
 ): PlaneModel {
-  const dataset = manifest.jim.datasets[0];
+  const dataset = manifest.jim.datasets[datasetIndex];
   const { independentAxisKey, dependentAxisKey } = axesFromDataset(dataset);
   if (!independentAxisKey || !dependentAxisKey) {
     throw new Error('only manifests with 2D axes can use this function.');
@@ -625,20 +628,21 @@ export function planeModelFromExternalData(
     const seriesManifest = dataset.series.filter((s) => s.key === key)[0];
     return new PlaneSeries(seriesManifest, data[key], facets, independentAxisKey, dependentAxisKey, dataset.representation.subtype);
   });
-  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
+  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker, datasetIndex);
 }
 
 export function modelFromInlineManifest(
   manifest: Manifest,
   seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
   pairAnalyzerConstructor?: PairAnalyzerConstructor,
-  useWorker?: boolean
+  useWorker?: boolean,
+  datasetIndex = 0
 ): Model {
   if (!hasInlineData(manifest)) {
     throw new Error('only manifests with inline data can use this function.');
   }
   if (manifestIsPlaneType(manifest)) {
-    return planeModelFromInlineData(manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
+    return planeModelFromInlineData(manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker, datasetIndex);
   }
-  return modelFromInlineData(manifest);
+  return modelFromInlineData(manifest, datasetIndex);
 }
