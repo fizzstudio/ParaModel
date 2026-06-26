@@ -4,26 +4,26 @@
 
 ```ts
 
-import { AllSeriesData } from '@fizz/paramanifest';
-import { ChartType } from '@fizz/paramanifest';
-import { ChartTypeFamily } from '@fizz/paramanifest';
+import { AllSeriesData } from '@fizz/chartsignal-internal';
+import { ChartType } from '@fizz/chartsignal-internal';
+import { ChartTypeFamily } from '@fizz/chartsignal-internal';
 import { clusterObject } from '@fizz/clustering';
-import { Dataset } from '@fizz/paramanifest';
-import { Datatype } from '@fizz/paramanifest';
-import { DisplayType } from '@fizz/paramanifest';
-import { Facet } from '@fizz/paramanifest';
+import { Dataset } from '@fizz/chartsignal-internal';
+import { Datatype } from '@fizz/chartsignal-internal';
+import { DisplayType } from '@fizz/chartsignal-internal';
+import { Facet } from '@fizz/chartsignal-internal';
 import { Interval } from '@fizz/chart-classifier-utils';
 import { Line } from '@fizz/chart-classifier-utils';
-import { Manifest } from '@fizz/paramanifest';
+import { Manifest } from '@fizz/chartsignal-internal';
 import { Point } from '@fizz/chart-classifier-utils';
 import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import type { SeriesAnalysis } from '@fizz/series-analyzer';
 import type { SeriesAnalysisOpts } from '@fizz/series-analyzer';
 import type { SeriesAnalyzer } from '@fizz/series-analyzer';
-import { SeriesManifest } from '@fizz/paramanifest';
-import { Settings } from '@fizz/paramanifest';
+import { SeriesManifest } from '@fizz/chartsignal-internal';
+import { Settings } from '@fizz/chartsignal-internal';
 import { Temporal } from 'temporal-polyfill';
-import { Topic } from '@fizz/paramanifest';
+import { Topic } from '@fizz/chartsignal-internal';
 
 // Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts
 //

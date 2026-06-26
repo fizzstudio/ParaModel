@@ -16,7 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from "typescript-memoize";
 
-import { Datatype } from "@fizz/paramanifest";
+import { Datatype } from "@fizz/chartsignal-internal";
 import { Point } from "@fizz/chart-classifier-utils";
 
 import { DataFrameRow, dataFrameRowEquals } from "../dataframe/dataframe";

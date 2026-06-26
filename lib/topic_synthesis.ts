@@ -1,4 +1,4 @@
-import { BaseKind, Topic } from "@fizz/paramanifest";
+import { BaseKind, Topic } from "@fizz/chartsignal-internal";
 //import { uncapitalize } from "@fizz/templum";
 
 import { Model } from "./model/model";
