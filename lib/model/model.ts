@@ -319,7 +319,13 @@ export class PlaneModel extends Model {
       }
     });
     this.dependentAxisKey = this.dependentFacetKeys[0]; // FIXME: Assumes only 1 dependent facet
+    if (this.dependentAxisKey !== 'y' && this.dependentFacetKeys.find(k => k == 'y') !== undefined){
+      this.dependentAxisKey = 'y';
+    }
     this.independentAxisKey = this.independentFacetKeys[0]; // FIXME: Assumes only 1 dependent facet
+    if (this.dependentAxisKey !== 'x' && this.dependentFacetKeys.find(k => k == 'x') !== undefined){
+      this.dependentAxisKey = 'x';
+    }
     // FIXME: Temporary until manifests have guaranteed axis keys
     if (this.horizontalAxisKey === undefined || this.verticalAxisKey === undefined) {
       this.horizontalAxisKey = this.independentAxisKey;
@@ -562,6 +568,7 @@ function axesFromDataset(dataset: Dataset): { independentAxisKey?: string, depen
   const dependentAxisKey = Object.entries(dataset.facets)
     .filter(([_facetKey, facet]) => facet.displayType.type === 'axis')
     .filter(([_facetKey, facet]) => facet.variableType === 'dependent')
+    .filter(([_facetKey, facet]) => facet.datatype === 'number' || facet.datatype === 'date')
     .map(([facetKey, _facet]) => facetKey).at(0);
   return { independentAxisKey, dependentAxisKey };
 }
