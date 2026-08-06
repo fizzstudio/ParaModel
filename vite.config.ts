@@ -28,10 +28,9 @@ export default defineConfig({
       instances: [
         {
           browser: 'chrome',
-          headless: true
+          //headless: true // set to false to watch in a real browser window
         }
       ]
-      //headless: true, // set to false to watch in a real browser window
     }
   }
 })
