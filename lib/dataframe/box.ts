@@ -17,11 +17,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import { Datatype } from "@fizz/paramanifest";
 
 import { ParaModelError } from "../utils";
-import {
-  compareDateValues, convertStandardFormatToDateValue, DateValue, formatDateValue,
-  getMonthAbbrev,
-  getMonthOrdinal,
-  parseDateToStandardFormat
+import { compareDateValues, convertStandardFormatToDateValue, DateValue, formatDateValue,
+  getMonthAbbrev, getMonthOrdinal, parseDateToStandardFormat
 } from "./date";
 
 // TODO: This type lacks a completeness type check. This could be implemented by testing in Vitest
@@ -30,7 +27,8 @@ import {
 export type ScalarMap = {
   number: number,
   string: string,
-  date: DateValue
+  date: DateValue,
+  boolean: boolean
 }
 
 export function numberLikeDatatype(datatype: Datatype | null): boolean {
@@ -229,6 +227,65 @@ export class DateBox extends Box<'date'> {
   }
 }
 
+const TRUE_VALUES = ['true', 'True', 'TRUE', 't', 'T', '1', 'y', 'Y'];
+const FALSE_VALUES = ['false', 'False', 'FALSE', 'f', 'F', '0', 'n', 'N'];
+
+/**
+ * Box holding a boolean.
+ * @public
+ */
+export class BooleanBox extends Box<'boolean'> {
+
+  convertRaw(raw: string): boolean {
+    if (TRUE_VALUES.includes(raw)) {
+      return true;
+    }
+    if (FALSE_VALUES.includes(raw)) {
+      return false;
+    }
+    throw new ParaModelError(`Raw boolean string "${raw}" could not be parsed.`);
+  }
+
+  public isNumber(): this is { value: number } {
+    return false;
+  }
+
+  public isString(): this is { value: string } {
+    return false;
+  }
+
+  public isDate(): this is { value: DateValue } {
+    return false;
+  }
+
+  public isEqual(other: Box<'boolean'>): boolean {
+    return this.value === other.value;
+  }
+
+  public isNumberLike(): boolean {
+    return true;
+  }
+
+  // Temporal requires PlaneDateTimes be converted to ZonedDateTimes to get their milliseconds since
+  //   the epoch (1/1/1970). We convert PlaneDateTimes to an arbitrary time zone here (UTC, i.e. 
+  //   Greenwich mean time) as we are only concerned with the relative differences between PlaneDateTimes
+  public asNumber(): number {
+    return this.value ? 1 : 0;
+  }
+
+  public asDate(): null {
+    return null;
+  }
+
+  public format(abbrev?: boolean): string {
+    return this.value ? 'true' : 'false';
+  }
+
+  public datatype(): 'boolean' {
+    return 'boolean';
+  }
+}
+
 type BoxConstructor<T extends Datatype> = new (raw: string) => Box<T>;
 
 type BoxConstructorMap = { [T in Datatype]: BoxConstructor<T> };
@@ -236,7 +293,8 @@ type BoxConstructorMap = { [T in Datatype]: BoxConstructor<T> };
 export const BOX_CONSTRUCTORS: BoxConstructorMap = {
   string: StringBox,
   number: NumberBox,
-  date: DateBox
+  date: DateBox,
+  boolean: BooleanBox
 }
 
 export class BoxSet<T extends Datatype> {
