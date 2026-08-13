@@ -45,8 +45,8 @@
   },
   "types": "./dist/paramodel.d.ts",
   "devDependencies": {
-    "@fizz/chart-data": "^2.5.7-signal.4",
-    "@fizz/test-utils": "^0.4.7-alpha.0",
+    "@fizz/chart-data": "^2.5.10",
+    "@fizz/test-utils": "^0.4.7",
     "@microsoft/api-documenter": "^7.26.4",
     "@microsoft/api-extractor": "^7.49.0",
     "@storybook/addon-coverage": "^1.0.5",
@@ -72,7 +72,7 @@
   "dependencies": {
     "@fizz/breakdancer": "^0.27.6",
     "@fizz/chart-classifier-utils": "^0.17.0",
-    "@fizz/chartsignal-internal": "^0.0.1-alpha.2",
+    "@fizz/chartsignal-internal": "^0.0.1",
     "@fizz/clustering": "^0.18.0",
     "@fizz/number-scaling-rounding": "^0.5.2",
     "@fizz/templum": "^0.4.6",
