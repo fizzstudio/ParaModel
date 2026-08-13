@@ -56,6 +56,9 @@ const DURATIONS: Record<DurationName, string> = {
 
 // @simonvarey: This is a temp fix until ParaLoader outputs standard datetime strings
 export function parseDateToStandardFormat(input: string): string | null {
+  if (input.includes('P')) {
+    return input;
+  }
   let yearNumber = parseFloat(input);
   let monthstr = '01';
   let dayStr = '01';

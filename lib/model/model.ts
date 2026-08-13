@@ -14,36 +14,36 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-  // TODO: Transfer to ParaLoader
-  // Note that this method will do nothing if the default circumstances aren't met
-  /*private setDefaultAxes(): void {
-    const independentAxes = this._axisFacetKeys.filter(
-      (key) => this.dataset.facets[key].variableType === 'independent'
-    );
-    const dependentAxes = this._axisFacetKeys.filter(
-      (key) => this.dataset.facets[key].variableType === 'dependent'
-    );
-    if (
-      independentAxes.length === 1 && 
-      dependentAxes.length === 1 &&
-      (this._horizontalAxisFacetKey === null || this._horizontalAxisFacetKey === independentAxes[0]) &&
-      (this._verticalAxisFacetKey === null || this._verticalAxisFacetKey === dependentAxes[0]) 
-    ) {
+// TODO: Transfer to ParaLoader
+// Note that this method will do nothing if the default circumstances aren't met
+/*private setDefaultAxes(): void {
+  const independentAxes = this._axisFacetKeys.filter(
+    (key) => this.dataset.facets[key].variableType === 'independent'
+  );
+  const dependentAxes = this._axisFacetKeys.filter(
+    (key) => this.dataset.facets[key].variableType === 'dependent'
+  );
+  if (
+    independentAxes.length === 1 &&
+    dependentAxes.length === 1 &&
+    (this._horizontalAxisFacetKey === null || this._horizontalAxisFacetKey === independentAxes[0]) &&
+    (this._verticalAxisFacetKey === null || this._verticalAxisFacetKey === dependentAxes[0])
+  ) {
+    // NOTE: One (but not both) of these might be rewriting the axis facet key to the same thing
+    this._horizontalAxisFacetKey = independentAxes[0];
+    this._verticalAxisFacetKey = dependentAxes[0];
+  } else if (
+    this._facetKeys.includes('x')
+    && this._facetKeys.includes('y')
+    && this._displayTypeForFacet['x']?.type === 'axis'
+    && this._displayTypeForFacet['y']?.type === 'axis'
+    && (this._horizontalAxisFacetKey === null || this._horizontalAxisFacetKey === 'x')
+    && (this._verticalAxisFacetKey === null || this._verticalAxisFacetKey === 'y') ) {
       // NOTE: One (but not both) of these might be rewriting the axis facet key to the same thing
-      this._horizontalAxisFacetKey = independentAxes[0];
-      this._verticalAxisFacetKey = dependentAxes[0];
-    } else if (
-      this._facetKeys.includes('x') 
-      && this._facetKeys.includes('y')
-      && this._displayTypeForFacet['x']?.type === 'axis'
-      && this._displayTypeForFacet['y']?.type === 'axis'
-      && (this._horizontalAxisFacetKey === null || this._horizontalAxisFacetKey === 'x')
-      && (this._verticalAxisFacetKey === null || this._verticalAxisFacetKey === 'y') ) {
-        // NOTE: One (but not both) of these might be rewriting the axis facet key to the same thing
-        this._horizontalAxisFacetKey === 'x';
-        this._verticalAxisFacetKey === 'y';
-    }
-  }*/
+      this._horizontalAxisFacetKey === 'x';
+      this._verticalAxisFacetKey === 'y';
+  }
+}*/
 
 import { Memoize } from 'typescript-memoize';
 
@@ -54,8 +54,10 @@ import type { SeriesAnalysis, SeriesAnalysisOpts, SeriesAnalyzer } from "@fizz/s
 import { addArrays, arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
 import { Box, BoxSet } from "../dataframe/box";
-import { AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues, 
-  SeriesScaledValues } from "../metadata/metadata";
+import {
+  AllSeriesStatsScaledValues, calculateFacetStats, FacetStats, generateValues,
+  SeriesScaledValues
+} from "../metadata/metadata";
 import { Datapoint, PlaneDatapoint } from '../model/datapoint';
 import { PlaneSeries, planeSeriesFromSeriesManifest, Series, seriesFromSeriesManifest } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
@@ -106,7 +108,7 @@ export class Model {
   protected _seriesTopicMap: Record<string, Topic | undefined> = {};
   protected _seriesLabelMap: Record<string, string> = {};
 
-  constructor(public readonly series: Series[], manifest: Manifest) {
+  constructor(public readonly series: Series[], manifest: Manifest, datasetIndex = 0) {
     if (this.series.length === 0) {
       throw new Error('models must have at least one series');
     }
@@ -114,12 +116,12 @@ export class Model {
     // Whole Chart
     this.multi = this.series.length > 1;
     this._settings = manifest.extensions?.paracharts?.settings; // May be undefined
-    this._dataset = manifest.jim.datasets[0];
+    this._dataset = manifest.jim.datasets[datasetIndex];
     this.title = this._dataset.title;
     this.description = this._dataset.description; // May be undefined
     this.type = this._dataset.representation.subtype;
     this.family = CHART_FAMILY_MAP[this.type];
-    this._topic = this._dataset.topic; // May be undefined 
+    this._topic = this._dataset.topic; // May be undefined
 
     // Facets
     this.facetSignatures = this.series[0].facetSignatures;
@@ -150,7 +152,7 @@ export class Model {
         throw new Error('every series in a model must have a unique key');
       }
       if (!arrayEqualsBy(
-        (l, r) => (l.key === r.key) && (l.datatype === r.datatype), 
+        (l, r) => (l.key === r.key) && (l.datatype === r.datatype),
         aSeries.facetSignatures, this.facetSignatures
       )) {
         throw new Error('every series in a model must have the same facets');
@@ -161,8 +163,9 @@ export class Model {
       this._seriesMap[aSeries.key] = aSeries;
       this._seriesLabelMap[aSeries.getLabel()] = aSeries.key;
       this.allPoints.push(...aSeries);
+      const unique = this.type == 'scatter' ? false : true;
       Object.keys(this._uniqueValuesForFacet).forEach((facetKey) => {
-        this._uniqueValuesForFacet[facetKey].merge(aSeries.allFacetValues(facetKey)!);
+        this._uniqueValuesForFacet[facetKey].merge(aSeries.allFacetValues(facetKey)!, unique);
       });
       this._seriesTopicMap[aSeries.key] = aSeries.manifest.topic; // May be undefined
     }
@@ -172,7 +175,7 @@ export class Model {
   public atKey(key: string): Series | null {
     return this._seriesMap[key] ?? null;
   }
-  
+
   public atKeyAndIndex(key: string, index: number): Datapoint | null {
     return this.atKey(key)?.[index] ?? null;
   }
@@ -282,7 +285,7 @@ export class PlaneModel extends Model {
   public readonly convergingGroups: TrackingGroup[] = [];
   public readonly divergingGroups: TrackingGroup[] = [];
   public readonly trackingZones: TrackingZone[] = [];
- 
+
   protected _seriesAnalysisMap?: Record<string, SeriesAnalysis>;
   protected _seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null = null;
   protected _seriesLineMap: Record<string, Line> = {};
@@ -294,13 +297,14 @@ export class PlaneModel extends Model {
   public readonly ys: number[];*/
 
   constructor(
-    series: PlaneSeries[], 
+    series: PlaneSeries[],
     manifest: Manifest,
     private readonly seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
     private readonly pairAnalyzerConstructor: PairAnalyzerConstructor = BasicSeriesPairMetadataAnalyzer,
-    protected _useWorker = true
+    protected _useWorker = true,
+    datasetIndex = 0
   ) {
-    super(series, manifest);
+    super(series, manifest, datasetIndex);
 
     this.facetKeys.forEach((key) => {
       const facetManifest = this._dataset.facets[key];
@@ -313,26 +317,32 @@ export class PlaneModel extends Model {
       }
     });
     this.dependentAxisKey = this.dependentFacetKeys[0]; // FIXME: Assumes only 1 dependent facet
+    if (this.dependentAxisKey !== 'y' && this.dependentFacetKeys.find(k => k == 'y') !== undefined){
+      this.dependentAxisKey = 'y';
+    }
     this.independentAxisKey = this.independentFacetKeys[0]; // FIXME: Assumes only 1 dependent facet
+    if (this.dependentAxisKey !== 'x' && this.dependentFacetKeys.find(k => k == 'x') !== undefined){
+      this.dependentAxisKey = 'x';
+    }
     // FIXME: Temporary until manifests have guaranteed axis keys
     if (this.horizontalAxisKey === undefined || this.verticalAxisKey === undefined) {
       this.horizontalAxisKey = this.independentAxisKey;
       this.verticalAxisKey = this.dependentAxisKey;
     }
 
-    this.grouped = this._dataset.representation.structure?.filter((structure) => 
+    this.grouped = this._dataset.representation.structure?.filter((structure) =>
       structure.role === 'group'
     ).at(0)?.facetKeys.includes(this.dependentAxisKey) ?? false;
 
-    if (this.family === 'line' || this.family === 'bar' || this.family === 'histogram') {
+    if (this.family === 'line' || this.family === 'bar') {
       for (const series of (this.series as PlaneSeries[])) {
         this._seriesLineMap[series.key] = series.getActualLine();
       }
       if (this.multi) {
         const yAxisInterval = this.getAxisInterval(this.getAxisOrientation('dependent'))!;
         this._seriesPairAnalyzer = new this.pairAnalyzerConstructor(
-          Object.values(this._seriesLineMap), 
-          [1,1], //FIXME: get actual screen size
+          Object.values(this._seriesLineMap),
+          [1, 1], //FIXME: get actual screen size
           yAxisInterval.start,
           yAxisInterval.end
         );
@@ -346,7 +356,7 @@ export class PlaneModel extends Model {
         this.trackingZones = this._seriesPairAnalyzer.getTrackingZones();
       }
       // NOTE: `generateValues` must come after `pairAnalyzer` as `generateValues` uses the intersections defined by `pairAnalyzer`
-      [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues] 
+      [this.seriesScaledValues, this.seriesStatsScaledValues, this.intersectionScaledValues]
         = generateValues(this.series, this.intersections, this.getAxisFacet('vert')?.multiplier as OrderOfMagnitude | undefined);
       for (const key of this.seriesKeys) {
         this._seriesMap[key].scaledValues = this.seriesScaledValues[key];
@@ -431,13 +441,13 @@ export class PlaneModel extends Model {
         start: dependentAxis.start,
         end: Math.max(...summedVals.map(p => p.y))
       };
-      this._summedSeriesAnalysis["sum"] = await seriesAnalyzer.analyzeSeries(
+      this._summedSeriesAnalysis.sum = await seriesAnalyzer.analyzeSeries(
         line, {
         useWorker: this._useWorker,
         yAxis: scaledAxis
       }
       );
-    } 
+    }
     this._seriesAnalysisDone = true;
   }
 
@@ -461,7 +471,7 @@ export class PlaneModel extends Model {
   }
 
   @Memoize()
-  public getAxisOrientation(depIndep: 'dependent'| 'independent'): AxisOrientation {
+  public getAxisOrientation(depIndep: 'dependent' | 'independent'): AxisOrientation {
     const facetKey = depIndep === 'dependent' ? this.dependentAxisKey : this.independentAxisKey;
     if (facetKey === this.verticalAxisKey) {
       return 'vert';
@@ -491,7 +501,7 @@ export class PlaneModel extends Model {
   @Memoize()
   public async getSeriesAnalysis(key: string, options?: SeriesAnalysisOpts): Promise<SeriesAnalysis | null> {
     if (
-      this.type === 'scatter' 
+      ['scatter', 'histogram', 'heatmap'].includes(this.type)
       || !this.seriesAnalyzerConstructor
       || !this.seriesKeys.includes(key)
     ) {
@@ -504,13 +514,13 @@ export class PlaneModel extends Model {
   @Memoize()
   public async getSummedAnalysis(): Promise<SeriesAnalysis | null> {
     if (
-      this.type === 'scatter'
+      ['scatter', 'histogram', 'heatmap'].includes(this.type)
       || !this.seriesAnalyzerConstructor
     ) {
       return null;
     }
     await this.generateSeriesAnalyses();
-    return this._summedSeriesAnalysis["sum"]
+    return this._summedSeriesAnalysis.sum
   }
 
   @Memoize()
@@ -556,29 +566,30 @@ function axesFromDataset(dataset: Dataset): { independentAxisKey?: string, depen
   const dependentAxisKey = Object.entries(dataset.facets)
     .filter(([_facetKey, facet]) => facet.displayType.type === 'axis')
     .filter(([_facetKey, facet]) => facet.variableType === 'dependent')
+    .filter(([_facetKey, facet]) => facet.datatype === 'number' || facet.datatype === 'date')
     .map(([facetKey, _facet]) => facetKey).at(0);
   return { independentAxisKey, dependentAxisKey };
 }
 
-export function modelFromInlineData(manifest: Manifest): Model {
+export function modelFromInlineData(manifest: Manifest, datasetIndex = 0): Model {
   if (!hasInlineData(manifest)) {
     throw new Error('only manifests with inline data can use this function.');
   }
-  const dataset = manifest.jim.datasets[0];
+  const dataset = manifest.jim.datasets[datasetIndex];
   const facets = facetsFromDataset(dataset);
-  const series = dataset.series.map((seriesManifest) => 
+  const series = dataset.series.map((seriesManifest) =>
     seriesFromSeriesManifest(seriesManifest, facets)
   );
-  return new Model(series, manifest);
+  return new Model(series, manifest, datasetIndex);
 }
 
-export function modelFromExternalData(data: AllSeriesData, manifest: Manifest): Model {
-  const facets = facetsFromDataset(manifest.jim.datasets[0]);
+export function modelFromExternalData(data: AllSeriesData, manifest: Manifest, datasetIndex = 0): Model {
+  const facets = facetsFromDataset(manifest.jim.datasets[datasetIndex]);
   const series = Object.keys(data).map((key) => {
-    const seriesManifest = manifest.jim.datasets[0].series.filter((s) => s.key === key)[0];
+    const seriesManifest = manifest.jim.datasets[datasetIndex].series.filter((s) => s.key === key)[0];
     return new Series(seriesManifest, data[key], facets);
   });
-  return new Model(series, manifest);
+  return new Model(series, manifest, datasetIndex);
 
 }
 
@@ -586,31 +597,33 @@ export function planeModelFromInlineData(
   manifest: Manifest,
   seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
   pairAnalyzerConstructor?: PairAnalyzerConstructor,
-  useWorker?: boolean
+  useWorker?: boolean,
+  datasetIndex = 0
 ): PlaneModel {
   if (!hasInlineData(manifest)) {
     throw new Error('only manifests with inline data can use this function.');
   }
-  const dataset = manifest.jim.datasets[0];
+  const dataset = manifest.jim.datasets[datasetIndex];
   const { independentAxisKey, dependentAxisKey } = axesFromDataset(dataset);
   if (!independentAxisKey || !dependentAxisKey) {
     throw new Error('only manifests with 2D axes can use this function.');
   }
   const facets = facetsFromDataset(dataset);
-  const series = dataset.series.map((seriesManifest) => 
-    planeSeriesFromSeriesManifest(seriesManifest, facets, independentAxisKey, dependentAxisKey)
+  const series = dataset.series.map((seriesManifest) =>
+    planeSeriesFromSeriesManifest(seriesManifest, facets, independentAxisKey, dependentAxisKey, dataset.representation.subtype)
   );
-  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
+  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker, datasetIndex);
 }
 
 export function planeModelFromExternalData(
-  data: AllSeriesData, 
+  data: AllSeriesData,
   manifest: Manifest,
   seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
   pairAnalyzerConstructor?: PairAnalyzerConstructor,
-  useWorker?: boolean
+  useWorker?: boolean,
+  datasetIndex = 0
 ): PlaneModel {
-  const dataset = manifest.jim.datasets[0];
+  const dataset = manifest.jim.datasets[datasetIndex];
   const { independentAxisKey, dependentAxisKey } = axesFromDataset(dataset);
   if (!independentAxisKey || !dependentAxisKey) {
     throw new Error('only manifests with 2D axes can use this function.');
@@ -618,22 +631,23 @@ export function planeModelFromExternalData(
   const facets = facetsFromDataset(dataset);
   const series = Object.keys(data).map((key) => {
     const seriesManifest = dataset.series.filter((s) => s.key === key)[0];
-    return new PlaneSeries(seriesManifest, data[key], facets, independentAxisKey, dependentAxisKey);
+    return new PlaneSeries(seriesManifest, data[key], facets, independentAxisKey, dependentAxisKey, dataset.representation.subtype);
   });
-  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
+  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker, datasetIndex);
 }
 
 export function modelFromInlineManifest(
   manifest: Manifest,
   seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
   pairAnalyzerConstructor?: PairAnalyzerConstructor,
-  useWorker?: boolean
+  useWorker?: boolean,
+  datasetIndex = 0
 ): Model {
   if (!hasInlineData(manifest)) {
     throw new Error('only manifests with inline data can use this function.');
   }
   if (manifestIsPlaneType(manifest)) {
-    return planeModelFromInlineData(manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker);
+    return planeModelFromInlineData(manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker, datasetIndex);
   }
-  return modelFromInlineData(manifest);
+  return modelFromInlineData(manifest, datasetIndex);
 }
