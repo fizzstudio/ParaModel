@@ -17,7 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import * as ss from '@fizz/simple-statistics';
 import { Memoize } from "typescript-memoize";
 
-import { Datatype, SeriesManifest, strToId } from "@fizz/paramanifest";
+import { Datatype, SeriesManifest, strToId } from "@fizz/chartsignal-internal";
 import { Line } from "@fizz/chart-classifier-utils";
 import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 
