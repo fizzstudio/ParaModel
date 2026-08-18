@@ -14,7 +14,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import * as ss from '@fizz/simple-statistics';
+import { mean, median, mode } from '@fizz/chartsignal-internal';
 
 import { OrderOfMagnitude, scaleAndRound, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 
@@ -49,9 +49,9 @@ export function calculateFacetStats(facetKey: string, datapoints: Datapoint[]): 
     min: { value: minValue, datapoints: pointsAtMin },
     max: { value: maxValue, datapoints: pointsAtMax },
     range: maxValue - minValue,
-    mean: ss.mean(facetValues),
-    median: ss.median(facetValues),
-    mode: ss.mode(facetValues)
+    mean: mean(facetValues),
+    median: median(facetValues),
+    mode: mode(facetValues)
   };
 }
 

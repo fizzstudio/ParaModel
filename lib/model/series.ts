@@ -14,7 +14,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import * as ss from '@fizz/simple-statistics';
+import { mean } from '@fizz/chartsignal-internal';
 import { Memoize } from "typescript-memoize";
 
 import { Datatype, SeriesManifest, strToId } from "@fizz/chartsignal-internal";
@@ -114,7 +114,7 @@ export class Series {
       return null;
     }
     const datapoints = this.datapoints.slice(startIndex, endIndex);
-    return ss.mean(datapoints.map((point) => point.facetValueAsNumber(key)!));
+    return mean(datapoints.map((point) => point.facetValueAsNumber(key)!));
   }
 
   @Memoize()

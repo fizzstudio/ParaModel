@@ -66,7 +66,7 @@ import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-roun
 import { Interval, Line } from '@fizz/chart-classifier-utils';
 import { synthesizeChartTopic, synthesizeSeriesTopic } from '../topic_synthesis';
 import { clusterObject, coord, generateClusterAnalysis } from '@fizz/clustering';
-import { sampleCorrelation } from '@fizz/simple-statistics';
+import { sampleCorrelation } from '@fizz/chartsignal-internal';
 
 // TODO: Remove these
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
