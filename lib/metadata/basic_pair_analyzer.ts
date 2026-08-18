@@ -317,7 +317,7 @@ export class BasicLineIntersectionDetection {
   ) {
   
     // A line segment A: (a1, a2) is equal to a1 + r where r is just the difference between 
-    // our original poitns (a1 and a2)
+    // our original points (a1 and a2)
 
     // Find difference the start points from the end points. This gives us scalars r & s. They have 
     // been renamed diff1 and diff2
@@ -347,7 +347,7 @@ export class BasicLineIntersectionDetection {
       // u = (q − p) × r / (r × s)
       // t = (q − p) × s / (r × s)
 
-      // u is alread calculated for us in previous uNumerator and Denominator so all we hve to do is divide them.
+      // u is already calculated for us in previous uNumerator and Denominator so all we have to do is divide them.
       const u_scalar = uNumerator / denominator;
       const t_scalar = this.crossProduct(this.subtractPoints(seg2.start, seg1.start), diff1) / denominator;
 
@@ -385,7 +385,7 @@ export class BasicLineIntersectionDetection {
     const slopeAngle1 = slopeToAngle(slope1);
     const slopeAngle2 = slopeToAngle(slope2);
 
-    // Agreed-upon parallel threhold 
+    // Agreed-upon parallel threshold 
     const PARALLEL_THRESHOLD = 5;
 
     // If the difference between the two slopes is less than 5, these lines are functionally parallel.
@@ -405,7 +405,7 @@ export class BasicLineIntersectionDetection {
   /**
    * Find the apparent slope/gradient of a segment, scaled to the x and y ranges that the graph displays.
    *   NOTE:  run can always be considered 1, as the two points of a segment are adjacent.
-   *   NOTE: Horizontal lines are 0. Verticle lines are impossible, as x1 must be strictly greater than x2.
+   *   NOTE: Horizontal lines are 0. Vertical lines are impossible, as x1 must be strictly greater than x2.
    * @returns the slope as a float.
    */
   findSlope(seg: PointInterval, yScale: number): number {
@@ -494,7 +494,7 @@ export class BasicLineIntersectionDetection {
 
   /**
    * Finds the acute angle of intersection between two line segments, using their slopes. 
-   *   Note that parallel and colinear lines will return an angle of 0.
+   *   Note that parallel and collinear lines will return an angle of 0.
    * @param m1 - the numeric value of the first slope.
    * @param m2 - the numeric value of the second slope.
    * @returns the acute angle of intersection in degrees.

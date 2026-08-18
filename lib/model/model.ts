@@ -210,7 +210,7 @@ export class Model {
   }
 
   @Memoize()
-  public hasExplictChartTopic(): boolean {
+  public hasExplicitChartTopic(): boolean {
     return this._topic !== undefined;
   }
 
