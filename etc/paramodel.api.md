@@ -306,7 +306,7 @@ export class Model {
     // (undocumented)
     getSeriesTopic(key: string): Topic | null;
     // (undocumented)
-    hasExplictChartTopic(): boolean;
+    hasExplicitChartTopic(): boolean;
     // (undocumented)
     readonly independentFacetKeys: string[];
     // (undocumented)
