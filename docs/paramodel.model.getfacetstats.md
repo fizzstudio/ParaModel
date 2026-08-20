@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-getFacetStats(key: string): ChartFacetStats | null;
+getFacetStats(key: string): FacetStats | null;
 ```
 
 ## Parameters
@@ -45,5 +45,5 @@ string
 </tbody></table>
 **Returns:**
 
-ChartFacetStats \| null
+FacetStats \| null
 

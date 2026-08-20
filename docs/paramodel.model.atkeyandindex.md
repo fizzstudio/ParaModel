@@ -7,7 +7,7 @@
 **Signature:**
 
 ```typescript
-atKeyAndIndex(key: string, index: number): DataPoint | null;
+atKeyAndIndex(key: string, index: number): Datapoint | null;
 ```
 
 ## Parameters
@@ -59,5 +59,5 @@ number
 </tbody></table>
 **Returns:**
 
-[DataPoint](./paramodel.datapoint.md) \| null
+[Datapoint](./paramodel.datapoint.md) \| null
 

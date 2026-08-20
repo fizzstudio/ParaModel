@@ -7,5 +7,5 @@
 **Signature:**
 
 ```typescript
-readonly rawData: RawDataPoint[];
+readonly rawData: RawDatapoint[];
 ```

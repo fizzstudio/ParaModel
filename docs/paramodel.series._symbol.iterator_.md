@@ -7,9 +7,9 @@
 **Signature:**
 
 ```typescript
-[Symbol.iterator](): Iterator<DataPoint>;
+[Symbol.iterator](): Iterator<Datapoint>;
 ```
 **Returns:**
 
-Iterator&lt;[DataPoint](./paramodel.datapoint.md)<!-- -->&gt;
+Iterator&lt;[Datapoint](./paramodel.datapoint.md)<!-- -->&gt;
 

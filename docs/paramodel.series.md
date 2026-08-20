@@ -30,7 +30,7 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[(constructor)(key, rawData, facets, label, theme)](./paramodel.series._constructor_.md)
+[(constructor)(manifest, rawData, facetSignatures, indepKey, depKey, type)](./paramodel.series._constructor_.md)
 
 
 </td><td>
@@ -69,17 +69,19 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[facets](./paramodel.series.facets.md)
+[\_dataframe](./paramodel.series._dataframe.md)
 
 
 </td><td>
+
+`protected`
 
 `readonly`
 
 
 </td><td>
 
-FacetSignature\[\]
+DataFrame
 
 
 </td><td>
@@ -88,7 +90,49 @@ FacetSignature\[\]
 </td></tr>
 <tr><td>
 
-[id](./paramodel.series.id.md)
+[\_facetDatatypeMappedByKey](./paramodel.series._facetdatatypemappedbykey.md)
+
+
+</td><td>
+
+`protected`
+
+`readonly`
+
+
+</td><td>
+
+Record&lt;string, Datatype&gt;
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[\_uniqueValuesForFacetMappedByKey](./paramodel.series._uniquevaluesforfacetmappedbykey.md)
+
+
+</td><td>
+
+`protected`
+
+`readonly`
+
+
+</td><td>
+
+Record&lt;string, BoxSet&lt;Datatype&gt;&gt;
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[datapoints](./paramodel.series.datapoints.md)
 
 
 </td><td>
@@ -98,10 +142,94 @@ FacetSignature\[\]
 
 </td><td>
 
-string
+[Datapoint](./paramodel.datapoint.md)<!-- -->\[\]
 
 
 </td><td>
+
+
+</td></tr>
+<tr><td>
+
+[depKey?](./paramodel.series.depkey.md)
+
+
+</td><td>
+
+`protected`
+
+`readonly`
+
+
+</td><td>
+
+string \| undefined
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+[facetKeys](./paramodel.series.facetkeys.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+string\[\]
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[facetSignatures](./paramodel.series.facetsignatures.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+[FacetSignature](./paramodel.facetsignature.md)<!-- -->\[\]
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[indepKey?](./paramodel.series.indepkey.md)
+
+
+</td><td>
+
+`protected`
+
+`readonly`
+
+
+</td><td>
+
+string \| undefined
+
+
+</td><td>
+
+_(Optional)_
 
 
 </td></tr>
@@ -164,6 +292,44 @@ number
 </td></tr>
 <tr><td>
 
+[manifest](./paramodel.series.manifest.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+SeriesManifest
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[originalKey](./paramodel.series.originalkey.md)
+
+
+</td><td>
+
+`readonly`
+
+
+</td><td>
+
+string
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [rawData](./paramodel.series.rawdata.md)
 
 
@@ -174,7 +340,7 @@ number
 
 </td><td>
 
-RawDataPoint\[\]
+RawDatapoint\[\]
 
 
 </td><td>
@@ -183,17 +349,51 @@ RawDataPoint\[\]
 </td></tr>
 <tr><td>
 
-[theme?](./paramodel.series.theme.md)
+[scaledValues](./paramodel.series.scaledvalues.md)
 
 
 </td><td>
 
-`readonly`
+
+</td><td>
+
+ScaledNumberRounded\[\] \| null
 
 
 </td><td>
 
-Theme
+
+</td></tr>
+<tr><td>
+
+[statsScaledValues](./paramodel.series.statsscaledvalues.md)
+
+
+</td><td>
+
+
+</td><td>
+
+SeriesStatsScaledValues \| null
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[type?](./paramodel.series.type.md)
+
+
+</td><td>
+
+`protected`
+
+
+</td><td>
+
+string \| undefined
 
 
 </td><td>
@@ -248,7 +448,105 @@ Description
 </td></tr>
 <tr><td>
 
-[facet(key)](./paramodel.series.facet.md)
+[constructDatapoint(data, seriesKey, datapointIndex)](./paramodel.series.constructdatapoint.md)
+
+
+</td><td>
+
+`protected`
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[createLineFromFacets(xKey, yKey)](./paramodel.series.createlinefromfacets.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[datapointAt(facetKey, value)](./paramodel.series.datapointat.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[facetAverage(key)](./paramodel.series.facetaverage.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[facetAverageOverInterval(key, startIndex, endIndex)](./paramodel.series.facetaverageoverinterval.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[facetBoxes(key)](./paramodel.series.facetboxes.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[getFacetDatatype(key)](./paramodel.series.getfacetdatatype.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[getFacetStats(key)](./paramodel.series.getfacetstats.md)
+
+
+</td><td>
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[getLabel()](./paramodel.series.getlabel.md)
 
 
 </td><td>

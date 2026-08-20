@@ -14,8 +14,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { sampleStandardDeviation } from '@fizz/chartsignal-internal';
-import { Interval, Line } from "@fizz/chart-classifier-utils";
+import { sampleStandardDeviation, Interval, Line } from '@fizz/chartsignal-internal';
 import { Breakdancer } from '@fizz/breakdancer';
 
 import { IndexedPointInterval, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from "./pair_analyzer_interface";

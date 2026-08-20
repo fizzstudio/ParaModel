@@ -1,5 +1,5 @@
-import { Line, Point } from "@fizz/chart-classifier-utils";
-import { max, min, mean, median, mode, rSquared, linearRegressionLine, linearRegression } from '@fizz/chartsignal-internal';
+import { max, min, mean, median, mode, rSquared, linearRegressionLine, linearRegression, Line, 
+  Point } from '@fizz/chartsignal-internal';
 
 import { Category, RunInfo, SegmentInfo, SequenceInfo, SeriesStats, SingleSeriesMetadataAnalyzer } from "./series_analyzer_interface";
 import { Memoize } from "typescript-memoize";

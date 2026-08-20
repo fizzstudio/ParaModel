@@ -14,11 +14,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { mean } from '@fizz/chartsignal-internal';
 import { Memoize } from "typescript-memoize";
 
-import { Datatype, SeriesManifest, strToId } from "@fizz/chartsignal-internal";
-import { Line } from "@fizz/chart-classifier-utils";
+import { Datatype, SeriesManifest, strToId, Line, mean } from "@fizz/chartsignal-internal";
 import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 
 import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDatapoint } from "../dataframe/dataframe";

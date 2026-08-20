@@ -14,10 +14,8 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { Line } from '@fizz/chart-classifier-utils';
 import { findSplitIndex } from '@fizz/breakdancer';
-
-import { mean } from '@fizz/chartsignal-internal';
+import { mean, Line } from '@fizz/chartsignal-internal';
 
 const MIN_POINTS = 2;
 const NOISE = -1;

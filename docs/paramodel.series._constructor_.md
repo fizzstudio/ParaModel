@@ -9,7 +9,7 @@ Constructs a new instance of the `Series` class
 **Signature:**
 
 ```typescript
-constructor(key: string, rawData: RawDataPoint[], facets: FacetSignature[], label?: string, theme?: Theme);
+constructor(manifest: SeriesManifest, rawData: RawDatapoint[], facetSignatures: FacetSignature[], indepKey?: string | undefined, depKey?: string | undefined, type?: string | undefined);
 ```
 
 ## Parameters
@@ -32,12 +32,12 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-key
+manifest
 
 
 </td><td>
 
-string
+SeriesManifest
 
 
 </td><td>
@@ -51,7 +51,7 @@ rawData
 
 </td><td>
 
-RawDataPoint\[\]
+RawDatapoint\[\]
 
 
 </td><td>
@@ -60,12 +60,12 @@ RawDataPoint\[\]
 </td></tr>
 <tr><td>
 
-facets
+facetSignatures
 
 
 </td><td>
 
-FacetSignature\[\]
+[FacetSignature](./paramodel.facetsignature.md)<!-- -->\[\]
 
 
 </td><td>
@@ -74,12 +74,12 @@ FacetSignature\[\]
 </td></tr>
 <tr><td>
 
-label
+indepKey
 
 
 </td><td>
 
-string
+string \| undefined
 
 
 </td><td>
@@ -90,12 +90,28 @@ _(Optional)_
 </td></tr>
 <tr><td>
 
-theme
+depKey
 
 
 </td><td>
 
-Theme
+string \| undefined
+
+
+</td><td>
+
+_(Optional)_
+
+
+</td></tr>
+<tr><td>
+
+type
+
+
+</td><td>
+
+string \| undefined
 
 
 </td><td>
