@@ -48,10 +48,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import { Memoize } from 'typescript-memoize';
 
 import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, 
-  Facet, hasInlineData, Manifest, manifestIsPlaneType, Settings, Topic, Interval, Line, sampleCorrelation 
+  Facet, hasInlineData, Manifest, manifestIsPlaneType, Settings, Topic, Interval, Line, 
+  sampleCorrelation, OrderOfMagnitude, ScaledNumberRounded
 } from "@fizz/chartsignal-internal";
 import type { SeriesAnalysis, SeriesAnalysisOpts, SeriesAnalyzer } from "@fizz/series-analyzer";
-import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
 import { clusterObject, coord, generateClusterAnalysis } from '@fizz/clustering';
 
 import { addArrays, arrayEqualsBy, AxisOrientation, enumerate } from "../utils";

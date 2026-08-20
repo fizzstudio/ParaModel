@@ -71,9 +71,8 @@
   },
   "dependencies": {
     "@fizz/breakdancer": "^0.27.8",
-    "@fizz/chartsignal-internal": "^0.0.3",
+    "@fizz/chartsignal-internal": "^0.0.4",
     "@fizz/clustering": "^0.18.0",
-    "@fizz/number-scaling-rounding": "^0.6.2",
     "@fizz/templum": "^0.4.6",
     "temporal-polyfill": "^0.3.0",
     "typescript-memoize": "^1.1.1"

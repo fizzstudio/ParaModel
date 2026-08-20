@@ -16,8 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Memoize } from "typescript-memoize";
 
-import { Datatype, SeriesManifest, strToId, Line, mean } from "@fizz/chartsignal-internal";
-import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { Datatype, SeriesManifest, strToId, Line, mean, ScaledNumberRounded } from "@fizz/chartsignal-internal";
 
 import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDatapoint } from "../dataframe/dataframe";
 import { Box, BoxSet, numberLikeDatatype } from "../dataframe/box";

@@ -16,7 +16,7 @@ import { Interval } from '@fizz/chartsignal-internal';
 import { Line } from '@fizz/chartsignal-internal';
 import { Manifest } from '@fizz/chartsignal-internal';
 import { Point } from '@fizz/chartsignal-internal';
-import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { ScaledNumberRounded } from '@fizz/chartsignal-internal';
 import type { SeriesAnalysis } from '@fizz/series-analyzer';
 import type { SeriesAnalysisOpts } from '@fizz/series-analyzer';
 import type { SeriesAnalyzer } from '@fizz/series-analyzer';
