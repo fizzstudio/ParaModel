@@ -70,14 +70,12 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@fizz/breakdancer": "^0.27.8",
-    "@fizz/chartsignal-internal": "^0.0.4",
+    "@fizz/chartsignal-internal": "^0.0.5",
     "@fizz/clustering": "^0.18.0",
-    "@fizz/templum": "^0.4.6",
     "temporal-polyfill": "^0.3.0",
     "typescript-memoize": "^1.1.1"
   },
   "optionalDependencies": {
-    "@fizz/series-analyzer": "^0.15.7"
+    "@fizz/series-analyzer": "^0.15.8"
   }
 }
