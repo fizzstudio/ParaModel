@@ -70,12 +70,9 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@fizz/chartsignal-internal": "^0.0.5",
+    "@fizz/chartsignal-internal": "^0.0.7",
     "@fizz/clustering": "^0.18.0",
     "temporal-polyfill": "^0.3.0",
     "typescript-memoize": "^1.1.1"
-  },
-  "optionalDependencies": {
-    "@fizz/series-analyzer": "^0.15.8"
   }
 }

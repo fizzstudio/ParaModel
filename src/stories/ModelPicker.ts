@@ -18,8 +18,7 @@ import { html, TemplateResult } from "lit";
 import { customElement } from "lit/decorators.js";
 
 import { ManifestPicker, ManifestPickerProps } from "@fizz/test-utils";
-import { isPlaneType, manifestIsPlaneType } from "@fizz/chartsignal-internal";
-import { SeriesAnalyzer } from "@fizz/series-analyzer";
+import { manifestIsPlaneType, SeriesAnalyzer } from "@fizz/chartsignal-internal";
 
 import { AiSeriesPairMetadataAnalyzer, Model, PlaneModel, modelFromInlineManifest } from "../../lib/index";
 

@@ -49,9 +49,8 @@ import { Memoize } from 'typescript-memoize';
 
 import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, 
   Facet, hasInlineData, Manifest, manifestIsPlaneType, Settings, Topic, Interval, Line, 
-  sampleCorrelation, OrderOfMagnitude, ScaledNumberRounded
-} from "@fizz/chartsignal-internal";
-import type { SeriesAnalysis, SeriesAnalysisOpts, SeriesAnalyzer } from "@fizz/series-analyzer";
+  sampleCorrelation, OrderOfMagnitude, ScaledNumberRounded, SeriesAnalysis, SeriesAnalysisOpts, 
+  SeriesAnalyzer } from "@fizz/chartsignal-internal";
 import { clusterObject, coord, generateClusterAnalysis } from '@fizz/clustering';
 
 import { addArrays, arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
