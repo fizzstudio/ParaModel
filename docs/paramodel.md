@@ -19,7 +19,45 @@ Description
 </th></tr></thead>
 <tbody><tr><td>
 
-[DataPoint](./paramodel.datapoint.md)
+[AiSeriesPairMetadataAnalyzer](./paramodel.aiseriespairmetadataanalyzer.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[BasicSeriesPairMetadataAnalyzer](./paramodel.basicseriespairmetadataanalyzer.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[Datapoint](./paramodel.datapoint.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[DateBox](./paramodel.datebox.md)
+
+
+</td><td>
+
+Box holding a date.
+
+
+</td></tr>
+<tr><td>
+
+[GenericRangeBuilder](./paramodel.genericrangebuilder.md)
 
 
 </td><td>
@@ -37,6 +75,44 @@ Description
 </td></tr>
 <tr><td>
 
+[NumberBox](./paramodel.numberbox.md)
+
+
+</td><td>
+
+Box holding a number.
+
+
+</td></tr>
+<tr><td>
+
+[PlaneDatapoint](./paramodel.planedatapoint.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[PlaneModel](./paramodel.planemodel.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[PlaneSeries](./paramodel.planeseries.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [Series](./paramodel.series.md)
 
 
@@ -46,10 +122,38 @@ Description
 </td></tr>
 <tr><td>
 
-[XYDatapoint](./paramodel.xydatapoint.md)
+[StringBox](./paramodel.stringbox.md)
 
 
 </td><td>
+
+Box holding a string.
+
+
+</td></tr>
+</tbody></table>
+
+## Abstract Classes
+
+<table><thead><tr><th>
+
+Abstract Class
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[Box](./paramodel.box.md)
+
+
+</td><td>
+
+Box holding a series value and its source "raw" value.
 
 
 </td></tr>
@@ -79,7 +183,194 @@ Description
 </td></tr>
 <tr><td>
 
+[convertStandardFormatToDateValue(rfc9557iso8601)](./paramodel.convertstandardformattodatevalue.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
 [enumerate(iterable)](./paramodel.enumerate.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[facetsFromDataset(dataset)](./paramodel.facetsfromdataset.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[groupAdjacent(points, isStepBetween)](./paramodel.groupadjacent.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[modelFromExternalData(data, manifest, datasetIndex)](./paramodel.modelfromexternaldata.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[modelFromInlineData(manifest, datasetIndex)](./paramodel.modelfrominlinedata.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[modelFromInlineManifest(manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker, datasetIndex)](./paramodel.modelfrominlinemanifest.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[planeModelFromExternalData(data, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker, datasetIndex)](./paramodel.planemodelfromexternaldata.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[planeModelFromInlineData(manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker, datasetIndex)](./paramodel.planemodelfrominlinedata.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[utcTimestampToPlainDateTime(utcTimestamp)](./paramodel.utctimestamptoplaindatetime.md)
+
+
+</td><td>
+
+
+</td></tr>
+</tbody></table>
+
+## Interfaces
+
+<table><thead><tr><th>
+
+Interface
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[DatapointsAtValue](./paramodel.datapointsatvalue.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[Intersection](./paramodel.intersection.md)
+
+
+</td><td>
+
+The metadata for an intersection of two lines
+
+
+</td></tr>
+<tr><td>
+
+[TrackingGroup](./paramodel.trackinggroup.md)
+
+
+</td><td>
+
+A group of lines which track each other across an interval of the chart
+
+
+</td></tr>
+</tbody></table>
+
+## Type Aliases
+
+<table><thead><tr><th>
+
+Type Alias
+
+
+</th><th>
+
+Description
+
+
+</th></tr></thead>
+<tbody><tr><td>
+
+[AxisOrientation](./paramodel.axisorientation.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[DateValue](./paramodel.datevalue.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[FacetSignature](./paramodel.facetsignature.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[PairAnalyzerConstructor](./paramodel.pairanalyzerconstructor.md)
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+[SeriesAnalyzerConstructor](./paramodel.seriesanalyzerconstructor.md)
 
 
 </td><td>

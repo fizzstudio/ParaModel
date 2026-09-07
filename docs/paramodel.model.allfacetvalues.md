@@ -45,5 +45,5 @@ string
 </tbody></table>
 **Returns:**
 
-Box&lt;Datatype&gt;\[\] \| null
+[Box](./paramodel.box.md)<!-- -->&lt;Datatype&gt;\[\] \| null
 

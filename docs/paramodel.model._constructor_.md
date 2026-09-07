@@ -9,7 +9,7 @@ Constructs a new instance of the `Model` class
 **Signature:**
 
 ```typescript
-constructor(series: Series[]);
+constructor(series: Series[], manifest: Manifest, datasetIndex?: number);
 ```
 
 ## Parameters
@@ -41,6 +41,36 @@ series
 
 
 </td><td>
+
+
+</td></tr>
+<tr><td>
+
+manifest
+
+
+</td><td>
+
+Manifest
+
+
+</td><td>
+
+
+</td></tr>
+<tr><td>
+
+datasetIndex
+
+
+</td><td>
+
+number
+
+
+</td><td>
+
+_(Optional)_
 
 
 </td></tr>

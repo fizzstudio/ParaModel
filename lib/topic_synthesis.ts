@@ -27,7 +27,7 @@ export function synthesizeChartTopic(model: Model): Topic {
 }
 
 export function synthesizeSeriesTopic(seriesKey: string, model: Model): Topic {
-  if (!model.multi && model.hasExplictChartTopic()) {
+  if (!model.multi && model.hasExplicitChartTopic()) {
     return model.getChartTopic();
   }
   const baseKind = model.family === 'pastry' ? 'proportion' : 'number';

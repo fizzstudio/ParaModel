@@ -14,9 +14,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import * as ss from '@fizz/simple-statistics';
-import { Interval, Line } from "@fizz/chart-classifier-utils";
-import { Breakdancer } from '@fizz/breakdancer';
+import { sampleStandardDeviation, Interval, Line, Breakdancer } from '@fizz/chartsignal-internal';
 
 import { IndexedPointInterval, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from "./pair_analyzer_interface";
 import { BasicLineIntersectionDetection, BasicSeriesPairMetadataAnalyzer, IntersectionProperties } from "./basic_pair_analyzer";
@@ -107,7 +105,7 @@ export class AiLineIntersectionDetection extends BasicLineIntersectionDetection 
         relativeTrajectories.push({
           interval,
           type: 'tracking',
-          degree: 1 - ss.sampleStandardDeviation(
+          degree: 1 - sampleStandardDeviation(
             diffWithoutIntersects
               .slice(seqs[i].start, seqs[i].end)
               .points.map(p => p.y))/yAxis.end

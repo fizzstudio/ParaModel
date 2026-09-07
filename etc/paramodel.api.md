@@ -7,19 +7,19 @@
 import { AllSeriesData } from '@fizz/chartsignal-internal';
 import { ChartType } from '@fizz/chartsignal-internal';
 import { ChartTypeFamily } from '@fizz/chartsignal-internal';
-import { clusterObject } from '@fizz/clustering';
+import { clusterObject } from '@fizz/chartsignal-internal';
 import { Dataset } from '@fizz/chartsignal-internal';
 import { Datatype } from '@fizz/chartsignal-internal';
 import { DisplayType } from '@fizz/chartsignal-internal';
 import { Facet } from '@fizz/chartsignal-internal';
-import { Interval } from '@fizz/chart-classifier-utils';
-import { Line } from '@fizz/chart-classifier-utils';
+import { Interval } from '@fizz/chartsignal-internal';
+import { Line } from '@fizz/chartsignal-internal';
 import { Manifest } from '@fizz/chartsignal-internal';
-import { Point } from '@fizz/chart-classifier-utils';
-import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
-import type { SeriesAnalysis } from '@fizz/series-analyzer';
-import type { SeriesAnalysisOpts } from '@fizz/series-analyzer';
-import type { SeriesAnalyzer } from '@fizz/series-analyzer';
+import { Point } from '@fizz/chartsignal-internal';
+import { ScaledNumberRounded } from '@fizz/chartsignal-internal';
+import { SeriesAnalysis } from '@fizz/chartsignal-internal';
+import { SeriesAnalysisOpts } from '@fizz/chartsignal-internal';
+import { SeriesAnalyzer } from '@fizz/chartsignal-internal';
 import { SeriesManifest } from '@fizz/chartsignal-internal';
 import { Settings } from '@fizz/chartsignal-internal';
 import { Temporal } from 'temporal-polyfill';
@@ -306,7 +306,7 @@ export class Model {
     // (undocumented)
     getSeriesTopic(key: string): Topic | null;
     // (undocumented)
-    hasExplictChartTopic(): boolean;
+    hasExplicitChartTopic(): boolean;
     // (undocumented)
     readonly independentFacetKeys: string[];
     // (undocumented)
@@ -426,7 +426,7 @@ export class PlaneModel extends Model {
     // (undocumented)
     readonly divergingGroups: TrackingGroup[];
     // (undocumented)
-    getAllPointsCorrelation(): number;
+    getAllPointsCorrelation(): any;
     // (undocumented)
     getAxisFacet(orientation: AxisOrientation): Facet | null;
     // (undocumented)

@@ -48,8 +48,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 import { Memoize } from 'typescript-memoize';
 
 import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, 
-  Facet, hasInlineData, Manifest, manifestIsPlaneType, Settings, Topic } from "@fizz/chartsignal-internal";
-import type { SeriesAnalysis, SeriesAnalysisOpts, SeriesAnalyzer } from "@fizz/series-analyzer";
+  Facet, hasInlineData, Manifest, manifestIsPlaneType, Settings, Topic, Interval, Line, 
+  sampleCorrelation, OrderOfMagnitude, ScaledNumberRounded, SeriesAnalysis, SeriesAnalysisOpts, 
+  SeriesAnalyzer, clusterObject, coord, generateClusterAnalysis } from "@fizz/chartsignal-internal";
 
 import { addArrays, arrayEqualsBy, AxisOrientation, enumerate } from "../utils";
 import { FacetSignature } from "../dataframe/dataframe";
@@ -62,11 +63,7 @@ import { Datapoint, PlaneDatapoint } from '../model/datapoint';
 import { PlaneSeries, planeSeriesFromSeriesManifest, Series, seriesFromSeriesManifest } from './series';
 import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
 import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
-import { OrderOfMagnitude, ScaledNumberRounded } from '@fizz/number-scaling-rounding';
-import { Interval, Line } from '@fizz/chart-classifier-utils';
 import { synthesizeChartTopic, synthesizeSeriesTopic } from '../topic_synthesis';
-import { clusterObject, coord, generateClusterAnalysis } from '@fizz/clustering';
-import { sampleCorrelation } from '@fizz/simple-statistics';
 
 // TODO: Remove these
 export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
@@ -210,7 +207,7 @@ export class Model {
   }
 
   @Memoize()
-  public hasExplictChartTopic(): boolean {
+  public hasExplicitChartTopic(): boolean {
     return this._topic !== undefined;
   }
 

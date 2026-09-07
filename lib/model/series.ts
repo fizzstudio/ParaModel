@@ -14,12 +14,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import * as ss from '@fizz/simple-statistics';
 import { Memoize } from "typescript-memoize";
 
-import { Datatype, SeriesManifest, strToId } from "@fizz/chartsignal-internal";
-import { Line } from "@fizz/chart-classifier-utils";
-import { ScaledNumberRounded } from '@fizz/number-scaling-rounding';
+import { Datatype, SeriesManifest, strToId, Line, mean, ScaledNumberRounded } from "@fizz/chartsignal-internal";
 
 import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDatapoint } from "../dataframe/dataframe";
 import { Box, BoxSet, numberLikeDatatype } from "../dataframe/box";
@@ -114,7 +111,7 @@ export class Series {
       return null;
     }
     const datapoints = this.datapoints.slice(startIndex, endIndex);
-    return ss.mean(datapoints.map((point) => point.facetValueAsNumber(key)!));
+    return mean(datapoints.map((point) => point.facetValueAsNumber(key)!));
   }
 
   @Memoize()

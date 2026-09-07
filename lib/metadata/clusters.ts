@@ -14,10 +14,7 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { Line } from '@fizz/chart-classifier-utils';
-import { findSplitIndex } from '@fizz/breakdancer';
-
-import * as stat from '@fizz/simple-statistics';
+import { mean, Line, findSplitIndex } from '@fizz/chartsignal-internal';
 
 const MIN_POINTS = 2;
 const NOISE = -1;
@@ -114,7 +111,7 @@ export class SpatialClusters {
    * to be considered a core point.
    */
   constructor(allSeries: Line[], minPts = MIN_POINTS) {
-    const means = allSeries.map(line => stat.mean(line.points.map(p => p.y)));
+    const means = allSeries.map(line => mean(line.points.map(p => p.y)));
     //allSeries.forEach((line, i) => console.log(`${line.key} mean: ${means[i]}`));
     // Distances of each mean to its nearest neighbor (sorted in descending order)
     const kDists = means.map(mean => kDist(1, mean, means)).toSorted((a, b) => -Math.sign(a - b));
