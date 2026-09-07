@@ -7,7 +7,7 @@
 import { AllSeriesData } from '@fizz/chartsignal-internal';
 import { ChartType } from '@fizz/chartsignal-internal';
 import { ChartTypeFamily } from '@fizz/chartsignal-internal';
-import { clusterObject } from '@fizz/clustering';
+import { clusterObject } from '@fizz/chartsignal-internal';
 import { Dataset } from '@fizz/chartsignal-internal';
 import { Datatype } from '@fizz/chartsignal-internal';
 import { DisplayType } from '@fizz/chartsignal-internal';
