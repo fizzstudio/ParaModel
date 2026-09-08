@@ -19,77 +19,16 @@ import { Point } from '@fizz/chartsignal-internal';
 import { ScaledNumberRounded } from '@fizz/chartsignal-internal';
 import { SeriesAnalysis } from '@fizz/chartsignal-internal';
 import { SeriesAnalysisOpts } from '@fizz/chartsignal-internal';
-import { SeriesAnalyzer } from '@fizz/chartsignal-internal';
 import { SeriesManifest } from '@fizz/chartsignal-internal';
 import { Settings } from '@fizz/chartsignal-internal';
 import { Temporal } from 'temporal-polyfill';
 import { Topic } from '@fizz/chartsignal-internal';
 
 // @public (undocumented)
-export class AiSeriesPairMetadataAnalyzer extends BasicSeriesPairMetadataAnalyzer {
-    constructor(seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number);
-}
-
-// @public (undocumented)
 export function arrayEqualsBy<L, R>(by: (lhs: L, rhs: R) => boolean, lhs: L[], rhs: R[]): boolean;
 
 // @public (undocumented)
 export type AxisOrientation = 'horiz' | 'vert';
-
-// @public (undocumented)
-export class BasicSeriesPairMetadataAnalyzer {
-    constructor(seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number);
-    // (undocumented)
-    clusterOutliers: string[];
-    // (undocumented)
-    clusters: string[][];
-    // (undocumented)
-    convergingGroups: TrackingGroup[];
-    // (undocumented)
-    divergingGroups: TrackingGroup[];
-    // (undocumented)
-    getClusterOutliers(): string[];
-    // (undocumented)
-    getClusters(): string[][];
-    // (undocumented)
-    getConvergingGroups(): TrackingGroup[];
-    // (undocumented)
-    getDivergingGroups(): TrackingGroup[];
-    // (undocumented)
-    getIntersections(): Intersection[];
-    // (undocumented)
-    getOverlaps(): Overlap[];
-    // (undocumented)
-    getPairs(): Pair[];
-    // (undocumented)
-    getParallels(): Parallel[];
-    // (undocumented)
-    getTrackingGroups(): TrackingGroup[];
-    // (undocumented)
-    getTrackingZones(): TrackingZone[];
-    // (undocumented)
-    intersections: Intersection[];
-    // Warning: (ae-forgotten-export) The symbol "Overlap" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    overlaps: Overlap[];
-    // Warning: (ae-forgotten-export) The symbol "Pair" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    pairs: Pair[];
-    // Warning: (ae-forgotten-export) The symbol "Parallel" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    parallels: Parallel[];
-    // (undocumented)
-    trackingGroups: TrackingGroup[];
-    // Warning: (ae-forgotten-export) The symbol "TrackingZone" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    trackingZones: TrackingZone[];
-    // (undocumented)
-    yScale: number;
-}
 
 // @public
 export abstract class Box<T extends Datatype> {
@@ -350,7 +289,7 @@ export function modelFromExternalData(data: AllSeriesData, manifest: Manifest, d
 export function modelFromInlineData(manifest: Manifest, datasetIndex?: number): Model;
 
 // @public (undocumented)
-export function modelFromInlineManifest(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, useWorker?: boolean, datasetIndex?: number): Model;
+export function modelFromInlineManifest(manifest: Manifest, useWorker?: boolean, datasetIndex?: number): Model;
 
 // @public
 export class NumberBox extends Box<'number'> {
@@ -401,7 +340,7 @@ export class PlaneDatapoint extends Datapoint {
 export class PlaneModel extends Model {
     // (undocumented)
     [Symbol.iterator]: () => ArrayIterator<PlaneSeries>;
-    constructor(series: PlaneSeries[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined, _useWorker?: boolean, datasetIndex?: number);
+    constructor(series: PlaneSeries[], manifest: Manifest, _useWorker?: boolean, datasetIndex?: number);
     // (undocumented)
     [i: number]: PlaneSeries;
     // (undocumented)
@@ -457,7 +396,7 @@ export class PlaneModel extends Model {
     // (undocumented)
     protected _seriesLineMap: Record<string, Line>;
     // (undocumented)
-    protected _seriesPairAnalyzer: BasicSeriesPairMetadataAnalyzer | null;
+    protected _seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null;
     // Warning: (ae-forgotten-export) The symbol "SeriesScaledValues" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -470,6 +409,8 @@ export class PlaneModel extends Model {
     protected _summedSeriesAnalysis: Record<string, SeriesAnalysis>;
     // (undocumented)
     readonly trackingGroups: TrackingGroup[];
+    // Warning: (ae-forgotten-export) The symbol "TrackingZone" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
     readonly trackingZones: TrackingZone[];
     // (undocumented)
@@ -479,10 +420,10 @@ export class PlaneModel extends Model {
 }
 
 // @public (undocumented)
-export function planeModelFromExternalData(data: AllSeriesData, manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, useWorker?: boolean, datasetIndex?: number): PlaneModel;
+export function planeModelFromExternalData(data: AllSeriesData, manifest: Manifest, useWorker?: boolean, datasetIndex?: number): PlaneModel;
 
 // @public (undocumented)
-export function planeModelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, useWorker?: boolean, datasetIndex?: number): PlaneModel;
+export function planeModelFromInlineData(manifest: Manifest, useWorker?: boolean, datasetIndex?: number): PlaneModel;
 
 // @public (undocumented)
 export class PlaneSeries extends Series {
@@ -582,7 +523,57 @@ export class Series {
 }
 
 // @public (undocumented)
-export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
+export class SeriesPairMetadataAnalyzer {
+    constructor(seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number);
+    // (undocumented)
+    clusterOutliers: string[];
+    // (undocumented)
+    clusters: string[][];
+    // (undocumented)
+    convergingGroups: TrackingGroup[];
+    // (undocumented)
+    divergingGroups: TrackingGroup[];
+    // (undocumented)
+    getClusterOutliers(): string[];
+    // (undocumented)
+    getClusters(): string[][];
+    // (undocumented)
+    getConvergingGroups(): TrackingGroup[];
+    // (undocumented)
+    getDivergingGroups(): TrackingGroup[];
+    // (undocumented)
+    getIntersections(): Intersection[];
+    // (undocumented)
+    getOverlaps(): Overlap[];
+    // (undocumented)
+    getPairs(): Pair[];
+    // (undocumented)
+    getParallels(): Parallel[];
+    // (undocumented)
+    getTrackingGroups(): TrackingGroup[];
+    // (undocumented)
+    getTrackingZones(): TrackingZone[];
+    // (undocumented)
+    intersections: Intersection[];
+    // Warning: (ae-forgotten-export) The symbol "Overlap" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    overlaps: Overlap[];
+    // Warning: (ae-forgotten-export) The symbol "Pair" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    pairs: Pair[];
+    // Warning: (ae-forgotten-export) The symbol "Parallel" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    parallels: Parallel[];
+    // (undocumented)
+    trackingGroups: TrackingGroup[];
+    // (undocumented)
+    trackingZones: TrackingZone[];
+    // (undocumented)
+    yScale: number;
+}
 
 // @public
 export class StringBox extends Box<'string'> {
