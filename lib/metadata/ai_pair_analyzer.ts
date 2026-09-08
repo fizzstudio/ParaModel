@@ -16,8 +16,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { sampleStandardDeviation, Interval, Line, Breakdancer } from '@fizz/chartsignal-internal';
 
-import { IndexedPointInterval, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from "./pair_analyzer_interface";
-import { BasicLineIntersectionDetection, BasicSeriesPairMetadataAnalyzer, IntersectionProperties } from "./basic_pair_analyzer";
+import { IndexedPointInterval, TrackingGroup, TrackingZone } from "./pair_analyzer_interface";
+import { BasicLineIntersectionDetection, SeriesPairMetadataAnalyzer, IntersectionProperties } from "./basic_pair_analyzer";
 import { TrackingGroupBuilder, TrackingZoneBuilder } from "./tracking";
 import { SpatialClusters } from './clusters';
 
@@ -134,7 +134,7 @@ export class AiLineIntersectionDetection extends BasicLineIntersectionDetection 
   }
 }
 
-export class AiSeriesPairMetadataAnalyzer extends BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyzer {
+export class AiSeriesPairMetadataAnalyzer extends SeriesPairMetadataAnalyzer {
 
   constructor(seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number) {
     super(seriesArray, screenCoordSysSize, yMin, yMax);

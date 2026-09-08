@@ -253,18 +253,3 @@ export interface TrackingZone {
   groups: TrackingGroup[];
   valueInterval: [number, number];
 }
-
-// Analyzer
-
-export interface SeriesPairMetadataAnalyzer {
-  getIntersections(): Intersection[];
-  getOverlaps(): Overlap[];
-  getParallels(): Parallel[];
-  getPairs(): Pair[];
-  getTrackingGroups(): TrackingGroup[];
-  getConvergingGroups(): TrackingGroup[];
-  getDivergingGroups(): TrackingGroup[];
-  getTrackingZones(): TrackingZone[];
-  getClusters(): string[][];
-  getClusterOutliers(): string[];
-}

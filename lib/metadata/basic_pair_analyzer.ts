@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Line, mapn, Point, PointInterval, slopeToAngle } from "@fizz/chartsignal-internal";
-import { Overlap, SeriesPairMetadataAnalyzer, Intersection, Parallel, Pair, TrackingGroup, 
+import { Overlap, Intersection, Parallel, Pair, TrackingGroup, 
   TrackingZone, Angle, Transverse, IndexedPointInterval, IndexedPoint} from "./pair_analyzer_interface";
 
 // Errors
@@ -508,7 +508,7 @@ export class BasicLineIntersectionDetection {
   }
 }
 
-export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyzer {
+export class SeriesPairMetadataAnalyzer {
   intersections: Intersection[];
   overlaps: Overlap[];
   parallels: Parallel[];

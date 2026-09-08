@@ -25,10 +25,8 @@ import { Settings } from '@fizz/chartsignal-internal';
 import { Temporal } from 'temporal-polyfill';
 import { Topic } from '@fizz/chartsignal-internal';
 
-// Warning: (ae-forgotten-export) The symbol "SeriesPairMetadataAnalyzer" needs to be exported by the entry point index.d.ts
-//
 // @public (undocumented)
-export class AiSeriesPairMetadataAnalyzer extends BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyzer {
+export class AiSeriesPairMetadataAnalyzer extends BasicSeriesPairMetadataAnalyzer {
     constructor(seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number);
 }
 
@@ -39,7 +37,7 @@ export function arrayEqualsBy<L, R>(by: (lhs: L, rhs: R) => boolean, lhs: L[], r
 export type AxisOrientation = 'horiz' | 'vert';
 
 // @public (undocumented)
-export class BasicSeriesPairMetadataAnalyzer implements SeriesPairMetadataAnalyzer {
+export class BasicSeriesPairMetadataAnalyzer {
     constructor(seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number);
     // (undocumented)
     clusterOutliers: string[];
@@ -352,7 +350,7 @@ export function modelFromExternalData(data: AllSeriesData, manifest: Manifest, d
 export function modelFromInlineData(manifest: Manifest, datasetIndex?: number): Model;
 
 // @public (undocumented)
-export function modelFromInlineManifest(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean, datasetIndex?: number): Model;
+export function modelFromInlineManifest(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, useWorker?: boolean, datasetIndex?: number): Model;
 
 // @public
 export class NumberBox extends Box<'number'> {
@@ -385,9 +383,6 @@ export class NumberBox extends Box<'number'> {
 }
 
 // @public (undocumented)
-export type PairAnalyzerConstructor = new (seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number) => SeriesPairMetadataAnalyzer;
-
-// @public (undocumented)
 export class PlaneDatapoint extends Datapoint {
     constructor(data: DataFrameRow, seriesKey: string, datapointIndex: number, indepKey: string, depKey: string);
     // (undocumented)
@@ -406,7 +401,7 @@ export class PlaneDatapoint extends Datapoint {
 export class PlaneModel extends Model {
     // (undocumented)
     [Symbol.iterator]: () => ArrayIterator<PlaneSeries>;
-    constructor(series: PlaneSeries[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined, pairAnalyzerConstructor?: PairAnalyzerConstructor, _useWorker?: boolean, datasetIndex?: number);
+    constructor(series: PlaneSeries[], manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor | undefined, _useWorker?: boolean, datasetIndex?: number);
     // (undocumented)
     [i: number]: PlaneSeries;
     // (undocumented)
@@ -462,7 +457,7 @@ export class PlaneModel extends Model {
     // (undocumented)
     protected _seriesLineMap: Record<string, Line>;
     // (undocumented)
-    protected _seriesPairAnalyzer: SeriesPairMetadataAnalyzer | null;
+    protected _seriesPairAnalyzer: BasicSeriesPairMetadataAnalyzer | null;
     // Warning: (ae-forgotten-export) The symbol "SeriesScaledValues" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -484,10 +479,10 @@ export class PlaneModel extends Model {
 }
 
 // @public (undocumented)
-export function planeModelFromExternalData(data: AllSeriesData, manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean, datasetIndex?: number): PlaneModel;
+export function planeModelFromExternalData(data: AllSeriesData, manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, useWorker?: boolean, datasetIndex?: number): PlaneModel;
 
 // @public (undocumented)
-export function planeModelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, pairAnalyzerConstructor?: PairAnalyzerConstructor, useWorker?: boolean, datasetIndex?: number): PlaneModel;
+export function planeModelFromInlineData(manifest: Manifest, seriesAnalyzerConstructor?: SeriesAnalyzerConstructor, useWorker?: boolean, datasetIndex?: number): PlaneModel;
 
 // @public (undocumented)
 export class PlaneSeries extends Series {
