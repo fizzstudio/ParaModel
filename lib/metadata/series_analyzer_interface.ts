@@ -18,7 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
  * A time series statistic which lists a single (y-)value and all the (x-)labels that have that value.
  * @public 
  */
-export interface MultiLabelStat {
+interface MultiLabelStat {
   value: number;
   labels: string[];
 }
