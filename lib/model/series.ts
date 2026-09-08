@@ -216,12 +216,6 @@ export class PlaneSeries extends Series {
     return super.datapointAt(facetKey, value) as PlaneDatapoint | null;
   }
 
-  // TODO: Add This
-  /*@Memoize()
-  public getAnalyzer(): SingleSeriesMetadataAnalyzer {
-    return new BasicSingleSeriesAnalyzer(this.createActualLine());
-  }*/
-
   /*atX(x: ScalarMap[X]): number[] | null {
     return this.xMap.get(x) ?? null;
   }

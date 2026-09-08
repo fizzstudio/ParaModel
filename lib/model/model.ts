@@ -61,13 +61,9 @@ import {
 } from "../metadata/metadata";
 import { Datapoint, PlaneDatapoint } from '../model/datapoint';
 import { PlaneSeries, planeSeriesFromSeriesManifest, Series, seriesFromSeriesManifest } from './series';
-import { Intersection, SeriesPairMetadataAnalyzer, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
-import { BasicSeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
+import { Intersection, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
+import { SeriesPairMetadataAnalyzer } from '../metadata/pair_analyzer';
 import { synthesizeChartTopic, synthesizeSeriesTopic } from '../topic_synthesis';
-
-// TODO: Remove these
-export type SeriesAnalyzerConstructor = new () => SeriesAnalyzer;
-export type PairAnalyzerConstructor = new (seriesArray: Line[], screenCoordSysSize: [number, number], yMin?: number, yMax?: number) => SeriesPairMetadataAnalyzer;
 
 // Like a dictionary for series
 // TODO: In theory, facets should be a set, not an array. Maybe they should be sorted first?
@@ -296,8 +292,6 @@ export class PlaneModel extends Model {
   constructor(
     series: PlaneSeries[],
     manifest: Manifest,
-    private readonly seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-    private readonly pairAnalyzerConstructor: PairAnalyzerConstructor = BasicSeriesPairMetadataAnalyzer,
     protected _useWorker = true,
     datasetIndex = 0
   ) {
@@ -337,7 +331,7 @@ export class PlaneModel extends Model {
       }
       if (this.multi) {
         const yAxisInterval = this.getAxisInterval(this.getAxisOrientation('dependent'))!;
-        this._seriesPairAnalyzer = new this.pairAnalyzerConstructor(
+        this._seriesPairAnalyzer = new SeriesPairMetadataAnalyzer(
           Object.values(this._seriesLineMap),
           [1, 1], //FIXME: get actual screen size
           yAxisInterval.start,
@@ -417,7 +411,7 @@ export class PlaneModel extends Model {
     if (this._seriesAnalysisDone) {
       return;
     }
-    const seriesAnalyzer = new this.seriesAnalyzerConstructor!();
+    const seriesAnalyzer = new SeriesAnalyzer();
     this._seriesAnalysisMap = {};
     const dependentAxis = this.getAxisInterval(this.getAxisOrientation('dependent'))!;
     for (const seriesKey in this._seriesLineMap) {
@@ -499,7 +493,6 @@ export class PlaneModel extends Model {
   public async getSeriesAnalysis(key: string, options?: SeriesAnalysisOpts): Promise<SeriesAnalysis | null> {
     if (
       ['scatter', 'histogram', 'heatmap'].includes(this.type)
-      || !this.seriesAnalyzerConstructor
       || !this.seriesKeys.includes(key)
     ) {
       return null;
@@ -510,10 +503,7 @@ export class PlaneModel extends Model {
 
   @Memoize()
   public async getSummedAnalysis(): Promise<SeriesAnalysis | null> {
-    if (
-      ['scatter', 'histogram', 'heatmap'].includes(this.type)
-      || !this.seriesAnalyzerConstructor
-    ) {
+    if (['scatter', 'histogram', 'heatmap'].includes(this.type)) {
       return null;
     }
     await this.generateSeriesAnalyses();
@@ -592,8 +582,6 @@ export function modelFromExternalData(data: AllSeriesData, manifest: Manifest, d
 
 export function planeModelFromInlineData(
   manifest: Manifest,
-  seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-  pairAnalyzerConstructor?: PairAnalyzerConstructor,
   useWorker?: boolean,
   datasetIndex = 0
 ): PlaneModel {
@@ -609,14 +597,12 @@ export function planeModelFromInlineData(
   const series = dataset.series.map((seriesManifest) =>
     planeSeriesFromSeriesManifest(seriesManifest, facets, independentAxisKey, dependentAxisKey, dataset.representation.subtype)
   );
-  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker, datasetIndex);
+  return new PlaneModel(series, manifest, useWorker, datasetIndex);
 }
 
 export function planeModelFromExternalData(
   data: AllSeriesData,
   manifest: Manifest,
-  seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-  pairAnalyzerConstructor?: PairAnalyzerConstructor,
   useWorker?: boolean,
   datasetIndex = 0
 ): PlaneModel {
@@ -630,13 +616,11 @@ export function planeModelFromExternalData(
     const seriesManifest = dataset.series.filter((s) => s.key === key)[0];
     return new PlaneSeries(seriesManifest, data[key], facets, independentAxisKey, dependentAxisKey, dataset.representation.subtype);
   });
-  return new PlaneModel(series, manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker, datasetIndex);
+  return new PlaneModel(series, manifest, useWorker, datasetIndex);
 }
 
 export function modelFromInlineManifest(
   manifest: Manifest,
-  seriesAnalyzerConstructor?: SeriesAnalyzerConstructor,
-  pairAnalyzerConstructor?: PairAnalyzerConstructor,
   useWorker?: boolean,
   datasetIndex = 0
 ): Model {
@@ -644,7 +628,7 @@ export function modelFromInlineManifest(
     throw new Error('only manifests with inline data can use this function.');
   }
   if (manifestIsPlaneType(manifest)) {
-    return planeModelFromInlineData(manifest, seriesAnalyzerConstructor, pairAnalyzerConstructor, useWorker, datasetIndex);
+    return planeModelFromInlineData(manifest, useWorker, datasetIndex);
   }
   return modelFromInlineData(manifest, datasetIndex);
 }
