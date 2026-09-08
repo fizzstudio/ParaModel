@@ -16,8 +16,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Line, mapn, Point, PointInterval, slopeToAngle, sampleStandardDeviation, Interval, 
   Breakdancer } from "@fizz/chartsignal-internal";
+
 import { Overlap, Intersection, Parallel, Pair, TrackingGroup, 
   TrackingZone, Angle, Transverse, IndexedPointInterval, IndexedPoint} from "./pair_analyzer_interface";
+import { TrackingGroupBuilder, TrackingZoneBuilder } from "./tracking";
+import { SpatialClusters } from './clusters';
 
 // Errors
 
@@ -872,6 +875,18 @@ export class SeriesPairMetadataAnalyzer {
         })
       }
     }
+
+    const { trackingGroups, convergingGroups, divergingGroups } = TrackingGroupBuilder.getGroups(seriesArray, undefined, 0.90);
+    this.trackingGroups = trackingGroups.map((tg) => this.generateTrackingGroupMetadata(tg, "tracking"));
+    this.convergingGroups = convergingGroups.map((tg) => this.generateTrackingGroupMetadata(tg, "converging"));
+    this.divergingGroups = divergingGroups.map((tg) => this.generateTrackingGroupMetadata(tg, "diverging"));
+    if (trackingGroups.length) {
+      this.trackingZones = TrackingZoneBuilder.getZones(trackingGroups)
+        .map((tz) => this.generateTrackingZoneMetadata(tz));
+    }
+    const clusters = new SpatialClusters(seriesArray);
+    this.clusters = clusters.clusters.map((cluster) => cluster.map((line) => line.key!));
+    this.clusterOutliers = clusters.noise.map((line) => line.key!);
   }
 
   getIntersections(): Intersection[] {
@@ -1048,6 +1063,24 @@ export class SeriesPairMetadataAnalyzer {
         topToBottom: seriesNames[leftTopIndex],
         bottomToTop: seriesNames[rightTopIndex],
       }
+    }
+  }
+
+    private generateTrackingGroupMetadata(tg: TrackingGroupBuilder, type: "tracking" | "converging" | "diverging"): TrackingGroup {
+    return {
+      keys: Array.from(tg.keys),
+      outliers: tg.outliers(),
+      valueInterval: tg.interval,
+      averageLine: tg.averageLine().points.map((point) => [point.x, point.y]),
+      differentialLines: tg.computeDifferentialLine(tg.keys),
+      type: type
+    }
+  }
+
+  private generateTrackingZoneMetadata(tz: TrackingZoneBuilder): TrackingZone {
+    return {
+      groups: tz.trackingGroups.map((tg) => this.generateTrackingGroupMetadata(tg, "tracking")),
+      valueInterval: [tz.interval.start, tz.interval.end]
     }
   }
 }

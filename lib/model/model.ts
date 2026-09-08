@@ -62,7 +62,7 @@ import {
 import { Datapoint, PlaneDatapoint } from '../model/datapoint';
 import { PlaneSeries, planeSeriesFromSeriesManifest, Series, seriesFromSeriesManifest } from './series';
 import { Intersection, TrackingGroup, TrackingZone } from '../metadata/pair_analyzer_interface';
-import { SeriesPairMetadataAnalyzer } from '../metadata/basic_pair_analyzer';
+import { SeriesPairMetadataAnalyzer } from '../metadata/pair_analyzer';
 import { synthesizeChartTopic, synthesizeSeriesTopic } from '../topic_synthesis';
 
 // TODO: Remove these

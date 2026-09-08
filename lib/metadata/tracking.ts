@@ -16,7 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Line, type Interval, mapn } from '@fizz/chartsignal-internal';
 
-import { LineIntersectionDetection } from './basic_pair_analyzer';
+import { LineIntersectionDetection } from './pair_analyzer';
 import { IndexedPoint, IndexedPointInterval } from './pair_analyzer_interface';
 
 /**

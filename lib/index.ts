@@ -10,6 +10,5 @@ export { Box, NumberBox, StringBox, DateBox } from './dataframe/box';
 export { type DateValue, convertStandardFormatToDateValue } from './dataframe/date';
 export type { FacetSignature } from './dataframe/dataframe';
 export type { Intersection, TrackingGroup } from './metadata/pair_analyzer_interface';
-export { SeriesPairMetadataAnalyzer as BasicSeriesPairMetadataAnalyzer } from './metadata/basic_pair_analyzer';
-export { AiSeriesPairMetadataAnalyzer } from './metadata/ai_pair_analyzer';
+export { SeriesPairMetadataAnalyzer } from './metadata/pair_analyzer';
 export type { DatapointsAtValue } from './metadata/metadata';
