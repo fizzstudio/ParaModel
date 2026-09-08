@@ -16,7 +16,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Line, type Interval, mapn } from '@fizz/chartsignal-internal';
 
-import { AiLineIntersectionDetection } from './ai_pair_analyzer';
+import { LineIntersectionDetection } from './basic_pair_analyzer';
 import { IndexedPoint, IndexedPointInterval } from './pair_analyzer_interface';
 
 /**
@@ -165,7 +165,7 @@ export class TrackingGroupBuilder {
       end: yRange
     };
     for (const keyPair of keyPairs) {
-      const lid = new AiLineIntersectionDetection(
+      const lid = new LineIntersectionDetection(
         keyMap.get(keyPair[0])!, keyMap.get(keyPair[1])!, 1 / 2);
       const rts = lid.getRelativeTrajectories(diffYAxis);
       // Only keep tracking intervals no smaller than minSize percent of the chart

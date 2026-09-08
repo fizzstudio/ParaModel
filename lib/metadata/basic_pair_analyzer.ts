@@ -1,4 +1,4 @@
-/* ParaModel: Basic Series Pair Analysis
+/* ParaModel: Series Pair Analysis
 Copyright (C) 2025 Fizz Studios
 
 This program is free software: you can redistribute it and/or modify
@@ -14,7 +14,8 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { Line, mapn, Point, PointInterval, slopeToAngle } from "@fizz/chartsignal-internal";
+import { Line, mapn, Point, PointInterval, slopeToAngle, sampleStandardDeviation, Interval, 
+  Breakdancer } from "@fizz/chartsignal-internal";
 import { Overlap, Intersection, Parallel, Pair, TrackingGroup, 
   TrackingZone, Angle, Transverse, IndexedPointInterval, IndexedPoint} from "./pair_analyzer_interface";
 
@@ -118,6 +119,20 @@ type ParallelEnd = 'converge' | 'diverge';
 
 type TransverseKind = 'cross' | 'touch' | 'edge';
 
+/**
+ * Represents the relationship between two series as they traverse
+ * a given x-interval.
+ * @public
+ */
+export interface RelativeTrajectory {
+  /** X-value interval */
+  interval: IndexedPointInterval;
+  /** Mutual relationship */
+  type: 'tracking' | 'converging' | 'diverging';
+  /** Value between 0 and 1 indicating the strength of the relationship */
+  degree: number;
+}
+
 // Helper
 
 /**
@@ -140,7 +155,7 @@ function segAt(series: Line, i: number): IndexedPointInterval {
  * Class for detecting whether time series intersect.
  * @public
  */
-export class BasicLineIntersectionDetection {
+export class LineIntersectionDetection {
   /** Segment pair properties for all segment pairs */
   public allSegPairProps: SegPairProperties[];
   /** Segment pair properties only for intersecting pairs */
@@ -153,6 +168,11 @@ export class BasicLineIntersectionDetection {
   public timeOnTop: number;
   /** Average distance between the lines */
   public averageGap: number;
+  /** 
+   * Absolute differences between corresponding series point values
+   * NB: Contains additional 0-y-value points for any off-record crossings.
+   */
+  public differentialLine: Line;
 
   constructor(protected series1: Line, protected series2: Line, yScale: number) {
     if (series1.length !== series2.length) {
@@ -169,6 +189,7 @@ export class BasicLineIntersectionDetection {
     this.averageGap = (series1.points
       .map((p, i) => Math.abs(p.y - series2.points[i].y))
       .reduce((total, diff) => total + diff, 0))/series1.length;
+    this.differentialLine = this.computeDifferentialLine();
   }
 
   // This is public only for testing
@@ -506,6 +527,93 @@ export class BasicLineIntersectionDetection {
     //   convert the angle from radians to degrees
     return slopeToAngle(tan_of_angle);
   }
+
+  private computeDifferentialLine() {
+    let diff = new Line(this.series1.points.map(
+      (p, i) => ({x: p.x, y: Math.abs(p.y - this.series2.points[i].y)})));  
+    const isectPairs = this.intersectingSegPairs
+      .filter(p => p.intersection !== 'Overlap');
+    const btwnRecIsects = isectPairs
+      .filter(p => !(p.intersection as IntersectionProperties).atRecord)
+      .map(p => (p.intersection as IntersectionProperties).crosspoint);
+    // insert btwnRecIsects into diff   
+    for (const bri of btwnRecIsects) {
+      const i = diff.points.findLastIndex(p => bri.x > p.x);
+      const pts = Array.from(diff.points);
+      pts.splice(i + 1, 0, {x: bri.x, y: 0});
+      diff = new Line(pts);
+    }
+    return diff;
+  }
+
+  /**
+   * 
+   * @param yAxis - Interval from 0 to the y-range of the chart, representing
+   * the minimum and maximum possible y-value differences between records of two series.
+   * @returns 
+   */
+  public getRelativeTrajectories(yAxis: Interval) {
+    const relativeTrajectories: RelativeTrajectory[] = [];
+    const bd = new Breakdancer();
+    const diffWithoutIntersects = new Line(this.differentialLine.points.filter(p1 => this.series1.points.map(p2 => p2.x).includes(p1.x)));
+    const seqs = bd.getSequences(diffWithoutIntersects, {yAxis: yAxis, maxSegments: this.series1.points.length}).bestSeqs;
+    // Project so that all possible series pairs for a chart get
+    // slope classification performed in the same coordinate system.
+    const proj = diffWithoutIntersects.project(undefined, yAxis);
+    const slopeInfo = seqs.map(
+      ({start, end}) => bd.classifySlope(proj.slice(start, end)));
+    for (let i = 0; i < seqs.length; i++) {
+      const si = slopeInfo[i];
+      if (si.classes.length === 2) {
+        if (Math.abs(si.moe!) < Math.abs(si.slope)) {
+          // non-noisy rising or falling
+          const zeroIdx = si.classes.indexOf(0);
+          if (Math.abs(si.angle) < 5) {
+            // treat as stable (tracking)
+            si.classes.splice(1 - zeroIdx, 1);
+          } else {
+            si.classes.splice(zeroIdx, 1);
+          }
+        }
+      }
+      const startIndex = seqs[i].start;
+      const endIndex = seqs[i].end - 1;
+      const interval = {
+        start: { ...diffWithoutIntersects.points[startIndex], index: startIndex},
+        end: { ...diffWithoutIntersects.points[endIndex], index: endIndex}
+      };
+      if (si.classes[0] === 0) {
+        relativeTrajectories.push({
+          interval,
+          type: 'tracking',
+          degree: 1 - sampleStandardDeviation(
+            diffWithoutIntersects
+              .slice(seqs[i].start, seqs[i].end)
+              .points.map(p => p.y))/yAxis.end
+        });
+      } else {
+        relativeTrajectories.push({
+          interval, 
+          type: si.classes[0] === 1 ? 'diverging' : 'converging',
+          degree: Math.abs(si.angle/90)
+        });
+      }
+    }
+
+    const mergedRts: RelativeTrajectory[] = [];
+    if (relativeTrajectories.length) {
+      mergedRts.push(relativeTrajectories[0]);
+      for (let i = 1; i < relativeTrajectories.length; i++) {
+        if (relativeTrajectories[i].type === relativeTrajectories[i - 1].type) {
+          mergedRts.at(-1)!.interval.end = relativeTrajectories[i].interval.end;
+        } else {
+          mergedRts.push(relativeTrajectories[i]);
+        }
+      }
+    }  
+    return mergedRts;
+  }
+
 }
 
 export class SeriesPairMetadataAnalyzer {
@@ -563,7 +671,7 @@ export class SeriesPairMetadataAnalyzer {
         const series = [seriesA.key, seriesB.key] as [string, string];
 
         // Get interaction details between series A and series B
-        const interactions = new BasicLineIntersectionDetection(seriesA, seriesB, this.yScale)
+        const interactions = new LineIntersectionDetection(seriesA, seriesB, this.yScale)
         
         // Get intersection details between series A and series B
         const intersectionsDetails = interactions.intersectingSegPairs;
