@@ -16,13 +16,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
 import { Line, PointInterval } from "@fizz/chartsignal-internal";
 
-import { Overlap, Intersection, Parallel, Pair, TrackingGroup, 
-  TrackingZone, Angle, Transverse, IndexedPointInterval } from "./pair_analyzer_interface";
+import { Overlap, Intersection, Parallel, Pair, TrackingGroup, TrackingZone, Angle, 
+  Transverse } from "./pair_analyzer_interface";
 import { TrackingGroupBuilder, TrackingZoneBuilder } from "./tracking";
 import { SpatialClusters } from './clusters';
 import { Err, Errors, IntersectionProperties, LineIntersectionDetection, SegPairProperties, SegRelationship } from "./line_intersection_detection";
 
-// 
+// Types
 
 interface AngleIncludingOverlapDetails {
   top: string | null,
@@ -42,22 +42,7 @@ type ParallelEnd = 'converge' | 'diverge';
 
 type TransverseKind = 'cross' | 'touch' | 'edge';
 
-/**
- * Represents the relationship between two series as they traverse
- * a given x-interval.
- * @public
- */
-export interface RelativeTrajectory {
-  /** X-value interval */
-  interval: IndexedPointInterval;
-  /** Mutual relationship */
-  type: 'tracking' | 'converging' | 'diverging';
-  /** Value between 0 and 1 indicating the strength of the relationship */
-  degree: number;
-}
-
 // Main
-
 
 export class SeriesPairMetadataAnalyzer {
   intersections: Intersection[];
