@@ -72,11 +72,6 @@ export class Datapoint {
     return dataFrameRowEquals(this.data, other.data) 
       && this.seriesKey === other.seriesKey && this.datapointIndex === other.datapointIndex;
   }
-
-  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
-  public getNavcode(): string {
-    return `datapoint-${this.seriesKey}-${this.datapointIndex}`;
-  }
 }
 
 export class PlaneDatapoint extends Datapoint {
