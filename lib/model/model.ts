@@ -14,37 +14,6 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-// TODO: Transfer to ParaLoader
-// Note that this method will do nothing if the default circumstances aren't met
-/*private setDefaultAxes(): void {
-  const independentAxes = this._axisFacetKeys.filter(
-    (key) => this.dataset.facets[key].variableType === 'independent'
-  );
-  const dependentAxes = this._axisFacetKeys.filter(
-    (key) => this.dataset.facets[key].variableType === 'dependent'
-  );
-  if (
-    independentAxes.length === 1 &&
-    dependentAxes.length === 1 &&
-    (this._horizontalAxisFacetKey === null || this._horizontalAxisFacetKey === independentAxes[0]) &&
-    (this._verticalAxisFacetKey === null || this._verticalAxisFacetKey === dependentAxes[0])
-  ) {
-    // NOTE: One (but not both) of these might be rewriting the axis facet key to the same thing
-    this._horizontalAxisFacetKey = independentAxes[0];
-    this._verticalAxisFacetKey = dependentAxes[0];
-  } else if (
-    this._facetKeys.includes('x')
-    && this._facetKeys.includes('y')
-    && this._displayTypeForFacet['x']?.type === 'axis'
-    && this._displayTypeForFacet['y']?.type === 'axis'
-    && (this._horizontalAxisFacetKey === null || this._horizontalAxisFacetKey === 'x')
-    && (this._verticalAxisFacetKey === null || this._verticalAxisFacetKey === 'y') ) {
-      // NOTE: One (but not both) of these might be rewriting the axis facet key to the same thing
-      this._horizontalAxisFacetKey === 'x';
-      this._verticalAxisFacetKey === 'y';
-  }
-}*/
-
 import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, 
   Facet, hasInlineData, Manifest, manifestIsPlaneType, Settings, Topic, Interval, Line, 
   sampleCorrelation, OrderOfMagnitude, ScaledNumberRounded, SeriesAnalysis, SeriesAnalysisOpts, 
@@ -253,7 +222,7 @@ export class Model {
     return this.series.values()
   }
 }
-const i = [][Symbol.iterator]
+
 export class PlaneModel extends Model {
   declare series: PlaneSeries[];
   [i: number]: PlaneSeries;

@@ -156,12 +156,11 @@ export class Series {
 }
 
 export class PlaneSeries extends Series {
-  /*declare*/[i: number]: PlaneDatapoint;
+  /*declare*/ [i: number]: PlaneDatapoint;
 
   declare datapoints: PlaneDatapoint[];
   declare indepKey: string;
   declare depKey: string;
-  declare type: string;
 
   public intersections: Intersection[] = [];
 
@@ -177,7 +176,6 @@ export class PlaneSeries extends Series {
     type: string
   ) {
     super(manifest, rawData, facetSignatures, indepKey, depKey, type);
-    this.type = type;
     console.assert(this.facetKeys.includes(indepKey), `[ParaModel/Internal]: PlaneSeries constructed with unknown indepKey ${indepKey}`);
     console.assert(this.facetKeys.includes(depKey), `[ParaModel/Internal]: PlaneSeries constructed with unknown depKey ${depKey}`);
     console.assert(numberLikeDatatype(this.getFacetDatatype(depKey)), `[ParaModel/Internal]: PlaneSeries depKey ${depKey} has non-number-like ${this.getFacetDatatype(depKey)} datatype`);
