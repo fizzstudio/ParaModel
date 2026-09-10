@@ -14,8 +14,6 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { Memoize } from "typescript-memoize";
-
 import { Datatype, SeriesManifest, strToId, Line, mean, ScaledNumberRounded } from "@fizz/chartsignal-internal";
 
 import { DataFrame, DataFrameColumn, DataFrameRow, FacetSignature, RawDatapoint } from "../dataframe/dataframe";
@@ -79,23 +77,23 @@ export class Series {
     return new Datapoint(data, seriesKey, datapointIndex);
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public facetBoxes(key: string): DataFrameColumn<Datatype> | null {
     return this._dataframe.facet(key);
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public allFacetValues(key: string): Box<Datatype>[] | null {
     return this._uniqueValuesForFacetMappedByKey[key]?.values ?? null;
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getFacetDatatype(key: string): Datatype | null {
     return this._facetDatatypeMappedByKey[key] ?? null;
   }
 
   // TODO: X and Y datatypes should be number-like
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public createLineFromFacets(xKey: string, yKey: string): Line | null {
     if (!this.facetKeys.includes(xKey) || !this.facetKeys.includes(yKey)) {
       return null;
@@ -114,12 +112,12 @@ export class Series {
     return mean(datapoints.map((point) => point.facetValueAsNumber(key)!));
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public facetAverage(key: string): number | null {
     return this.facetAverageOverInterval(key, 0, this.length);
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getFacetStats(key: string): FacetStats | null {
     const facetDatatype = this._facetDatatypeMappedByKey[key];
     // Checks for both non-existent and non-numerical facets
@@ -148,7 +146,7 @@ export class Series {
   }
 
   // Deprecated
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getLabel(): string {
     if (this.label) {
       return this.label;
@@ -192,12 +190,12 @@ export class PlaneSeries extends Series {
     return new PlaneDatapoint(data, seriesKey, datapointIndex, this.indepKey, this.depKey);
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getActualLine(): Line {
     return this.createLineFromFacets(this.indepKey, this.depKey)!;
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getIndepAverage(): number {
     return this.facetAverage(this.indepKey)!;
   }

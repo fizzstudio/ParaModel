@@ -14,8 +14,6 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
 
-import { Memoize } from "typescript-memoize";
-
 import { Datatype, Point } from "@fizz/chartsignal-internal";
 
 import { DataFrameRow, dataFrameRowEquals } from "../dataframe/dataframe";
@@ -36,7 +34,7 @@ export class Datapoint {
     return this.data[key].value ?? null;
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public facetValueAsNumber(key: string): number | null {
     const box = this.data[key];
     if (box === undefined || !box.isNumberLike()) {
@@ -45,7 +43,7 @@ export class Datapoint {
     return box.asNumber();
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public facetValueNumericized(key: string): number | null {
     const box = this.data[key];
     if (box === undefined) {
@@ -60,7 +58,7 @@ export class Datapoint {
     return this.datapointIndex;
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public convertFacetValuesToXYForLine(xKey: string, yKey: string): Point | null {
     const x = this.facetValueNumericized(xKey);
     const y = this.facetValueNumericized(yKey);
@@ -75,7 +73,7 @@ export class Datapoint {
       && this.seriesKey === other.seriesKey && this.datapointIndex === other.datapointIndex;
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getNavcode(): string {
     return `datapoint-${this.seriesKey}-${this.datapointIndex}`;
   }

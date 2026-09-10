@@ -45,8 +45,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.*/
   }
 }*/
 
-import { Memoize } from 'typescript-memoize';
-
 import { AllSeriesData, CHART_FAMILY_MAP, ChartType, ChartTypeFamily, Dataset, Datatype, DisplayType, 
   Facet, hasInlineData, Manifest, manifestIsPlaneType, Settings, Topic, Interval, Line, 
   sampleCorrelation, OrderOfMagnitude, ScaledNumberRounded, SeriesAnalysis, SeriesAnalysisOpts, 
@@ -164,7 +162,7 @@ export class Model {
     }
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public atKey(key: string): Series | null {
     return this._seriesMap[key] ?? null;
   }
@@ -173,12 +171,12 @@ export class Model {
     return this.atKey(key)?.[index] ?? null;
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public allFacetValues(key: string): Box<Datatype>[] | null {
     return this._uniqueValuesForFacet[key]?.values ?? null;
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getFacetStats(key: string): FacetStats | null {
     const facetDatatype = this._facetDatatypeMap[key];
     // Checks for both non-existent and non-numerical facets
@@ -188,7 +186,7 @@ export class Model {
     return calculateFacetStats(key, this.allPoints);
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getFacetInterval(key: string): Interval | null {
     const facetStats = this.getFacetStats(key);
     if (!facetStats) {
@@ -197,22 +195,22 @@ export class Model {
     return { start: facetStats.min.value, end: facetStats.max.value };
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getFacet(key: string): Facet | null {
     return this._facetMap[key] ?? null;
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public hasExplicitChartTopic(): boolean {
     return this._topic !== undefined;
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getChartTopic(): Topic {
     return this._topic ?? synthesizeChartTopic(this);
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getSeriesTopic(key: string): Topic | null {
     if (this.atKey(key) === null) {
       return null;
@@ -242,7 +240,7 @@ export class Model {
     return next ?? null;
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public atLabel(label: string): Series | null {
     const key = this._seriesLabelMap[label];
     if (key === undefined) {
@@ -443,7 +441,7 @@ export class PlaneModel extends Model {
   }
 
   // @override
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public atKey(key: string): PlaneSeries | null {
     return super.atKey(key) as PlaneSeries | null;
   }
@@ -453,7 +451,7 @@ export class PlaneModel extends Model {
     return super.atKeyAndIndex(key, index) as PlaneDatapoint | null;
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getAxisFacet(orientation: AxisOrientation): Facet | null {
     if (orientation === 'horiz') {
       return this.horizontalAxisKey ? this._facetMap[this.horizontalAxisKey] : null;
@@ -461,7 +459,7 @@ export class PlaneModel extends Model {
     return this.verticalAxisKey ? this._facetMap[this.verticalAxisKey] : null;
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getAxisOrientation(depIndep: 'dependent' | 'independent'): AxisOrientation {
     const facetKey = depIndep === 'dependent' ? this.dependentAxisKey : this.independentAxisKey;
     if (facetKey === this.verticalAxisKey) {
@@ -470,7 +468,7 @@ export class PlaneModel extends Model {
     return 'horiz';
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public getAxisInterval(orientation: AxisOrientation): Interval | null {
     const facetKey = orientation === 'horiz' ? this.horizontalAxisKey! : this.verticalAxisKey!;
     const naturalInterval = this.getFacetInterval(facetKey);
@@ -489,7 +487,7 @@ export class PlaneModel extends Model {
     return { start, end };
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public async getSeriesAnalysis(key: string, options?: SeriesAnalysisOpts): Promise<SeriesAnalysis | null> {
     if (
       ['scatter', 'histogram', 'heatmap'].includes(this.type)
@@ -501,7 +499,7 @@ export class PlaneModel extends Model {
     return this._seriesAnalysisMap![key];
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public async getSummedAnalysis(): Promise<SeriesAnalysis | null> {
     if (['scatter', 'histogram', 'heatmap'].includes(this.type)) {
       return null;
@@ -510,7 +508,7 @@ export class PlaneModel extends Model {
     return this._summedSeriesAnalysis.sum
   }
 
-  @Memoize()
+  // TODO: This method could be memoized. See https://github.com/fizzstudio/ChartSignal-MS/issues/21
   public async getClusteringAnalysis(): Promise<clusterObject[] | null> {
     if (
       !['scatter', 'heatmap'].includes(this.type)

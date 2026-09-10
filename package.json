@@ -71,7 +71,6 @@
   },
   "dependencies": {
     "@fizz/chartsignal-internal": "^0.0.9",
-    "temporal-polyfill": "^0.3.0",
-    "typescript-memoize": "^1.1.1"
+    "temporal-polyfill": "^0.3.0"
   }
 }
